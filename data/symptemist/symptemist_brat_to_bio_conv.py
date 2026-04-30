@@ -16,33 +16,21 @@ def get_prefixes_of_brat_files(input_path):
             yield folder_entry.removesuffix(".txt")
 
 def merge_overlapping_entities(entities):
-    """
-    Fusiona entidades que se solapan en un solo span más grande.
-    Ejemplo: (10, 20, 'SINTOMA') y (15, 25, 'SINTOMA') -> (10, 25, 'SINTOMA')
-    """
     if not entities:
         return []
 
-    # 1. Ordenar por inicio
     entities = sorted(entities, key=lambda x: x[0])
     
     merged = []
-    # Inicializamos con la primera entidad
     curr_start, curr_end, curr_label = entities[0]
 
     for next_start, next_end, next_label in entities[1:]:
-        # 2. Si el inicio de la siguiente es menor al fin de la actual, hay solapamiento
         if next_start < curr_end:
-            # Extendemos el final al punto más lejano de ambos
             curr_end = max(curr_end, next_end)
-            # Nota: Si hubiera etiquetas distintas, podrías decidir cuál priorizar.
-            # Aquí asumimos que todo es SINTOMA o que la primera manda.
         else:
-            # 3. No hay solapamiento, guardamos la actual y pasamos a la siguiente
             merged.append((curr_start, curr_end, curr_label))
             curr_start, curr_end, curr_label = next_start, next_end, next_label
 
-    # Guardar la última que quedó en el bucle
     merged.append((curr_start, curr_end, curr_label))
     return merged
 
@@ -94,7 +82,6 @@ def convert_brat_to_bio(input_path, data_output_file):
         # Get tokenized text
         tokenized_text = tokenizer(whole_text)
 
-        # Estiramos los bordes de cada entidad para que coincidan con los tokens
         snapped_entities = []
         for start, end, label in entities:
             span = tokenized_text.char_span(start, end, label=label, alignment_mode="expand")

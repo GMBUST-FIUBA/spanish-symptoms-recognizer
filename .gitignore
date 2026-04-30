@@ -4,3 +4,5 @@ data/NUBes/all/
 data/symptemist/symptemist_test/
 data/symptemist/symptemist_train/
 train_set.jsonl
+validation_set.jsonl
+test_set.jsonl
