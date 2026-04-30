@@ -1,2 +1,6 @@
-output
-venv
+.python-version
+output/
+data/NUBes/all/
+data/symptemist/symptemist_test/
+data/symptemist/symptemist_train/
+train_set.jsonl
