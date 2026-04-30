@@ -1,4 +1,3 @@
-import argparse
 import json
 import os
 import spacy
@@ -45,7 +44,7 @@ def get_entities_from_ann_file(ann_file_path):
                 label_info = parts[1].split(' ')
                 label = label_info[0]
                 start = int(label_info[1])
-                end = int(label_info[-1]) # Usamos el último índice por si hay fragmentos
+                end = int(label_info[-1])
                 entities.append((start, end, label))
     return entities
 
@@ -86,7 +85,6 @@ def convert_brat_to_bio(input_path, data_output_file):
         for start, end, label in entities:
             span = tokenized_text.char_span(start, end, label=label, alignment_mode="expand")
             if span is not None:
-                # Guardamos las coordenadas YA alineadas
                 snapped_entities.append((span.start_char, span.end_char, label))
             else:
                 print(f"DEBUG: No se pudo alinear el span ({start}, {end}) en {prefix}")
@@ -104,7 +102,7 @@ def convert_brat_to_bio(input_path, data_output_file):
 
             # For every token in each sentence
             for token in sentence:
-                tag = biluo_tags[token.i] # Recuperamos la etiqueta por el índice del token
+                tag = biluo_tags[token.i]
                 
                 # Convert from BILOU format to model accepted format
                 if tag == "O" or tag == "-":
@@ -119,7 +117,6 @@ def convert_brat_to_bio(input_path, data_output_file):
                 sentence_tokens.append(token.text)
                 sentence_tags.append(tag_id)
 
-            # Solo agregamos oraciones que no estén vacías
             if len(sentence_tokens) > 0:
                 new_entry_dict = {
                     "tokens": sentence_tokens,

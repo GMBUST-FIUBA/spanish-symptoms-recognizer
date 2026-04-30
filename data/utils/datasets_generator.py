@@ -2,6 +2,7 @@ import argparse
 import csv
 import os
 
+import nubes.nubes_convert_brat_to_bio
 import symptemist.symptemist_brat_to_bio_conv
 
 TRAINING_DATASETS_PATHS_FILE = "utils/datasets_train_paths.csv"
@@ -11,28 +12,15 @@ TRAINING_DATASET_OUTPUT_NAME = "train_set.jsonl"
 TESTING_DATASET_OUTPUT_NAME = "test_set.jsonl"
 
 TRAINING_DATASET_CONVERTERS = {
-    "SYMPTEMIST" : symptemist.symptemist_brat_to_bio_conv.convert_brat_to_bio
+    "SYMPTEMIST" : symptemist.symptemist_brat_to_bio_conv.convert_brat_to_bio,
+    "NUBES" : nubes.nubes_convert_brat_to_bio.convert_brat_to_bio,
 }
 
 TESTING_DATASET_CONVERTERS = {
     "SYMPTEMIST" : symptemist.symptemist_brat_to_bio_conv.convert_brat_to_bio
 }
 
-if __name__ == "__main__":
-    # Get arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--generate_train_set", action="store_true", help="Write if train set is wanted")
-    parser.add_argument("--generate_test_set", action="store_true", help="Write if test set is wanted")
-    parser.add_argument("--generate_validation_set",
-                        default=None,
-                        help="Number between 0 and 1 to " \
-                        "take a part from training set and use it as a validation set. " \
-                        "Don't add if not wanted")
-    parser.add_argument("--output_folder", default=None, help="Output folder for JSONL files")
-    parser.add_argument("--max_length", default=512, help="Maximum of tokens per sentence")
-
-    args = parser.parse_args()
-
+def create_training_set():
     # Open output training file
     output_file_path = TRAINING_DATASET_OUTPUT_NAME
 
@@ -54,6 +42,7 @@ if __name__ == "__main__":
                 # Use converter
                 TRAINING_DATASET_CONVERTERS[name](path, output_train_set)
 
+def create_testing_set():
     # Open output test file
     output_file_path = TESTING_DATASET_OUTPUT_NAME
 
@@ -74,3 +63,25 @@ if __name__ == "__main__":
 
                 # Use converter
                 TESTING_DATASET_CONVERTERS[name](path, output_test_set)
+
+if __name__ == "__main__":
+    # Get arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--generate_train_set", action="store_true", help="Write if train set is wanted")
+    parser.add_argument("--generate_test_set", action="store_true", help="Write if test set is wanted")
+    parser.add_argument("--generate_validation_set",
+                        default=None,
+                        help="Number between 0 and 1 to " \
+                        "take a part from training set and use it as a validation set. " \
+                        "Don't add if not wanted")
+    parser.add_argument("--output_folder", default=None, help="Output folder for JSONL files")
+    parser.add_argument("--max_length", default=512, help="Maximum of tokens per sentence")
+
+    args = parser.parse_args()
+
+    # Create training set
+    create_training_set()
+
+    # Create testing set
+    create_testing_set()
+    

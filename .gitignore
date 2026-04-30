@@ -1,6 +1,7 @@
 .python-version
 output/
-data/NUBes/all/
+data/cwlc/all/
+data/nubes/all/
 data/symptemist/symptemist_test/
 data/symptemist/symptemist_train/
 train_set.jsonl
