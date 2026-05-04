@@ -7,3 +7,5 @@ data/symptemist/symptemist_train/
 train_set.jsonl
 validation_set.jsonl
 test_set.jsonl
+data/analysis
+base_model

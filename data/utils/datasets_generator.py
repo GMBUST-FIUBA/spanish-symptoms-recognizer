@@ -8,7 +8,9 @@ import symptemist.symptemist_brat_to_bio_conv
 TRAINING_DATASETS_PATHS_FILE = "utils/datasets_train_paths.csv"
 TESTING_DATASETS_PATHS_FILE = "utils/datasets_test_paths.csv"
 
+TRAINING_TEMP_OUTPUT_NAME = "temp_train_set.jsonl"
 TRAINING_DATASET_OUTPUT_NAME = "train_set.jsonl"
+VALIDATION_DATASET_OUTPUT_NAME = "validation_set.jsonl"
 TESTING_DATASET_OUTPUT_NAME = "test_set.jsonl"
 
 TRAINING_DATASET_CONVERTERS = {
@@ -22,25 +24,32 @@ TESTING_DATASET_CONVERTERS = {
 
 def create_training_set():
     # Open output training file
-    output_file_path = TRAINING_DATASET_OUTPUT_NAME
+    output_train_file_path = TRAINING_DATASET_OUTPUT_NAME
+    output_validation_file_path = VALIDATION_DATASET_OUTPUT_NAME
 
     if args.output_folder is not None:
-        output_file_path = os.path.join(args.output_folder, output_file_path)
+        output_train_file_path = os.path.join(args.output_folder, output_train_file_path)
+        output_validation_file_path = os.path.join(args.output_folder, output_validation_file_path)
 
-    with open(output_file_path, "w") as output_train_set:
+    # Open train file
+    with open(output_train_file_path, "w") as output_train_set:
 
-        # Open training datasets file
-        with open(TRAINING_DATASETS_PATHS_FILE, mode="r", encoding="utf-8") as training_sets_paths_file:
+        # Open validation file
+        with open(output_validation_file_path, "w") as output_validation_set:
 
-            # Get training datsets paths
-            training_datasets_paths = csv.reader(training_sets_paths_file)
-            for line in training_datasets_paths:
-                # Get data from line
-                name = line[0]
-                path = line[1]
+            # Open training datasets file
+            with open(TRAINING_DATASETS_PATHS_FILE, mode="r", encoding="utf-8") as training_sets_paths_file:
 
-                # Use converter
-                TRAINING_DATASET_CONVERTERS[name](path, output_train_set)
+                # Get training datsets paths
+                training_datasets_paths = csv.reader(training_sets_paths_file)
+                for line in training_datasets_paths:
+                    # Get data from line
+                    name = line[0]
+                    path = line[1]
+
+                    # Use converter
+                    print(f"Reading from {name} dataset...")
+                    TRAINING_DATASET_CONVERTERS[name](path, output_train_set, output_validation_set)
 
 def create_testing_set():
     # Open output test file
@@ -62,6 +71,7 @@ def create_testing_set():
                 path = line[1]
 
                 # Use converter
+                print(f"Reading from {name} dataset...")
                 TESTING_DATASET_CONVERTERS[name](path, output_test_set)
 
 if __name__ == "__main__":
@@ -80,8 +90,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Create training set
+    print(f"Creating training set")
     create_training_set()
 
     # Create testing set
+    print(f"Creating test set")
     create_testing_set()
     

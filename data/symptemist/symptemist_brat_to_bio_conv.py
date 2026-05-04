@@ -1,9 +1,17 @@
 import json
 import os
+import random
 import spacy
 
-from spacy.training import offsets_to_biluo_tags
+from transformers import AutoTokenizer
 
+tokenizer_path = "/home/gonzalo/Escritorio/Facultad/Trabajo profesional/spanish-symptoms-recognizer/base_model/bsc-bio-ehr-es"
+tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+
+nlp = spacy.load("es_core_news_sm", disable=["ner", "parser", "attribute_ruler", "lemmatizer"])
+nlp.add_pipe("sentencizer")
+
+# Lazy iterator of prefixes
 def get_prefixes_of_brat_files(input_path):
     # Get data input folder
     data_input_folder = input_path
@@ -14,114 +22,117 @@ def get_prefixes_of_brat_files(input_path):
         if folder_entry.endswith(".txt"):
             yield folder_entry.removesuffix(".txt")
 
-def merge_overlapping_entities(entities):
-    if not entities:
-        return []
-
-    entities = sorted(entities, key=lambda x: x[0])
-    
-    merged = []
-    curr_start, curr_end, curr_label = entities[0]
-
-    for next_start, next_end, next_label in entities[1:]:
-        if next_start < curr_end:
-            curr_end = max(curr_end, next_end)
-        else:
-            merged.append((curr_start, curr_end, curr_label))
-            curr_start, curr_end, curr_label = next_start, next_end, next_label
-
-    merged.append((curr_start, curr_end, curr_label))
-    return merged
-
+# Open .ann file and store entities
 def get_entities_from_ann_file(ann_file_path):
     entities = []
-    if not os.path.exists(ann_file_path):
-        return entities
+    if not os.path.exists(ann_file_path): return entities
     with open(ann_file_path, 'r', encoding='utf-8') as f:
         for line in f:
             if line.startswith('T'):
                 parts = line.strip().split('\t')
                 label_info = parts[1].split(' ')
-                label = label_info[0]
-                start = int(label_info[1])
-                end = int(label_info[-1])
-                entities.append((start, end, label))
+                entities.append((int(label_info[1]), int(label_info[-1])))
     return entities
 
+# Merge entities
+def merge_entities(entities):
+    if not entities: return []
+    entities = sorted(entities, key=lambda x: x[0])
+    merged = []
+    curr_start, curr_end = entities[0]
+    for next_start, next_end in entities[1:]:
+        if next_start < curr_end: # Hay solapamiento o anidamiento
+            curr_end = max(curr_end, next_end)
+        else:
+            merged.append((curr_start, curr_end))
+            curr_start, curr_end = next_start, next_end
+    merged.append((curr_start, curr_end))
+    return merged
 
-LABEL_BIO_MAP_FOR_MODEL = {
-    "O" : "O",
-    "B" : "B-SINTOMA",
-    "I" : "I-SINTOMA"
-}
+# Convert file to BIO format for the model
+def convert_brat_to_bio(input_path, primary_data_output_file, secondary_data_output_file=None, data_split=0.3):
+    # Get prefixes
+    prefixes = get_prefixes_of_brat_files(input_path)
 
-def convert_brat_to_bio(input_path, data_output_file):
-    # List data and annotations names
-    files_prefixes_generator = get_prefixes_of_brat_files(input_path)
+    # Iterate over files prefixes
+    for prefix in prefixes:
+        txt_file_path = os.path.join(input_path, prefix + ".txt")
+        ann_file_path = os.path.join(input_path, prefix + ".ann")
 
-    # Get data input folder
-    data_input_folder = input_path
-
-    # Get tokenizer
-    tokenizer = spacy.load("es_core_news_sm")
-
-    # Iterate over file prefixes
-    for prefix in files_prefixes_generator:
-        # Get files
-        ann_file_path = os.path.join(data_input_folder, prefix + ".ann")
-        txt_file_path = os.path.join(data_input_folder, prefix + ".txt")
-
-        # Tokenize text
         with open(txt_file_path, 'r', encoding='utf-8') as f:
-            whole_text = f.read()
+            text = f.read()
 
-        # Get entities from annotation file
         entities = get_entities_from_ann_file(ann_file_path)
+        entities = merge_entities(entities)
 
-        # Get tokenized text
-        tokenized_text = tokenizer(whole_text)
+        # Get document using SpaCy to get the text sentences
+        doc = nlp(text)
 
-        snapped_entities = []
-        for start, end, label in entities:
-            span = tokenized_text.char_span(start, end, label=label, alignment_mode="expand")
-            if span is not None:
-                snapped_entities.append((span.start_char, span.end_char, label))
-            else:
-                print(f"DEBUG: No se pudo alinear el span ({start}, {end}) en {prefix}")
+        # Iterate over document sentences
+        for sent in doc.sents:
 
-        # Merge entities
-        merged_entities = merge_overlapping_entities(snapped_entities)
+            # Check if sentences are empty
+            if not sent.text.strip():
+                continue
 
-        # Get BILOU tags using spacy
-        biluo_tags = offsets_to_biluo_tags(tokenized_text, merged_entities)
+            # Encode sentence
+            encoded_sentence = tokenizer(
+                sent.text,
+                max_length=512,
+                truncation=True,
+                return_offsets_mapping=True,
+                add_special_tokens=False
+                )
+            tokens_offsets = encoded_sentence["offset_mapping"]
+            sentence_tokens = [sent.text[s:e] for s, e in tokens_offsets]
 
-        # For each sentence
-        for sentence in tokenized_text.sents:
-            sentence_tokens = []
             sentence_tags = []
 
-            # For every token in each sentence
-            for token in sentence:
-                tag = biluo_tags[token.i]
+            # Iterate over all tokens
+            sent_start_idx = sent.start_char
+            for i, (start, end) in enumerate(tokens_offsets):
+                if start == end:
+                    sentence_tags.append("O") 
+                    continue
                 
-                # Convert from BILOU format to model accepted format
-                if tag == "O" or tag == "-":
-                    tag_id = LABEL_BIO_MAP_FOR_MODEL["O"]
-                elif tag.startswith("B-") or tag.startswith("U-"):
-                    tag_id = LABEL_BIO_MAP_FOR_MODEL["B"]
-                elif tag.startswith("I-") or tag.startswith("L-"):
-                    tag_id = LABEL_BIO_MAP_FOR_MODEL["I"]
+                token_txt_start = start + sent_start_idx
+                token_txt_end = end + sent_start_idx
+                
+                tag = "O"
+                for entity_start, entity_end in entities:
+                    # If token overlaps with entity
+                    if token_txt_start < entity_end and token_txt_end > entity_start:
+                        # If entity starts on token start
+                        if token_txt_start == entity_start:
+                            tag = "B-SINTOMA"
+                        else:
+                            tag = "I-SINTOMA"
+                        break
+
+                sentence_tags.append(tag)
+
+            # Just to check if there are wrongly annotated beginnings
+            for j in range(len(sentence_tags)):
+                if sentence_tags[j] == "I-SINTOMA":
+                    if j == 0 or sentence_tags[j-1] == "O":
+                        sentence_tags[j] = "B-SINTOMA"
+
+
+            # Take out elements that make noise
+            final_tokens = []
+            final_tags = []
+            
+            for token, tag in zip(sentence_tokens, sentence_tags):
+                if token.strip():
+                    final_tokens.append(token)
+                    final_tags.append(tag)
+
+            if len(final_tokens) > 0:
+                # Prepare data for storage
+                record = {"tokens": final_tokens, "ner_tags": final_tags}
+
+                # Select output
+                if secondary_data_output_file is None or random.random() > data_split:
+                    primary_data_output_file.write(json.dumps(record, ensure_ascii=False) + '\n')
                 else:
-                    tag_id = LABEL_BIO_MAP_FOR_MODEL["O"]
-
-                sentence_tokens.append(token.text)
-                sentence_tags.append(tag_id)
-
-            if len(sentence_tokens) > 0:
-                new_entry_dict = {
-                    "tokens": sentence_tokens,
-                    "ner_tags": sentence_tags
-                }
-
-                json_record = json.dumps(new_entry_dict, ensure_ascii=False)
-                data_output_file.write(json_record + '\n')
+                    secondary_data_output_file.write(json.dumps(record, ensure_ascii=False) + '\n')
