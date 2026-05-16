@@ -9,6 +9,6 @@ Based on the model developed by the Barcelona Supercomputing Center (BSC) named 
 The model was trained using the following datasets:
 
 - [SympTEMIST Corpus](https://zenodo.org/records/10635215)
-- IN THE FUTURE: [Chilean Waiting List](https://zenodo.org/records/7555181)
+- IN PROGRESS: [Chilean Waiting List](https://zenodo.org/records/7555181)
 - IN THE FUTURE: [eHealth-KD v2](https://zenodo.org/records/3696792)
 - IN THE FUTURE: [NUBes](https://github.com/Vicomtech/NUBes-negation-uncertainty-biomedical-corpus)
