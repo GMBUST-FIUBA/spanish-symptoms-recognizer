@@ -1,28 +1,26 @@
-from transformers import AutoTokenizer, AutoModel
+from pathlib import Path
 from math import inf
 from scipy.spatial import distance
 
+import os
 import torch
-
-# Embeddings generator
-LOCAL_MODEL_PATH = "../output/model"
 
 # Codes batch size
 HPO_CODES_BATCH_SIZE = 500
 
 # Input file
-INPUT_FILE = "hpo/hpo-tokens.pt"
+CURRENT_DIR = Path(__file__).parent.resolve()
+INPUT_FILE_RELATIVE_PATH = "hpo/hpo-tokens.pt"
+ABSOLUTE_INPUT_FILE_PATH = os.path.join(CURRENT_DIR, INPUT_FILE_RELATIVE_PATH)
 
 
-def _get_encoded_symptoms_list(symptoms_list: list[str]):
-    tokenizer = AutoTokenizer.from_pretrained(LOCAL_MODEL_PATH)
-    model = AutoModel.from_pretrained(LOCAL_MODEL_PATH)
+def _get_encoded_symptoms_list(symptoms_list: list[str], tokenizer, model):
     encoded_symptoms_list = []
     with torch.no_grad():
         for symptom in symptoms_list:
             print("Nuevo síntoma a codificar")
             tokenized_symptom = tokenizer(symptom, return_tensors="pt", padding=True, truncation=True, max_length=512)
-            model_output = model(**tokenized_symptom)
+            model_output = model.base_model(**tokenized_symptom)
             symptom_embedding = model_output.last_hidden_state[0, 0, :].numpy()
 
             encoded_symptoms_list.append(symptom_embedding)
@@ -35,12 +33,13 @@ def _get_codes_batch(input_file):
 def _calculate_similarity(vector1, vector2):
     return distance.cosine(vector1, vector2)
 
-def get_symptoms_codes(symptoms_list: list[str]):
+# Mapper between symptoms and HPO codes
+def map_symptoms_to_codes(symptoms_list: list[str], tokenizer, model):
     # Encode symptoms
-    encoded_symptoms_list = _get_encoded_symptoms_list(symptoms_list)
+    encoded_symptoms_list = _get_encoded_symptoms_list(symptoms_list, tokenizer, model)
 
     # Open file of embedings
-    with open(INPUT_FILE, "rb") as input_file:
+    with open(ABSOLUTE_INPUT_FILE_PATH, "rb") as input_file:
         # For every codes batch
         hpo_codes_for_symptoms = [("", inf) for _ in range(len(symptoms_list))]
         hpo_codes_batch = _get_codes_batch(input_file)
@@ -57,7 +56,3 @@ def get_symptoms_codes(symptoms_list: list[str]):
                     hpo_codes_for_symptoms[pos] = (hpo_code, vectors_distance)
 
     return [hpo_code for hpo_code, _ in hpo_codes_for_symptoms]
-
-if __name__ == "__main__":
-    hpo_codes_list = get_symptoms_codes(["Escoliosis"])
-    print(f"Código HPO: {hpo_codes_list[0]}")

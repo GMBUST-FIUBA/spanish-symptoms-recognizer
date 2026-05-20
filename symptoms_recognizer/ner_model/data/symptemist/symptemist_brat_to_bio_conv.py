@@ -90,7 +90,7 @@ def convert_brat_to_bio(input_path, primary_data_output_file, secondary_data_out
 
             # Iterate over all tokens
             sent_start_idx = sent.start_char
-            for i, (start, end) in enumerate(tokens_offsets):
+            for start, end in tokens_offsets:
                 if start == end:
                     sentence_tags.append("O") 
                     continue
