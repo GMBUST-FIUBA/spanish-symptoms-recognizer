@@ -1,3 +1,4 @@
+import time
 import csv
 import torch
 import numpy as np
@@ -11,7 +12,7 @@ LOCAL_MODEL_PATH = "../output/model"
 
 ## Files for token generation
 ORIGINAL_TSV_FILE = "hpo/hp-es.babelon.tsv"
-OUTPUT_FILE = "hpo/hpo-tokens.csv"
+OUTPUT_FILE = "hpo/hpo-tokens.pt"
 
 ## Columns
 ORIGINAL_TSV_FILE_TRANSALTION_COLUMN = "translation_value"
@@ -23,7 +24,7 @@ NEW_TOKENS_FILE_TRANSLATION_COLUMN = "tokens"
 
 field_names=[NEW_TOKENS_FILE_HPO_CODE_COLUMN, NEW_TOKENS_FILE_TRANSLATION_COLUMN]
 
-def _generate_tokens_file():
+def generate_tokens_file():
     # Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(LOCAL_MODEL_PATH)
     model = AutoModel.from_pretrained(LOCAL_MODEL_PATH)
@@ -34,13 +35,12 @@ def _generate_tokens_file():
         input_tsv_reader = csv.DictReader(original_data_file, delimiter='\t')
 
         # Open output file
-        with open(OUTPUT_FILE, "w", encoding="utf-8") as output_file:
-            # Get writer
-            output_csv_writer = csv.DictWriter(output_file, fieldnames=field_names, extrasaction="ignore")
-            output_csv_writer.writeheader()
-
+        with open(OUTPUT_FILE, "wb") as output_file:
             # Read all rows
             with torch.no_grad():
+
+                print("Creación de tokens usando torch para guardar")
+                start_time = time.time()
                 for row in input_tsv_reader:
                     # Get translation embedding
                     tokenized_translation = tokenizer(row[ORIGINAL_TSV_FILE_TRANSALTION_COLUMN], return_tensors="pt", padding=True, truncation=True, max_length=512)
@@ -48,12 +48,8 @@ def _generate_tokens_file():
                     sentence_embedding = model_output.last_hidden_state[0, 0, :].numpy()
 
                     # Store row
-                    output_csv_writer.writerow(
-                        {
-                            NEW_TOKENS_FILE_HPO_CODE_COLUMN : row[ORIGINAL_TSV_FILE_HPO_CODE],
-                            NEW_TOKENS_FILE_TRANSLATION_COLUMN : " ".join(map(str, sentence_embedding)),
-                        }
-                    )
+                    torch.save({row[ORIGINAL_TSV_FILE_HPO_CODE]: sentence_embedding}, output_file)
+                print(f"Duración de creación usando torch para guardar: {time.time() - start_time}")
 
 if __name__ == "__main__":
-    _generate_tokens_file()
+    generate_tokens_file()
