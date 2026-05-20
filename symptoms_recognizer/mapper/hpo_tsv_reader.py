@@ -30,6 +30,7 @@ def generate_tokens_file():
     model = AutoModel.from_pretrained(LOCAL_MODEL_PATH)
 
     # Open data file
+    hpo_codes_tokens = {}
     with open(ORIGINAL_TSV_FILE, "r", encoding="utf-8") as original_data_file:
         # Get reader
         input_tsv_reader = csv.DictReader(original_data_file, delimiter='\t')
@@ -47,9 +48,13 @@ def generate_tokens_file():
                     model_output = model(**tokenized_translation)
                     sentence_embedding = model_output.last_hidden_state[0, 0, :].numpy()
 
-                    # Store row
-                    torch.save({row[ORIGINAL_TSV_FILE_HPO_CODE]: sentence_embedding}, output_file)
+                    # Add row
+                    hpo_code = row[ORIGINAL_TSV_FILE_HPO_CODE]
+                    hpo_codes_tokens[hpo_code] = sentence_embedding
+
                 print(f"Duración de creación usando torch para guardar: {time.time() - start_time}")
+
+            torch.save(hpo_codes_tokens, output_file)
 
 if __name__ == "__main__":
     generate_tokens_file()

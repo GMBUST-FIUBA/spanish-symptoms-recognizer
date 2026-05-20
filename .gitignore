@@ -10,3 +10,4 @@ test_set.jsonl
 data/analysis
 base_model
 symptoms_recognizer/mapper/hpo/hpo-tokens.pt
+symptoms_recognizer/mapper/hpo/hp-es.babelon.tsv

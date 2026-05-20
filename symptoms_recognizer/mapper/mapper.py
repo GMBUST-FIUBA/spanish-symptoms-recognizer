@@ -20,6 +20,7 @@ def _get_encoded_symptoms_list(symptoms_list: list[str]):
     encoded_symptoms_list = []
     with torch.no_grad():
         for symptom in symptoms_list:
+            print("Nuevo síntoma a codificar")
             tokenized_symptom = tokenizer(symptom, return_tensors="pt", padding=True, truncation=True, max_length=512)
             model_output = model(**tokenized_symptom)
             symptom_embedding = model_output.last_hidden_state[0, 0, :].numpy()
@@ -29,22 +30,12 @@ def _get_encoded_symptoms_list(symptoms_list: list[str]):
     return encoded_symptoms_list
 
 def _get_codes_batch(input_file):
-    new_batch = {}
-    while True:
-        try:
-            row = torch.load(input_file)
-            new_batch.update(row)
-            if len(new_batch) == HPO_CODES_BATCH_SIZE:
-                yield new_batch
-                new_batch.clear()
-        except:
-            if len(new_batch) > 0:
-                yield new_batch
+    return torch.load(input_file)
 
-def _calculate_distance(vector1, vector2):
+def _calculate_similarity(vector1, vector2):
     return distance.cosine(vector1, vector2)
 
-def get_symptoms(symptoms_list: list[str]):
+def get_symptoms_codes(symptoms_list: list[str]):
     # Encode symptoms
     encoded_symptoms_list = _get_encoded_symptoms_list(symptoms_list)
 
@@ -52,17 +43,21 @@ def get_symptoms(symptoms_list: list[str]):
     with open(INPUT_FILE, "rb") as input_file:
         # For every codes batch
         hpo_codes_for_symptoms = [("", inf) for _ in range(len(symptoms_list))]
-        for hpo_codes_batch in _get_codes_batch(input_file):
+        hpo_codes_batch = _get_codes_batch(input_file)
 
-            # For every code in the batch
-            for hpo_code in hpo_codes_batch:
+        # For every code in the batch
+        for hpo_code in hpo_codes_batch:
 
-                # For every symptom in the list
-                for pos, hpo_info in enumerate(hpo_codes_for_symptoms):
-                    # Calculate distance between vectors
-                    vectors_distance = _calculate_distance(encoded_symptoms_list[pos], hpo_codes_batch[hpo_code])
-                    # Compare with old distance
-                    if hpo_info[1] > vectors_distance:
-                        hpo_codes_for_symptoms[pos] = (hpo_code, vectors_distance)
+            # For every symptom in the list
+            for pos, hpo_info in enumerate(hpo_codes_for_symptoms):
+                # Calculate distance between vectors
+                vectors_distance = _calculate_similarity(encoded_symptoms_list[pos], hpo_codes_batch[hpo_code])
+                # Compare with old distance
+                if hpo_info[1] > vectors_distance:
+                    hpo_codes_for_symptoms[pos] = (hpo_code, vectors_distance)
 
     return [hpo_code for hpo_code, _ in hpo_codes_for_symptoms]
+
+if __name__ == "__main__":
+    hpo_codes_list = get_symptoms_codes(["Escoliosis"])
+    print(f"Código HPO: {hpo_codes_list[0]}")
