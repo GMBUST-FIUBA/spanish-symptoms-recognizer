@@ -9,3 +9,4 @@ validation_set.jsonl
 test_set.jsonl
 data/analysis
 base_model
+symptoms_recognizer/mapper/hpo/hpo-tokens.pt
