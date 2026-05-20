@@ -1,12 +1,18 @@
 from transformers import AutoTokenizer, AutoModel
 from math import inf
+from scipy.spatial import distance
 
 import torch
 
 # Embeddings generator
-## Local path
-LOCAL_TOKENIZER_PATH = "../base_model/embedding/roberta-base-biomedical-clinical-es"
 LOCAL_MODEL_PATH = "../output/model"
+
+# Codes batch size
+HPO_CODES_BATCH_SIZE = 500
+
+# Input file
+INPUT_FILE = "hpo/hpo-tokens.pt"
+
 
 def _get_encoded_symptoms_list(symptoms_list: list[str]):
     tokenizer = AutoTokenizer.from_pretrained(LOCAL_MODEL_PATH)
@@ -22,29 +28,41 @@ def _get_encoded_symptoms_list(symptoms_list: list[str]):
     
     return encoded_symptoms_list
 
-def get_codes_batch():
-    raise Exception("TODO: HPO batches generator")
+def _get_codes_batch(input_file):
+    new_batch = {}
+    while True:
+        try:
+            row = torch.load(input_file)
+            new_batch.update(row)
+            if len(new_batch) == HPO_CODES_BATCH_SIZE:
+                yield new_batch
+                new_batch.clear()
+        except:
+            if len(new_batch) > 0:
+                yield new_batch
 
-def calculate_distance(vector1, vector2):
-    return 0
+def _calculate_distance(vector1, vector2):
+    return distance.cosine(vector1, vector2)
 
 def get_symptoms(symptoms_list: list[str]):
     # Encode symptoms
     encoded_symptoms_list = _get_encoded_symptoms_list(symptoms_list)
 
-    # For every codes batch
-    hpo_codes_for_symptoms = [("", inf) for _ in range(len(symptoms_list))]
-    for hpo_codes_batch in get_codes_batch():
+    # Open file of embedings
+    with open(INPUT_FILE, "rb") as input_file:
+        # For every codes batch
+        hpo_codes_for_symptoms = [("", inf) for _ in range(len(symptoms_list))]
+        for hpo_codes_batch in _get_codes_batch(input_file):
 
-        # For every code in the batch
-        for hpo_code in hpo_codes_batch:
+            # For every code in the batch
+            for hpo_code in hpo_codes_batch:
 
-            # For every symptom in the list
-            for pos, hpo_info in enumerate(hpo_codes_for_symptoms):
-                # Calculate distance between vectors
-                vectors_distance = calculate_distance(encoded_symptoms_list[pos], hpo_codes_batch[hpo_code])
-                # Compare with old distance
-                if hpo_info[1] > vectors_distance:
-                    hpo_codes_for_symptoms[pos] = (hpo_code, vectors_distance)
+                # For every symptom in the list
+                for pos, hpo_info in enumerate(hpo_codes_for_symptoms):
+                    # Calculate distance between vectors
+                    vectors_distance = _calculate_distance(encoded_symptoms_list[pos], hpo_codes_batch[hpo_code])
+                    # Compare with old distance
+                    if hpo_info[1] > vectors_distance:
+                        hpo_codes_for_symptoms[pos] = (hpo_code, vectors_distance)
 
     return [hpo_code for hpo_code, _ in hpo_codes_for_symptoms]
