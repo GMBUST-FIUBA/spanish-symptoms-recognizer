@@ -1,9 +1,9 @@
 .python-version
 output/
-symptoms_recognizer/data/cwlc/all/
-symptoms_recognizer/data/nubes/all/
-symptoms_recognizer/data/symptemist/symptemist_test/
-symptoms_recognizer/data/symptemist/symptemist_train/
+symptoms_recognizer/ner_model/data/cwlc/all/
+symptoms_recognizer/ner_model/data/nubes/all/
+symptoms_recognizer/ner_model/data/symptemist/symptemist_test/
+symptoms_recognizer/ner_model/data/symptemist/symptemist_train/
 train_set.jsonl
 validation_set.jsonl
 test_set.jsonl

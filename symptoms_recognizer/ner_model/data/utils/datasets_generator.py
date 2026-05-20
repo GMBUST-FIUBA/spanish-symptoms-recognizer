@@ -2,9 +2,9 @@ import argparse
 import csv
 import os
 
-import nubes.nubes_convert_brat_to_bio
-import symptemist.symptemist_brat_to_bio_conv
-import cwlc.cwlc_brat_to_bio_conv
+import symptoms_recognizer.ner_model.data.nubes.nubes_convert_brat_to_bio
+import symptoms_recognizer.ner_model.data.symptemist.symptemist_brat_to_bio_conv
+import symptoms_recognizer.ner_model.data.cwlc.cwlc_brat_to_bio_conv
 
 TRAINING_DATASETS_PATHS_FILE = "utils/datasets_train_paths.csv"
 TESTING_DATASETS_PATHS_FILE = "utils/datasets_test_paths.csv"
@@ -15,13 +15,13 @@ VALIDATION_DATASET_OUTPUT_NAME = "validation_set.jsonl"
 TESTING_DATASET_OUTPUT_NAME = "test_set.jsonl"
 
 TRAINING_DATASET_CONVERTERS = {
-    "SYMPTEMIST" : symptemist.symptemist_brat_to_bio_conv.convert_brat_to_bio,
-    "NUBES" : nubes.nubes_convert_brat_to_bio.convert_brat_to_bio,
-    "CWLC" : cwlc.cwlc_brat_to_bio_conv.convert_brat_to_bio
+    "SYMPTEMIST" : symptoms_recognizer.ner_model.data.symptemist.symptemist_brat_to_bio_conv.convert_brat_to_bio,
+    "NUBES" : symptoms_recognizer.ner_model.data.nubes.nubes_convert_brat_to_bio.convert_brat_to_bio,
+    "CWLC" : symptoms_recognizer.ner_model.data.cwlc.cwlc_brat_to_bio_conv.convert_brat_to_bio
 }
 
 TESTING_DATASET_CONVERTERS = {
-    "SYMPTEMIST" : symptemist.symptemist_brat_to_bio_conv.convert_brat_to_bio
+    "SYMPTEMIST" : symptoms_recognizer.ner_model.data.symptemist.symptemist_brat_to_bio_conv.convert_brat_to_bio
 }
 
 def create_training_set():
