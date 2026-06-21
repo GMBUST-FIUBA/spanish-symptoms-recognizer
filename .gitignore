@@ -1,5 +1,6 @@
 .python-version
-output/
+symptoms_recognizer/ner_model/model/output/
+symptoms_recognizer/ner_model/model/v1/
 symptoms_recognizer/ner_model/data/cwlc/all/
 symptoms_recognizer/ner_model/data/nubes/all/
 symptoms_recognizer/ner_model/data/symptemist/symptemist_test/
@@ -11,4 +12,6 @@ data/analysis
 base_model
 symptoms_recognizer/mapper/hpo/hpo-tokens.pt
 symptoms_recognizer/mapper/hpo/hp-es.babelon.tsv
+symptoms_recognizer/ner_model/data/synthetic/input_texts
+symptoms_recognizer/ner_model/data/synthetic/output_data
 __pycache__

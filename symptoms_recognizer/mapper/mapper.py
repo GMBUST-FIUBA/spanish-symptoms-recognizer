@@ -18,7 +18,6 @@ def _get_encoded_symptoms_list(symptoms_list: list[str], tokenizer, model):
     encoded_symptoms_list = []
     with torch.no_grad():
         for symptom in symptoms_list:
-            print("Nuevo síntoma a codificar")
             tokenized_symptom = tokenizer(symptom, return_tensors="pt", padding=True, truncation=True, max_length=512)
             model_output = model.base_model(**tokenized_symptom)
             symptom_embedding = model_output.last_hidden_state[0, 0, :].numpy()
