@@ -3,7 +3,19 @@ from symptoms_recognizer.symptom_recognizer import SymptomRecognizer
 if __name__ == "__main__":
     recognizer = SymptomRecognizer()
     text = "El paciente tiene mareos."
+    expected_results = ["mareos"]
 
+    print("-------------------------------")
+    print(f"En el texto: {text}\n")
+    print(f"Se espera encontrar:")
+    for result in expected_results:
+        print(f" - {result}")
+
+    # Results
     results = recognizer.recognize(text)
 
-    print(f"Resultados: {results}")
+    print("-------------------------------")
+    print(f"Síntomas encontrados:")
+    for result in results:
+        print(f" - {result}")
+    print("-------------------------------")
