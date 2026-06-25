@@ -1,5 +1,5 @@
-from symptoms_recognizer.ner_model.model import get_ner_model, get_tokenizer
-from symptoms_recognizer.mapper.mapper import map_symptoms_to_codes
+from symptoms_recognizer.ner_model.model import get_ner_model, get_ner_tokenizer
+from symptoms_recognizer.mapper.mapper import map_symptoms_to_codes, get_el_model, get_el_tokenizer
 
 from transformers import pipeline
 
@@ -10,8 +10,12 @@ class SymptomRecognizer():
     def __init__(self):
         # Get NER model and tokenizer
         self.ner_model = get_ner_model()
-        self.tokenizer = get_tokenizer()
-        self.ner_model_pipeline = self.__init_pipeline(self.ner_model, self.tokenizer)
+        self.ner_tokenizer = get_ner_tokenizer()
+        self.ner_model_pipeline = self.__init_pipeline(self.ner_model, self.ner_tokenizer)
+
+        # Get EL model and tokenizer
+        self.el_model = get_el_model()
+        self.el_tokenizer = get_el_tokenizer()
 
         # Get NLP model for sentences
         nlp = spacy.load("es_core_news_sm", disable=["ner", "parser", "attribute_ruler", "lemmatizer"])
@@ -54,7 +58,7 @@ class SymptomRecognizer():
         return symptoms_list
 
     def map(self, symptoms_list: list[str]) -> list[str]:
-        return map_symptoms_to_codes(symptoms_list, self.tokenizer, self.ner_model)
+        return map_symptoms_to_codes(symptoms_list, self.el_tokenizer, self.el_model)
 
     def scan(self, text: str, only_results=True) -> list[str]:
         symptoms_list = self.recognize(text)

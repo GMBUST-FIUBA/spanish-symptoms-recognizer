@@ -12,6 +12,7 @@ data/analysis
 base_model
 symptoms_recognizer/mapper/hpo/hpo-tokens.pt
 symptoms_recognizer/mapper/hpo/hp-es.babelon.tsv
+symptoms_recognizer/mapper/semantic_model
 symptoms_recognizer/ner_model/data/synthetic/input_texts
 symptoms_recognizer/ner_model/data/synthetic/output_data
 __pycache__

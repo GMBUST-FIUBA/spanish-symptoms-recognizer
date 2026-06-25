@@ -2,15 +2,20 @@ from symptoms_recognizer.symptom_recognizer import SymptomRecognizer
 
 if __name__ == "__main__":
     recognizer = SymptomRecognizer()
-    expected_results = {"Fiebre" : "HP:0001945", "Náusea" : "HP:0002018"}
+    # Comments about the codes
+    # - Fever: HP:0001945
+    # - Nausea and vomiting: HP:0002017
+    # - Nausea (ideally this one appears): HP:0002018
+    possible_expected_results = {"fiebre" : ["HP:0001945"], "náuseas" : ["HP:0002017", "HP:0002018"]}
 
     print("-------------------------------")
     print(f"Se espera:")
-    for (phenotype, code) in expected_results.items():
-        print(f" - {phenotype} => {code}")
+    for (phenotype, codes) in possible_expected_results.items():
+        joined_codes = ", ".join(codes)
+        print(f" - {phenotype} => {joined_codes}")
 
     # Results
-    results = recognizer.map(expected_results.keys())
+    results = recognizer.map(possible_expected_results.keys())
 
     print("-------------------------------")
     print(f"Resultados:")

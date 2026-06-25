@@ -1,14 +1,15 @@
 import time
 import csv
 import torch
+import torch.nn.functional as F
 import numpy as np
 
 from transformers import AutoTokenizer, AutoModel
 
 # Embeddings generator
 ## Local path
-LOCAL_TOKENIZER_PATH = "../base_model/embedding/roberta-base-biomedical-clinical-es"
-LOCAL_MODEL_PATH = "../output/model"
+LOCAL_TOKENIZER_PATH = "semantic_model"
+LOCAL_MODEL_PATH = "semantic_model"
 
 ## Files for token generation
 ORIGINAL_TSV_FILE = "hpo/hp-es.babelon.tsv"
@@ -25,9 +26,12 @@ NEW_TOKENS_FILE_TRANSLATION_COLUMN = "tokens"
 field_names=[NEW_TOKENS_FILE_HPO_CODE_COLUMN, NEW_TOKENS_FILE_TRANSLATION_COLUMN]
 
 def generate_tokens_file():
+    # Get GPU to use
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     # Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(LOCAL_MODEL_PATH)
-    model = AutoModel.from_pretrained(LOCAL_MODEL_PATH)
+    model = AutoModel.from_pretrained(LOCAL_MODEL_PATH).to(device)
 
     # Open data file
     hpo_codes_tokens = {}
@@ -43,10 +47,30 @@ def generate_tokens_file():
                 print("Creación de tokens usando torch para guardar")
                 start_time = time.time()
                 for row in input_tsv_reader:
-                    # Get translation embedding
-                    tokenized_translation = tokenizer(row[ORIGINAL_TSV_FILE_TRANSALTION_COLUMN], return_tensors="pt", padding=True, truncation=True, max_length=512)
+
+                    # Normalize text
+                    clean_text = row[ORIGINAL_TSV_FILE_TRANSALTION_COLUMN].strip()
+
+                    # Tokenize translation using GPU if available
+                    tokenized_translation = tokenizer(
+                        clean_text,
+                        return_tensors="pt",
+                        padding=True,
+                        truncation=True,
+                        max_length=512
+                    ).to(device)
+
+                    # Embbed tokenized input
                     model_output = model(**tokenized_translation)
-                    sentence_embedding = model_output.last_hidden_state[0, 0, :].numpy()
+                    
+                    # Get CLS token
+                    cls_embedding = model_output.last_hidden_state[0, 0, :]
+                    
+                    # Normalize
+                    normalized_embedding = F.normalize(cls_embedding.unsqueeze(0), p=2, dim=1).squeeze()
+                    
+                    # Convert to numpy and take back to CPU to use it
+                    sentence_embedding = normalized_embedding.cpu().numpy()
 
                     # Add row
                     hpo_code = row[ORIGINAL_TSV_FILE_HPO_CODE]
