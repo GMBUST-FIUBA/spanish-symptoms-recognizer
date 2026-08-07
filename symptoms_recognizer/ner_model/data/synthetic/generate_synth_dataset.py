@@ -132,21 +132,16 @@ POSSIBLE_PASSED_TIME = [
     "3 meses",
 ]
 
-def generate_medical_history_sentences(phenotype_name, sentences_templates, samples):
+POSSIBLE_PATIENT_SEX = [
+    "hombre",
+    "mujer",
+]
+
+def generate_medical_history_sentences(phenotype_name, sentences_templates):
 
     chosen_elements = set()
 
-    for _ in range(samples):
-        # Choose a new element
-        template_number = random.randrange(0, len(sentences_templates))
-        while template_number in chosen_elements:
-            template_number = random.randrange(0, len(sentences_templates))
-        chosen_elements.add(template_number)
-
-        # Get template
-        template_chosen = sentences_templates[template_number]
-        template_sentence = template_chosen[0]
-        template_variables = template_chosen[1]
+    for template_sentence, template_variables in sentences_templates:
 
         # Iterate over variables of sentence
         sentence_variables_values = {}
@@ -170,33 +165,62 @@ def generate_medical_history_sentences(phenotype_name, sentences_templates, samp
             elif "TIEMPO_PASADO" in var:
                 passed_time = random.choice(POSSIBLE_PASSED_TIME)
                 sentence_variables_values[var] = passed_time
+            elif "SEXO_PACIENTE" in var:
+                patient_sex = random.choice(POSSIBLE_PATIENT_SEX)
+                sentence_variables_values[var] = patient_sex
             else:
                 raise Exception("Unknown variable found.")
 
         # Replace values
         yield template_sentence.format(**sentence_variables_values)
 
-def generate_dataset(samples):
+def generate_data_file(file_name, sentences_templates):
     phenotypes = get_phenotypes()
-    sentences_templates = get_sentences_templates()
 
-    if len(sentences_templates) < samples:
-        raise Exception("Not enough templates for uniques sentences")
-
-    with open("./output_data/data.txt", mode="w", encoding="utf-8") as output_file:
+    with open(f"./output_data/{file_name}.txt", mode="w", encoding="utf-8") as output_file:
         for phenotype in phenotypes:
 
-            resultant_texts = generate_medical_history_sentences(phenotype["name"], sentences_templates, samples)
+            resultant_texts = generate_medical_history_sentences(phenotype["name"], sentences_templates)
             for text in resultant_texts:
                 output_file.write(text)
+
+def generate_dataset(test_split, validation_split):
+    sentences_templates = get_sentences_templates()
+
+    # Calculate samples
+    total_templates = len(sentences_templates)
+    test_split_total_samples = int(test_split * total_templates)
+    validation_split_total_samples = int(validation_split * total_templates)
+    data_split_total_samples = total_templates - test_split_total_samples - validation_split_total_samples
+
+    random.shuffle(sentences_templates)
+
+    train_split_start, train_split_end = 0, data_split_total_samples
+    train_sentences_templates = sentences_templates[train_split_start:train_split_end]
+
+    validation_split_start, validation_split_end = train_split_end, train_split_end + validation_split_total_samples
+    validation_sentences_templates = sentences_templates[validation_split_start: validation_split_end]
+
+    test_split_start, test_split_end = validation_split_end, validation_split_end + test_split_total_samples
+    test_sentences_templates = sentences_templates[test_split_start: test_split_end]
+
+    # Generate train data
+    generate_data_file("train_data", train_sentences_templates)
+
+    # Generate validation data
+    generate_data_file("validation_data", validation_sentences_templates)
+
+    # Generate test data
+    generate_data_file("test_data", test_sentences_templates)
 
 
 if __name__ == "__main__":
     # Get arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--samples", default=3, type=int)
+    parser.add_argument("--test", default=0.2, type=float)
+    parser.add_argument("--validation", default=0.1, type=float)
 
     args = parser.parse_args()
 
     # Generate dataset
-    generate_dataset(args.samples)
+    generate_dataset(args.test, args.validation)
