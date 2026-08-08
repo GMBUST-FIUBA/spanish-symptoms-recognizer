@@ -5,7 +5,7 @@ import spacy
 
 from transformers import AutoTokenizer
 
-tokenizer_path = "/home/gonzalo/Escritorio/Facultad/Trabajo profesional/spanish-symptoms-recognizer/base_model/bsc-bio-ehr-es"
+tokenizer_path = "/home/gonzalo/Escritorio/Facultad/Trabajo profesional/spanish-symptoms-recognizer/symptoms_recognizer/ner_model/base_model/bsc-bio-ehr-es"
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
 
 nlp = spacy.load("es_core_news_sm", disable=["ner", "parser", "attribute_ruler", "lemmatizer"])

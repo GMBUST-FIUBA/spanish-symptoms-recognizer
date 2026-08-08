@@ -6,13 +6,13 @@ mkdir -p "$output_dir"
 
 python "$SCRIPT_DIR/ner/run_ner.py" \
   --model_name_or_path base_model/bsc-bio-ehr-es \
-  --train_file data/train_set.jsonl \
-  --validation_file data/validation_set.jsonl \
-  --test_file data/test_set.jsonl \
+  --train_file data/synthetic/output_data/train_set.jsonl \
+  --validation_file data/synthetic/output_data/validation_set.jsonl \
+  --test_file data/synthetic/output_data/test_set.jsonl \
   --do_train \
   --do_eval \
   --do_predict \
-  --per_device_train_batch_size 4 \
+  --per_device_train_batch_size 16 \
   --gradient_accumulation_steps 2 \
   --learning_rate 3e-5 \
   --weight_decay 0.01 \

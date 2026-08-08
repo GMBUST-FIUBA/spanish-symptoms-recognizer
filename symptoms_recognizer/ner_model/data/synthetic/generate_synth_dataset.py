@@ -1,7 +1,12 @@
 import argparse
 import csv
+import json
 import random
 import re
+from transformers import AutoTokenizer
+
+tokenizer_path = "/home/gonzalo/Escritorio/Facultad/Trabajo profesional/spanish-symptoms-recognizer/symptoms_recognizer/ner_model/base_model/bsc-bio-ehr-es"
+tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
 
 def convert_first_char_to_lower_case(text: str):
     return text.replace(text[0], text[0].lower(), 1)
@@ -35,7 +40,7 @@ def get_sentences_templates():
 
             new_template = re.sub(r"<([^>]+)>", change_variable_name, template)
 
-            sentences_templates.append((new_template, internal_variables))
+            sentences_templates.append((new_template.strip(), internal_variables))
 
     return sentences_templates
 
@@ -139,15 +144,16 @@ POSSIBLE_PATIENT_SEX = [
 
 def generate_medical_history_sentences(phenotype_name, sentences_templates):
 
-    chosen_elements = set()
-
     for template_sentence, template_variables in sentences_templates:
 
         # Iterate over variables of sentence
         sentence_variables_values = {}
+        inserted_phenotype = None
+
         for var in template_variables:
             if "FENOTIPO" in var:
-                sentence_variables_values[var] = convert_first_char_to_lower_case(phenotype_name)
+                inserted_phenotype = convert_first_char_to_lower_case(phenotype_name)
+                sentence_variables_values[var] = inserted_phenotype
             elif "HORA" in var:
                 time = random.choice(POSSIBLE_TIMES)
                 sentence_variables_values[var] = time
@@ -172,15 +178,78 @@ def generate_medical_history_sentences(phenotype_name, sentences_templates):
                 raise Exception("Unknown variable found.")
 
         # Replace values
-        yield template_sentence.format(**sentence_variables_values)
+        generated_text = template_sentence.format(**sentence_variables_values)
+
+        # Get tokens
+        entities = []
+        if inserted_phenotype:
+            for match in re.finditer(re.escape(inserted_phenotype), generated_text):
+                entities.append(match.span())
+
+        encoded = tokenizer(
+            generated_text,
+            max_length=512,
+            truncation=True,
+            return_offsets_mapping=True,
+            add_special_tokens=False
+        )
+        tokens_offsets = encoded["offset_mapping"]
+
+        # Extract tokens
+        sentence_tokens = [generated_text[s:e] for s, e in tokens_offsets]
+        sentence_tags = []
+
+        for start, end in tokens_offsets:
+            if start == end:
+                sentence_tags.append("O") 
+                continue
+            
+            tag = "O"
+            for entity_start, entity_end in entities:
+                # Si hay solapamiento (overlap)
+                if start < entity_end and end > entity_start:
+                    if start == entity_start:
+                        tag = "B-SINTOMA"
+                    else:
+                        tag = "I-SINTOMA"
+                    break
+
+            sentence_tags.append(tag)
+
+        for j in range(len(sentence_tags)):
+            if sentence_tags[j] == "I-SINTOMA":
+                if j == 0 or sentence_tags[j-1] == "O":
+                    sentence_tags[j] = "B-SINTOMA"
+
+        # Filter noise in tokens
+        final_tokens = []
+        final_tags = []
+        
+        for token, tag in zip(sentence_tokens, sentence_tags):
+            if token.strip():
+                final_tokens.append(token)
+                final_tags.append(tag)
+
+        if len(final_tokens) > 0:
+            json_record = {
+                "tokens": final_tokens,
+                "ner_tags": final_tags
+            }
+            yield json.dumps(json_record, ensure_ascii=False) + "\n"
 
 def generate_data_file(file_name, sentences_templates):
     phenotypes = get_phenotypes()
 
-    with open(f"./output_data/{file_name}.txt", mode="w", encoding="utf-8") as output_file:
+    # Data files
+    with open(f"./output_data/{file_name}.jsonl", mode="w", encoding="utf-8") as output_file:
+
+        # Go over phenotypes
         for phenotype in phenotypes:
 
+            # Get sentences and annotations
             resultant_texts = generate_medical_history_sentences(phenotype["name"], sentences_templates)
+
+            # Write lines of data
             for text in resultant_texts:
                 output_file.write(text)
 
@@ -205,13 +274,13 @@ def generate_dataset(test_split, validation_split):
     test_sentences_templates = sentences_templates[test_split_start: test_split_end]
 
     # Generate train data
-    generate_data_file("train_data", train_sentences_templates)
+    generate_data_file("train_set", train_sentences_templates)
 
     # Generate validation data
-    generate_data_file("validation_data", validation_sentences_templates)
+    generate_data_file("validation_set", validation_sentences_templates)
 
     # Generate test data
-    generate_data_file("test_data", test_sentences_templates)
+    generate_data_file("test_set", test_sentences_templates)
 
 
 if __name__ == "__main__":
