@@ -1,7 +1,7 @@
 from symptoms_recognizer.symptom_recognizer import SymptomRecognizer
 
 if __name__ == "__main__":
-    recognizer = SymptomRecognizer()
+    recognizer = SymptomRecognizer(ontology="hpo")
     text = "El paciente tiene mareos."
     expected_results = ["mareos"]
 
