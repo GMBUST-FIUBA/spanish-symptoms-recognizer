@@ -12,7 +12,7 @@ python "$SCRIPT_DIR/ner/run_ner.py" \
   --do_train \
   --do_eval \
   --do_predict \
-  --per_device_train_batch_size 16 \
+  --per_device_train_batch_size 32 \
   --gradient_accumulation_steps 2 \
   --learning_rate 3e-5 \
   --weight_decay 0.01 \
