@@ -12,7 +12,7 @@ python "$SCRIPT_DIR/ner/run_ner.py" \
   --do_train \
   --do_eval \
   --do_predict \
-  --per_device_train_batch_size 32 \
+  --per_device_train_batch_size 80 \
   --gradient_accumulation_steps 2 \
   --learning_rate 3e-5 \
   --weight_decay 0.01 \
@@ -22,6 +22,9 @@ python "$SCRIPT_DIR/ner/run_ner.py" \
   --metric_for_best_model f1 \
   --evaluation_strategy epoch \
   --save_strategy epoch \
+  --save_total_limit 2 \
   --overwrite_output_dir \
   --fp16 True \
+  --dataloader_num_workers 4 \
+  --preprocessing_num_workers 8 \
   --output_dir "$output_dir" 2>&1 | tee "$output_dir/train.log"

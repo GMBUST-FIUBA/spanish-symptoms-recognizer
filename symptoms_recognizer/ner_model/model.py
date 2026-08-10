@@ -6,7 +6,7 @@ import os
 
 # Local model path
 CURRENT_DIR = Path(__file__).parent.resolve()
-LOCAL_MODEL_RELATIVE_PATH = "model/v1"
+LOCAL_MODEL_RELATIVE_PATH = "model/test-synth-prot-1"
 DEFAULT_LOCAL_MODEL_PATH = os.path.join(CURRENT_DIR, LOCAL_MODEL_RELATIVE_PATH)
 
 class PhenotypesDetector:

@@ -4,39 +4,61 @@ import json
 import random
 import re
 
-def convert_first_char_to_lower_case(text: str):
-    return text.replace(text[0], text[0].lower(), 1)
+POSSIBLE_AGE = [
+    "8 meses",
+    "3 años",
+    "5 años",
+    "18 años",
+    "25 años",
+    "32 años",
+    "45 años",
+    "54 años", 
+    "60 años",
+    "72 años",
+    "81 años",
+]
 
-def get_phenotypes():
-    phenotypes = []
-    with open("input_texts/hp-es.babelon.tsv", mode="r", encoding="utf-8") as file:
-        file_reader = csv.DictReader(file, delimiter="\t")
-        next(file_reader) # To avoid the "All" category
+POSSIBLE_BLOOD_PRESSURE = [
+    "110/70 mmHg",
+    "120/80 mmHg",
+    "125/85 mmHg", 
+    "130/80 mmHg",
+    "140/90 mmHg",
+    "150/95 mmHg",
+]
 
-        for row in file_reader:
-            phenotypes.append({
-                "code" : row["subject_id"],
-                "name" : row["translation_value"]
-            })
-    return phenotypes
+POSSIBLE_HEART_RATE = [
+    "60 lpm",
+    "72 lpm",
+    "85 lpm",
+    "90 lpm", 
+    "105 lpm",
+    "110 lpm",
+    "120 lpm",
+]
 
-def get_sentences_templates():
-    sentences_templates = []
-    with open("input_texts/sentences_templates.txt", mode="r", encoding="utf-8") as file:
-        for template in file:
-            total_variables = {}
-            internal_variables = []
+POSSIBLE_TEMPERATURE = [
+    "36.0 °C",
+    "36.5 °C",
+    "37.0 °C",
+    "37.5 °C", 
+    "38.0 °C",
+    "38.5 °C",
+    "39.2 °C"
+]
 
-            def change_variable_name(match):
-                template_tag = match.group(1)
-                total_variables[template_tag] = total_variables.get(template_tag, 0) + 1
-                new_elem_name = f"{template_tag}_{total_variables[template_tag]}"
-                internal_variables.append(new_elem_name)
-                return f"{{{new_elem_name}}}"
+POSSIBLE_OXYGEN_SATURATION = [
+    "92%", "94%", "96%", "98%", "99%", "100%"
+]
 
-            new_template = re.sub(r"<([^>]+)>", change_variable_name, template)
-            sentences_templates.append((new_template.strip(), internal_variables))
-    return sentences_templates
+POSSIBLE_WEIGHT = [
+    "55 kg",
+    "62 kg",
+    "70 kg",
+    "78 kg",
+    "85 kg",
+    "92 kg",
+]
 
 POSSIBLE_TIMES = [
     "00:00",
@@ -136,13 +158,34 @@ POSSIBLE_PATIENT_SEX = [
     "mujer",
 ]
 
-def add_noise_to_text(text, phenotype):
-    PHENOTYPE_PLACEHOLDER = "[[FENOTIPO_PROTEGIDO]]"
+def convert_first_char_to_lower_case(text: str):
+    return text.replace(text[0], text[0].lower(), 1)
 
-    if phenotype:
-        modified_text = text.replace(phenotype, PHENOTYPE_PLACEHOLDER)
-    else:
-        modified_text = text
+def get_phenotypes():
+    phenotypes = []
+    with open("input_texts/hp-es.babelon.tsv", mode="r", encoding="utf-8") as file:
+        file_reader = csv.DictReader(file, delimiter="\t")
+        next(file_reader) # To avoid the "All" category
+
+        for row in file_reader:
+            phenotypes.append({
+                "code" : row["subject_id"],
+                "name" : row["translation_value"]
+            })
+    return phenotypes
+
+TEMPLATES_FILES = [
+    "multple_phenotypes_templates.txt",
+    "no_phenotypes_templates.txt",
+    "single_phenotype_templates.txt",
+]
+
+def add_noise_to_text(text, phenotypes):
+    modified_text = text
+    
+    # Protect phenotypes
+    for i, phenotype in enumerate(phenotypes):
+        modified_text = modified_text.replace(phenotype, f"[[FENOTIPO_PROTEGIDO_{i}]]")
 
     words_replacements = {
         r"\bpaciente\b": ["pte", "pte.", "pac."],
@@ -156,63 +199,66 @@ def add_noise_to_text(text, phenotype):
         r"\bevolución\b": ["ev", "evol"],
     }
 
-    # Replace words for informal terms
-
-    ## For certain types of words
     for word, options in words_replacements.items():
         if random.random() < 0.6: 
             modified_text = re.sub(word, random.choice(options), modified_text, flags=re.IGNORECASE)
 
-    ## Random erasing of articles
     modified_text = re.sub(r"\b(el|la|los|las|un|una)\s+", lambda m: "" if random.random() < 0.3 else m.group(0), modified_text, flags=re.IGNORECASE)
-
-    ## Put random signs
     modified_text = re.sub(r"\s+([.,;:!])", r"\1", modified_text)
     
-    # Restore phenotype
-    if phenotype:
-        texto_final = modified_text.replace(PHENOTYPE_PLACEHOLDER, phenotype)
-    else:
-        texto_final = modified_text
+    # Restore phenotypes
+    for i, phenotype in enumerate(phenotypes):
+        modified_text = modified_text.replace(f"[[FENOTIPO_PROTEGIDO_{i}]]", phenotype)
         
-    return texto_final.strip()
+    return modified_text.strip()
 
-def tokenize_and_tag(text, entity):
-    """
-    Tokeniza por palabras y signos de puntuación, asignando etiquetas BIO.
-    Soporta el caso de oraciones sin entidad (entity = "").
-    """
-    tokens = re.findall(r"[\wáéíóúñÁÉÍÓÚÑüÜ]+|[^\w\s]", text)
+def tokenize_text_for_training(text):
+    return re.findall(r"[\wáéíóúñÁÉÍÓÚÑüÜ]+|[^\w\s]", text)
+
+def tokenize_and_tag(text, phenotypes):
+    tokens = tokenize_text_for_training(text)
     
-    # Si es una oración nula, todos los tokens son "O"
-    if not entity:
+    if not phenotypes:
         return tokens, ["O"] * len(tokens)
-        
-    entity_tokens = re.findall(r"[\wáéíóúñÁÉÍÓÚÑüÜ]+|[^\w\s]", entity)
+
+    phenotypes_tokens = [tokenize_text_for_training(p) for p in phenotypes]
+    phenotypes_tokens.sort(key=len, reverse=True)
+    
     tags = []
     i = 0
     
     while i < len(tokens):
-        if tokens[i:i+len(entity_tokens)] == entity_tokens:
-            tags.append("B-SINTOMA")
-            for _ in range(len(entity_tokens) - 1):
-                tags.append("I-SINTOMA")
-            i += len(entity_tokens)
-        else:
+        matched = False
+        for p_tokens in phenotypes_tokens:
+            if tokens[i:i+len(p_tokens)] == p_tokens:
+                tags.append("B-SINTOMA")
+                for _ in range(len(p_tokens) - 1):
+                    tags.append("I-SINTOMA")
+                i += len(p_tokens)
+                matched = True
+                break
+        
+        if not matched:
             tags.append("O")
             i += 1
             
     return tokens, tags
 
-def generate_medical_history_sentences(phenotype_name, sentences_templates):
+def generate_medical_history_sentences(main_phenotype_name, sentences_templates, all_phenotypes):
     for template_sentence, template_variables in sentences_templates:
         sentence_variables_values = {}
-        inserted_phenotype = ""
+        inserted_phenotypes = []
 
         for var in template_variables:
             if "FENOTIPO" in var:
-                inserted_phenotype = convert_first_char_to_lower_case(phenotype_name)
-                sentence_variables_values[var] = inserted_phenotype
+                if var == "FENOTIPO_1":
+                    pheno = convert_first_char_to_lower_case(main_phenotype_name)
+                else:
+                    random_phenotype = random.choice(all_phenotypes)["name"]
+                    pheno = convert_first_char_to_lower_case(random_phenotype)
+                
+                sentence_variables_values[var] = pheno
+                inserted_phenotypes.append(pheno)
             elif "HORA" in var:
                 sentence_variables_values[var] = random.choice(POSSIBLE_TIMES)
             elif "LUGAR_MEDICO" in var:
@@ -228,14 +274,26 @@ def generate_medical_history_sentences(phenotype_name, sentences_templates):
                 sentence_variables_values[var] = random.choice(POSSIBLE_PASSED_TIME)
             elif "SEXO_PACIENTE" in var:
                 sentence_variables_values[var] = random.choice(POSSIBLE_PATIENT_SEX)
+            elif "EDAD" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_AGE)
+            elif "PRESION_SANGUINEA" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_BLOOD_PRESSURE)
+            elif "FRECUENCIA_CARDIACA" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_HEART_RATE)
+            elif "TEMPERATURA" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_TEMPERATURE)
+            elif "PESO" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_WEIGHT)
+            elif "SATURACION_OXIGENO" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_OXYGEN_SATURATION)
 
         generated_text = template_sentence.format(**sentence_variables_values)
         
         # Add noise of abbreviations, errors, etc. to texts
-        noisy_text = add_noise_to_text(generated_text, inserted_phenotype)
+        noisy_text = add_noise_to_text(generated_text, inserted_phenotypes)
 
         # Get tokens and tags
-        final_tokens, final_tags = tokenize_and_tag(noisy_text, inserted_phenotype)
+        final_tokens, final_tags = tokenize_and_tag(noisy_text, inserted_phenotypes)
 
         if len(final_tokens) > 0:
             json_record = {
@@ -244,41 +302,68 @@ def generate_medical_history_sentences(phenotype_name, sentences_templates):
             }
             yield json.dumps(json_record, ensure_ascii=False) + "\n"
 
-def generate_data_file(file_name, sentences_templates, phenotypes):
+def generate_data_file(file_name, sentences_templates, split_phenotypes, all_phenotypes):
     with open(f"./output_data/{file_name}.jsonl", mode="w", encoding="utf-8") as output_file:
-        for phenotype in phenotypes:
-            resultant_texts = generate_medical_history_sentences(phenotype["name"], sentences_templates)
+        for phenotype in split_phenotypes:
+            resultant_texts = generate_medical_history_sentences(phenotype["name"], sentences_templates, all_phenotypes)
             for text in resultant_texts:
                 output_file.write(text)
 
 def generate_dataset(test_split, validation_split):
-    sentences_templates = get_sentences_templates()
     phenotypes = get_phenotypes()
 
-    # Partition templates
-    random.shuffle(sentences_templates)
-    total_sentences_templates = len(sentences_templates)
-    test_split_total_templates = int(test_split * total_sentences_templates)
-    validation_split_total_templates = int(validation_split * total_sentences_templates)
+    train_templates = []
+    validation_templates = []
+    test_templates = []
 
-    train_templates = sentences_templates[:-(test_split_total_templates + validation_split_total_templates)]
-    validation_templates = sentences_templates[-(test_split_total_templates + validation_split_total_templates):-test_split_total_templates]
-    test_templates = sentences_templates[-test_split_total_templates:]
+    # Go over all templates files
+    for file_name in TEMPLATES_FILES:
+        file_templates = []
+        with open(f"input_texts/{file_name}", mode="r", encoding="utf-8") as file:
+            for template in file:
+                total_variables = {}
+                internal_variables = []
 
-    # Partition phenotypes
+                def change_variable_name(match):
+                    template_tag = match.group(1)
+                    total_variables[template_tag] = total_variables.get(template_tag, 0) + 1
+                    new_elem_name = f"{template_tag}_{total_variables[template_tag]}"
+                    internal_variables.append(new_elem_name)
+                    return f"{{{new_elem_name}}}"
+
+                new_template = re.sub(r"<([^>]+)>", change_variable_name, template)
+                file_templates.append((new_template.strip(), internal_variables))
+
+        # Mix and split between sets
+        random.shuffle(file_templates)
+        total = len(file_templates)
+        test_count = int(test_split * total)
+        val_count = int(validation_split * total)
+
+        train_end = total - (test_count + val_count)
+        val_end = total - test_count
+
+        train_templates.extend(file_templates[:train_end])
+        validation_templates.extend(file_templates[train_end:val_end])
+        test_templates.extend(file_templates[val_end:])
+
+    # Split phenotypes
     random.shuffle(phenotypes)
     total_phenotypes = len(phenotypes)
-    test_split_total_phenotypes = int(test_split * total_phenotypes)
-    validation_split_total_phenotypes = int(validation_split * total_phenotypes)
-    
-    train_phenotypes = phenotypes[:-(test_split_total_phenotypes + validation_split_total_phenotypes)]
-    validation_phenotypes = phenotypes[-(test_split_total_phenotypes + validation_split_total_phenotypes):-test_split_total_phenotypes]
-    test_phenotypes = phenotypes[-test_split_total_phenotypes:]
+    test_count_phenos = int(test_split * total_phenotypes)
+    val_count_phenos = int(validation_split * total_phenotypes)
 
-    # Generate data files
-    generate_data_file("train_set", train_templates, train_phenotypes)
-    generate_data_file("validation_set", validation_templates, validation_phenotypes)
-    generate_data_file("test_set", test_templates, test_phenotypes)
+    train_phenos_end = total_phenotypes - (test_count_phenos + val_count_phenos)
+    val_phenos_end = total_phenotypes - test_count_phenos
+
+    train_phenotypes = phenotypes[:train_phenos_end]
+    validation_phenotypes = phenotypes[train_phenos_end:val_phenos_end]
+    test_phenotypes = phenotypes[val_phenos_end:]
+
+    # Gemerate datasets
+    generate_data_file("train_set", train_templates, train_phenotypes, phenotypes)
+    generate_data_file("validation_set", validation_templates, validation_phenotypes, phenotypes)
+    generate_data_file("test_set", test_templates, test_phenotypes, phenotypes)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
