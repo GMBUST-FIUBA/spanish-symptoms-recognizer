@@ -51,8 +51,8 @@ class PhenotypesRecognizer():
     def map(self, phenotypes_list: list[str]) -> list[str]:
         return self.mapper.map_phenotypes(phenotypes_list)
 
-    def scan(self, text: str, only_results=True) -> list[str]:
+    def scan(self, text: str, only_results=False) -> list[str]:
         symptoms_list = self.recognize(text)
         hpo_codes = self.map(symptoms_list)
 
-        return hpo_codes if only_results else [(symptom, hpo_code) for symptom, hpo_code in zip(symptoms_list, hpo_codes)]
+        return hpo_codes if only_results else [(symptom, hpo_code) for symptom, hpo_code in zip(symptoms_list, hpo_codes) if hpo_code != "None"]

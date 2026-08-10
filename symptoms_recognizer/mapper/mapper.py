@@ -28,6 +28,10 @@ LOCAL_MODEL_RELATIVE_PATH = "semantic_model"
 DEFAULT_LOCAL_MODEL_PATH = os.path.join(CURRENT_DIR, LOCAL_MODEL_RELATIVE_PATH)
 
 
+# Minimun distance between vectors
+MIN_DISTANCE_VECTORS = 0.2
+
+
 class PhenotypeOntologyMapper:
     def __init__(self, model_path = None, tokenizer_path = None, ontology = None, ontology_file_path=None):
         # Get ontology
@@ -74,12 +78,21 @@ class PhenotypeOntologyMapper:
                 # For every symptom in the list
                 for pos, hpo_info in enumerate(hpo_codes_for_phenotypes):
                     # Calculate distance between vectors
-                    vectors_distance = self._calculate_similarity(encoded_phenotypes_list[pos], hpo_codes_batch[hpo_code])
+                    vectors_distance = self._calculate_distance(encoded_phenotypes_list[pos], hpo_codes_batch[hpo_code])
                     # Compare with old distance
                     if hpo_info[1] > vectors_distance:
                         hpo_codes_for_phenotypes[pos] = (hpo_code, vectors_distance)
 
-        return [hpo_code for hpo_code, _ in hpo_codes_for_phenotypes]
+        # Apply similarity minimum
+        phenotypes_mapped = []
+
+        for hpo_code, similarity in hpo_codes_for_phenotypes:
+            if similarity <= MIN_DISTANCE_VECTORS:
+                phenotypes_mapped.append(hpo_code)
+            else:
+                phenotypes_mapped.append("None")
+
+        return phenotypes_mapped
 
     def _get_encoded_phenotypes_list(self, phenotypes_list: list[str]):
         encoded_phenotypes_list = []
@@ -97,5 +110,5 @@ class PhenotypeOntologyMapper:
     def _get_codes_batch(self, input_file):
         return torch.load(input_file, map_location=torch.device('cpu'))
 
-    def _calculate_similarity(self, vector1, vector2):
+    def _calculate_distance(self, vector1, vector2):
         return distance.cosine(vector1, vector2)
