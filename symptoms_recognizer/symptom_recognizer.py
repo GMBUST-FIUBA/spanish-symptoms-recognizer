@@ -55,4 +55,4 @@ class PhenotypesRecognizer():
         symptoms_list = self.recognize(text)
         hpo_codes = self.map(symptoms_list)
 
-        return hpo_codes if only_results else {symptom : hpo_code for symptom, hpo_code in zip(symptoms_list, hpo_codes)}
+        return hpo_codes if only_results else [(symptom, hpo_code) for symptom, hpo_code in zip(symptoms_list, hpo_codes)]

@@ -1,0 +1,106 @@
+HISTORIA CLÍNICA
+
+Fecha: 9 de agosto de 2026
+
+Hora: 23:15
+
+Servicio: Guardia / Emergencias
+1. ANAMNESIS
+
+    Andatos de Filiación:
+
+        Nombre y Apellido: Mariana Gómez
+
+        Edad: 42 años
+
+        Estado Civil: Soltera
+
+        Ocupación: Contadora
+
+        Acompañante: Acompañada por un familiar (hermano)
+
+    Motivo de Consulta: Dolor de cabeza, vómitos, mareos y desorientación.
+
+    Enfermedad Actual:
+    Paciente de 42 años sin antecedentes de jerarquía refiere inicio brusco de cefalea de gran intensidad (8/10 en escala analógica visual) de localización holocraneana, con sensación pulsátil, comenzado aproximadamente a las 19:30 hs. El cuadro se acompañó de dos episodios de vómitos alimentarios en proyectil y mareos de tipo rotatorio que dificultan la bipedestación.
+
+    El familiar refiere que al regresar del trabajo la encontró confundida, con dificultad para recordar el transcurso de la tarde (amnesia anterógrada respecto a los eventos de las últimas 4 horas) y haciendo preguntas reiterativas. No refiere antecedente de traumatismo craneal previo registrado por el acompañante, aunque la paciente no puede precisarlo con certeza.
+
+    Antecedentes Personales:
+
+        Patológicos: Migraña ocasional sin aura. HTA no diagnosticada (se constatan valores elevados al ingreso).
+
+        Quirúrgicos: No refiere.
+
+        Alergias: No refiere alergias medicamentosas conocidas.
+
+        Medicación habitual: Anticonceptivos orales (levonorgestrel/etinilestradiol).
+
+2. EXAMEN FÍSICO
+
+    Signos Vitales:
+
+        Tensión Arterial (TA): 155/95 mmHg
+
+        Frecuencia Cardíaca (FC): 88 lpm
+
+        Frecuencia Respiratoria (FR): 18 rpm
+
+        Temperatura: 36.6 °C
+
+        Saturación O₂: 98% (aire ambiente)
+
+    Examen General:
+    Paciente en decúbito indiferente, con facies pálida y signos leves de deshidratación en mucosas debido a los vómitos. Normotérmica, eupneica.
+
+    Examen Neuropsiquiátrico:
+
+        Nivel de Conciencia: Alerta. Escala de Coma de Glasgow: 14/15 (Ocular 4, Verbal 4, Motor 6) por desorientación temporoespacial.
+
+        Funciones Cognitivas superiores: Desorientada en tiempo y espacio, orientada en persona. Amnesia retrógrada reciente y anterógrada explícita.
+
+        Pares Craneales: Pupilas isocóricas, normorreactivas a la luz. Conserva movimientos oculomotorres sin nistagmo evidente. Sin asimetría facial.
+
+        Sostén y Motor: Fuerza conservada 5/5 en las cuatro extremidades. Reflejos osteotendinosos (ROT) ++/++++ simétricos.
+
+        Sensibilidad: Conservada en tronco y miembros.
+
+        Coordinación y Marcha: Romberg dudoso por mareos, ataxia leve en la prueba de marcha; no es posible realizar evaluación completa por náuseas al ponerse de pie.
+
+        Signos Meníngeos: Rigidez de nuca ausente. Signos de Kernig y Brudzinski negativos.
+
+3. IMPRESIÓN DIAGNÓSTICA (Diagnósticos Diferenciales)
+
+    Amnesia Global Transitoria (AGT): Compatible con la presentación brusca, pérdida de memoria reciente y preservación de la identidad, aunque la intensidad de la cefalea y vómitos requiere descartar etiología orgánica urgente.
+
+    ACV Isquémico/Hemorágico de fosa posterior o territorio vertebrobasilar: A descartar dado el inicio súbito con vértigo/mareo, vómitos y cefalea en paciente con HTA al ingreso y uso de anticonceptivos.
+
+    Síndrome Confusional Agudo secundario a Traumatismo Encéfalo-Cranear (TEC) no presenciado: A evaluar por fallo amnésico.
+
+    Crisis Migrañosa Acompañada o Acompañamiento Migrañoso: Ante el antecedente de migraña.
+
+4. PLAN DE INDICACIONES Y MANEJO INICIAL
+
+    Internación en Guardia Observación / Unidad de Cuidados Intermedios.
+
+    Reposo absoluto en posición semi-Fowler (30°).
+
+    Vía periférica permeable y Solución Fisiológica 0.9% 1000 ml a 21 gotas/min.
+
+    Estudios Complementarios Urgentes:
+
+        Tomografía Computada de Cerebro (TAC) sin contraste: Para descartar proceso expansivo, hemorragia subaracnoidea o ACV agudo.
+
+        Laboratorio completo: Hemograma, ionograma, función renal, hepatograma, coagulograma y glucemia digital.
+
+        Electrocardiograma (ECG): Evaluación de ritmo cardíaco.
+
+    Farmacoterapia:
+
+        Ondansetrón 8 mg EV en bolo (antiemético).
+
+        Ranitidina o Omeprazol 40 mg EV.
+
+        Dexketoprofeno / Dipirona EV según intensidad del dolor (monitoreando TA).
+
+    Reevaluación neurológica frecuente (cada 30-60 minutos).
