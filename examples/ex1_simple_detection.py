@@ -1,7 +1,7 @@
-from symptoms_recognizer.symptom_recognizer import SymptomRecognizer
+from symptoms_recognizer.symptom_recognizer import PhenotypesRecognizer
 
 if __name__ == "__main__":
-    recognizer = SymptomRecognizer(ontology="hpo")
+    recognizer = PhenotypesRecognizer(ontology="hpo")
     text = "El paciente tiene mareos."
     expected_results = ["mareos"]
 

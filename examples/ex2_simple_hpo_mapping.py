@@ -1,7 +1,7 @@
-from symptoms_recognizer.symptom_recognizer import SymptomRecognizer
+from symptoms_recognizer.symptom_recognizer import PhenotypesRecognizer
 
 if __name__ == "__main__":
-    recognizer = SymptomRecognizer(ontology="hpo")
+    recognizer = PhenotypesRecognizer(ontology="hpo")
     # Comments about the codes
     # - Fever: HP:0001945
     # - Nausea and vomiting: HP:0002017

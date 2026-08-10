@@ -3,7 +3,7 @@ from symptoms_recognizer.mapper.mapper import PhenotypeOntologyMapper
 
 import spacy
 
-class SymptomRecognizer():
+class PhenotypesRecognizer():
 
     def __init__(self, ner_model_path=None,
                  ner_tokenizer_path=None,
