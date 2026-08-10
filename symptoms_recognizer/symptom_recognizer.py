@@ -1,17 +1,19 @@
-from symptoms_recognizer.ner_model.model import get_ner_model, get_ner_tokenizer
+from symptoms_recognizer.ner_model.model import PhenotypesDetector
 from symptoms_recognizer.mapper.mapper import PhenotypeOntologyMapper
-
-from transformers import pipeline
 
 import spacy
 
 class SymptomRecognizer():
 
-    def __init__(self, mapper_model_path=None, mapper_tokenizer_path=None, ontology=None, ontology_file_path=None):
+    def __init__(self, ner_model_path=None,
+                 ner_tokenizer_path=None,
+                 mapper_model_path=None,
+                 mapper_tokenizer_path=None,
+                 ontology=None,
+                 ontology_file_path=None):
+
         # Get NER model and tokenizer
-        self.ner_model = get_ner_model()
-        self.ner_tokenizer = get_ner_tokenizer()
-        self.ner_model_pipeline = self.__init_pipeline(self.ner_model, self.ner_tokenizer)
+        self.ner_model = PhenotypesDetector(model_path=ner_model_path, tokenizer_path=ner_tokenizer_path)
 
         # Get EL model and tokenizer
         self.mapper = PhenotypeOntologyMapper(model_path=mapper_model_path,
@@ -23,14 +25,6 @@ class SymptomRecognizer():
         nlp = spacy.load("es_core_news_sm", disable=["ner", "parser", "attribute_ruler", "lemmatizer"])
         nlp.add_pipe("sentencizer")
         self.text_nlp = nlp
-
-    def __init_pipeline(self, model, tokenizer) -> pipeline:
-        return pipeline(
-            "token-classification",
-            model=model,
-            tokenizer=tokenizer,
-            grouped_entities=True
-        )
 
     def recognize(self, text: str) -> list[str]:
         # Define symptoms list
@@ -46,16 +40,11 @@ class SymptomRecognizer():
             if not sent.text.strip():
                 continue
 
-            # Tokenize sentence
-            sentence_results = self.ner_model_pipeline(
-                sent.text, 
-                max_length=512, 
-                truncation=True
-            )
+            # Detect phenotypes
+            sentence_results = self.ner_model.detect_phenotypes(sent.text)
 
-            # Store symptoms
-            for results_dictionary in sentence_results:
-                symptoms_list.append(results_dictionary["word"].strip())
+            # Add elements at the end
+            symptoms_list.extend(sentence_results)
 
         return symptoms_list
 
