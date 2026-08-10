@@ -1,0 +1,60 @@
+A las <HORA> pte estable en e<LUGAR_MEDICO>, SV dentro de parametros.
+En la <ETAPA_DIA> se otorga alta c/ indicaciones y pautas de alarma.
+<SEXO_PACIENTE> lucido, vigil, orientado en ty e.
+Buena tolerancia a dieta, sin compl evolutivas en<LUGAR_MEDICO>.
+Se pide labo de rutina para control, pte acompañado por <ACOMPANANTE>.
+A las <HORA> pasa a sala general para seguir tto ATB.
+Aguardando eval por cx general en la <ETAPA_DIA>, vino con <ACOMPANANTE>.
+Resto del EF s/ particularidades desde hace <TIEMPO_PASADO>.
+HD compensado a las <HORA>, buena entrada de aire bi.
+<SEXO_PACIENTE> c/ indicacion de control por CE en <TIEMPO_PASADO>.
+Paciente <SEXO_PACIENTE> ingresa a<LUGAR_MEDICO> acompañado por <ACOMPANANTE> a las <HORA> horas.
+Se evalúa a paciente <SEXO_PACIENTE> durante la <ETAPA_DIA>, refiriendo síntomas persistentes desde hace <TIEMPO_PASADO>.
+A las <HORA>, <ACOMPANANTE> solicita asistencia médica de rutina para paciente <SEXO_PACIENTE>.
+El cuadro clínico inició hace <TIEMPO_PASADO>, motivo por el cual acude a<LUGAR_MEDICO> por la <ETAPA_DIA>.
+Paciente <SEXO_PACIENTE> es dado de alta de<LUGAR_MEDICO> tras permanecer en observación durante <TIEMPO_PASADO>.
+Se admite a<LUGAR_MEDICO> a paciente <SEXO_PACIENTE> que fue derivado por <ACOMPANANTE> a las <HORA>.
+Durante la <ETAPA_DIA>, a las <HORA>, se registra el ingreso de paciente <SEXO_PACIENTE> junto a <ACOMPANANTE>.
+Tras <TIEMPO_PASADO> de internación, paciente <SEXO_PACIENTE> se retira de<LUGAR_MEDICO> acompañado por <ACOMPANANTE>.
+Paciente <SEXO_PACIENTE> refiere que el malestar inespecífico comenzó por la <ETAPA_DIA> de hace <TIEMPO_PASADO>.
+Acompañado por <ACOMPANANTE>, el paciente <SEXO_PACIENTE> llega a<LUGAR_MEDICO> siendo las <HORA>.
+Se programa un control evolutivo en <TIEMPO_PASADO> para el paciente <SEXO_PACIENTE> que fue atendido en la <ETAPA_DIA>.
+Según relata <ACOMPANANTE>, el paciente <SEXO_PACIENTE> presentó malestar general hace <TIEMPO_PASADO> y decidió acudir a<LUGAR_MEDICO>.
+Siendo las <HORA> de la <ETAPA_DIA>, se asiste a paciente <SEXO_PACIENTE> en el área de primer contacto.
+Se constata mejoría sintomática luego de <TIEMPO_PASADO>; por lo tanto, el paciente <SEXO_PACIENTE> se retira de<LUGAR_MEDICO>.
+Ingresa a<LUGAR_MEDICO> a las <HORA> un paciente <SEXO_PACIENTE> que es traído al recinto por <ACOMPANANTE>.
+Tras la evaluación inicial realizada en la <ETAPA_DIA>, el paciente <SEXO_PACIENTE> queda en observación por un lapso de <TIEMPO_PASADO>.
+Consulta de seguimiento de rutina tras <TIEMPO_PASADO> del alta de<LUGAR_MEDICO> para paciente <SEXO_PACIENTE>.
+Paciente <SEXO_PACIENTE> acude a<LUGAR_MEDICO> a las <HORA> tras recibir la indicación de <ACOMPANANTE>.
+Se interroga a <ACOMPANANTE>, quien relata que el cuadro del paciente <SEXO_PACIENTE> se agudizó levemente durante la <ETAPA_DIA>.
+Registro de enfermería a las <HORA>: paciente <SEXO_PACIENTE> se encuentra estable tras permanecer <TIEMPO_PASADO> bajo cuidados generales.
+Paciente <SEXO_PACIENTE> de <EDAD> ingresa a<LUGAR_MEDICO> acompañado por <ACOMPANANTE> a las <HORA> horas.
+Durante el control de la <ETAPA_DIA>, el paciente <SEXO_PACIENTE> presenta una tensión arterial de <PRESION_SANGUINEA> y una frecuencia cardíaca de <FRECUENCIA_CARDIACA>.
+Se evalúa a paciente <SEXO_PACIENTE> de <EDAD>, quien acude con <ACOMPANANTE> tras presentar registro febril de <TEMPERATURA> durante <TIEMPO_PASADO>.
+A las <HORA> se constata paciente <SEXO_PACIENTE> estable, saturando al <SATURACION_OXIGENO> a aire ambiente.
+El cuadro inició hace <TIEMPO_PASADO>; al ingreso en <LUGAR_MEDICO>, el paciente pesaba <PESO> y su temperatura era de <TEMPERATURA>.
+Tras <TIEMPO_PASADO> de internación, el paciente <SEXO_PACIENTE> de <EDAD> mantiene una frecuencia cardíaca de <FRECUENCIA_CARDIACA> y es dado de alta.
+Siendo las <HORA> de la <ETAPA_DIA>, se asiste a paciente <SEXO_PACIENTE> con una presión arterial de <PRESION_SANGUINEA> y <SATURACION_OXIGENO> de saturación.
+<ACOMPANANTE> refiere que el paciente <SEXO_PACIENTE> de <PESO> de peso habitual, se encuentra decaído desde hace <TIEMPO_PASADO>.
+Control de enfermería de las <HORA>: paciente <SEXO_PACIENTE> de <EDAD>, normotenso con <PRESION_SANGUINEA> y afebril con <TEMPERATURA>.
+Ingresa a<LUGAR_MEDICO> por la <ETAPA_DIA> un paciente <SEXO_PACIENTE> taquicárdico a <FRECUENCIA_CARDIACA> y con una saturación de <SATURACION_OXIGENO>.
+A las <HORA> se recibe en el área de triage a paciente <SEXO_PACIENTE> de <EDAD>, quien registra una temperatura de <TEMPERATURA>.
+El paciente <SEXO_PACIENTE> es traído a<LUGAR_MEDICO> por <ACOMPANANTE>, presentando una saturación de oxígeno del <SATURACION_OXIGENO> desde la <ETAPA_DIA>.
+Tras permanecer en la sala de observación durante <TIEMPO_PASADO>, el paciente <SEXO_PACIENTE> mantiene sus signos vitales estables con <FRECUENCIA_CARDIACA> y <PRESION_SANGUINEA>.
+Paciente <SEXO_PACIENTE> de <EDAD> acude para control de rutina, registrándose un peso actual de <PESO> y encontrándose afebril con <TEMPERATURA>.
+Durante el pase de sala de la <ETAPA_DIA>, se asienta que el paciente <SEXO_PACIENTE> evoluciona favorablemente con una tensión arterial de <PRESION_SANGUINEA>.
+Se otorga el alta médica de<LUGAR_MEDICO> a las <HORA> a paciente <SEXO_PACIENTE> de <EDAD>, tras <TIEMPO_PASADO> de seguimiento ambulatorio.
+Según relata <ACOMPANANTE>, el paciente <SEXO_PACIENTE> presentó alteraciones inespecíficas hace <TIEMPO_PASADO>, constatándose al ingreso <FRECUENCIA_CARDIACA> y <SATURACION_OXIGENO>.
+Ingreso por demanda espontánea a<LUGAR_MEDICO> de paciente <SEXO_PACIENTE> de <EDAD>, pesando <PESO> y con una presión de <PRESION_SANGUINEA>.
+A las <HORA>, el personal de enfermería reporta que el paciente <SEXO_PACIENTE> descansó bien durante la <ETAPA_DIA>, con una temperatura corporal de <TEMPERATURA>.
+Se evalúa nuevamente al paciente <SEXO_PACIENTE> junto a <ACOMPANANTE> luego de <TIEMPO_PASADO>, notando una franca mejoría en su frecuencia cardíaca, que ahora es de <FRECUENCIA_CARDIACA>.
+Paciente <SEXO_PACIENTE> de <EDAD> ingresa derivado a<LUGAR_MEDICO>, registrando al momento del examen físico <TEMPERATURA> y <PRESION_SANGUINEA>.
+Se le indica a <ACOMPANANTE> que el paciente <SEXO_PACIENTE> deberá regresar a control en <TIEMPO_PASADO> para monitorear su peso, que el día de hoy es de <PESO>.
+Siendo las <HORA>, se corrobora que el paciente <SEXO_PACIENTE> ventila de forma espontánea con una saturación de <SATURACION_OXIGENO> durante su estadía dentro de<LUGAR_MEDICO>.
+Durante la evaluación médica de la <ETAPA_DIA>, el paciente <SEXO_PACIENTE> de <EDAD> presenta <FRECUENCIA_CARDIACA> de frecuencia cardíaca basal.
+El malestar general del paciente <SEXO_PACIENTE> comenzó hace <TIEMPO_PASADO> y, al llegar a<LUGAR_MEDICO>, arrojó valores de <PRESION_SANGUINEA> y <TEMPERATURA>.
+Se entrevista a <ACOMPANANTE> a las <HORA>, quien confirma que el paciente <SEXO_PACIENTE> de <EDAD> mantuvo una saturación de <SATURACION_OXIGENO> en su domicilio.
+Control evolutivo de enfermería correspondiente a la <ETAPA_DIA>: paciente <SEXO_PACIENTE> con signos vitales dentro de parámetros normales, pesando <PESO> y con un pulso de <FRECUENCIA_CARDIACA>.
+Hace <TIEMPO_PASADO> el paciente <SEXO_PACIENTE> acudió por primera vez; hoy se presenta con <PRESION_SANGUINEA> y <TEMPERATURA> en su cita de revisión.
+Se retira a su domicilio el paciente <SEXO_PACIENTE> de <EDAD>, luego de que a las <HORA> se comprobara una correcta oxigenación de <SATURACION_OXIGENO>.
+Acompañado por <ACOMPANANTE>, el paciente <SEXO_PACIENTE> llega a la recepción de<LUGAR_MEDICO> por la <ETAPA_DIA>, tomándose registro de su peso en <PESO> y un ritmo cardíaco de <FRECUENCIA_CARDIACA>.

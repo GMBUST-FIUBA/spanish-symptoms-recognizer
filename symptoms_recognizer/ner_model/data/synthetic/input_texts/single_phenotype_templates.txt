@@ -1,0 +1,38 @@
+El paciente presenta <FENOTIPO>.
+El paciente refiere <FENOTIPO>.
+El paciente informa <FENOTIPO>.
+A las <HORA> ingresa paciente con <FENOTIPO>.
+A las <HORA> ingresa a<LUGAR_MEDICO> paciente con <FENOTIPO>.
+Ingresa ambulancia con paciente con <FENOTIPO>.
+A las <HORA> la ambulancia arriba a<LUGAR_MEDICO> con paciente con <FENOTIPO>.
+Por la <ETAPA_DIA> entra paciente por <FENOTIPO>.
+El paciente tiene antecedentes de <FENOTIPO> hace <TIEMPO_PASADO>.
+Se confirmó la presencia de <FENOTIPO> luego de leer los antecedentes.
+Se confirmó la presencia de <FENOTIPO> luego de leer la historia clínica del paciente.
+Se determinó que el paciente presenta <FENOTIPO> luego de leer los antecedentes.
+Se determinó que el paciente presenta <FENOTIPO> luego de leer la historia clínica del paciente.
+Se cambia el diagnóstico a <FENOTIPO>.
+Luego de <TIEMPO_PASADO> por <FENOTIPO> el paciente decide obtener una consulta.
+Paciente ingresa acompañado por <ACOMPANANTE> por <FENOTIPO>.
+<ACOMPANANTE_INICIO> trae al paciente a<LUGAR_MEDICO> por <FENOTIPO> a las <HORA>.
+<ACOMPANANTE_INICIO> trae al paciente a<LUGAR_MEDICO> por <FENOTIPO> durante la <ETAPA_DIA>.
+Paciente se presenta a<LUGAR_MEDICO> con <FENOTIPO> derivado por otro profesional de guardia.
+Paciente es trasladado a<LUGAR_MEDICO> con <FENOTIPO> por derivación de colega de otra sección.
+En la <ETAPA_DIA> aparece <SEXO_PACIENTE> que informa tener <FENOTIPO>.
+En la <ETAPA_DIA> aparece paciente diagnosticado con <FENOTIPO>.
+En la <ETAPA_DIA> aparece paciente diagnosticado con <FENOTIPO> luego de varios estudios.
+En la <ETAPA_DIA> aparece <SEXO_PACIENTE> que dice tener <FENOTIPO> confirmado por estudios anteriores.
+Durante la <ETAPA_DIA> aparece <SEXO_PACIENTE> que informa tener <FENOTIPO>.
+Durante la <ETAPA_DIA> aparece paciente diagnosticado con <FENOTIPO>.
+Durante la <ETAPA_DIA> aparece paciente diagnosticado con <FENOTIPO> luego de varios estudios.
+Durante la <ETAPA_DIA> aparece <SEXO_PACIENTE> que dice tener <FENOTIPO> confirmado por estudios anteriores.
+A las <HORA> se evalua pte por <FENOTIPO>, se indica tto y pautas de alarma.
+<ACOMPANANTE_INICIO> trae pte a <LUGAR_MEDICO> en la  <ETAPA_DIA> c/ <FENOTIPO> de  <TIEMPO_PASADO> de ev, actual estable.
+En e<LUGAR_MEDICO> <SEXO_PACIENTE> refiere <FENOTIPO> post ingesta, s/ otros hallazgos a las  <HORA>.
+Cuadro de <FENOTIPO> de hace  <TIEMPO_PASADO> que cede c/ analgesicos, vino con  <ACOMPANANTE>.
+Pte en observacion en <LUGAR_MEDICO> por <FENOTIPO>, a la espera de labo.
+Se descarta alt mayor tras presentar <FENOTIPO> en la  <ETAPA_DIA>, pte vigil.
+Interconsulta por <FENOTIPO> persistente hace  <TIEMPO_PASADO>, se ajusta dosis.
+<ACOMPANANTE_INICIO> refiere ant de <FENOTIPO> de  <SEXO_PACIENTE>, s/ recaídas recientes.
+Se decide alta de<LUGAR_MEDICO> luego del ep de <FENOTIPO> a las  <HORA>.
+Actual c/ <FENOTIPO> leve desde hace  <TIEMPO_PASADO>, lucido y hd compensado.

@@ -1,0 +1,35 @@
+Paciente <SEXO_PACIENTE> de <EDAD> ingresa a<EDAD> refiriendo <FENOTIPO> asociado a un cuadro de <FENOTIPO> de <TIEMPO_PASADO> de evolución.
+Durante la <ETAPA_DIA>, <ACOMPANANTE> nota la presencia de <FENOTIPO>, <FENOTIPO> y <FENOTIPO>, motivo por el cual decide realizar la consulta.
+Como antecedentes médicos de relevancia, el paciente <SEXO_PACIENTE> presenta <FENOTIPO> y <FENOTIPO> bajo tratamiento habitual.
+Al momento de la evaluación a las <HORA>, se constata <FENOTIPO> evidente así como <FENOTIPO>.
+Se indica tratamiento sintomático para su <FENOTIPO> y se decide monitorear de cerca la evolución de su <FENOTIPO> durante <TIEMPO_PASADO>.
+Paciente <SEXO_PACIENTE> en seguimiento crónico por <FENOTIPO>, quien en la fecha actual añade <FENOTIPO> y <FENOTIPO> a su estado clínico basal.
+Tras el interrogatorio dirigido, se concluye que el episodio de <FENOTIPO> estuvo inmediatamente precedido por <FENOTIPO> y <FENOTIPO>.
+Con una temperatura de <TEMPERATURA> y <FRECUENCIA_CARDIACA>, el paciente <SEXO_PACIENTE> cursa su internación por <FENOTIPO>, el cual fue exacerbado por <FENOTIPO>.
+Se registra una franca mejoría de su <FENOTIPO>, aunque el paciente <SEXO_PACIENTE> reporta que persiste con leve <FENOTIPO> a predominio de la <ETAPA_DIA>.
+Se programa un ajuste en la medicación base del paciente <SEXO_PACIENTE> para controlar de manera óptima su <FENOTIPO> y su cuadro de <FENOTIPO>.
+Ingresa a<EDAD> un paciente <SEXO_PACIENTE> de <EDAD> por exacerbación de <FENOTIPO> y sospecha de <FENOTIPO> concomitante.
+Según relata <ACOMPANANTE>, el paciente <SEXO_PACIENTE> inició hace <TIEMPO_PASADO> con manifestaciones de <FENOTIPO> y <FENOTIPO>.
+Se solicita interconsulta para evaluar <FENOTIPO> en paciente <SEXO_PACIENTE> que actualmente se encuentra cursando <FENOTIPO>.
+Durante la <ETAPA_DIA>, se constatan signos de <FENOTIPO> severo, acompañados de <FENOTIPO> y <FENOTIPO>.
+Paciente <SEXO_PACIENTE> de <EDAD> en control por <FENOTIPO> estable, quien refiere episodios esporádicos de <FENOTIPO> desde hace <TIEMPO_PASADO>.
+Al ingreso, presenta una presión de <PRESION_SANGUINEA> y pulso de <FRECUENCIA_CARDIACA>, asociado a un cuadro de <FENOTIPO> y leve <FENOTIPO>.
+Paciente <SEXO_PACIENTE> es traído por <ACOMPANANTE> debido a la aparición súbita de <FENOTIPO>, lo cual dificulta su tratamiento de base para <FENOTIPO>.
+En la reevaluación de la <ETAPA_DIA>, se evidencia <FENOTIPO> en franca resolución, persistiendo únicamente <FENOTIPO> residual.
+Se asienta diagnóstico presuntivo de <FENOTIPO> frente a los hallazgos de <FENOTIPO> y <FENOTIPO> de <TIEMPO_PASADO> de evolución.
+A las <HORA> se revalúa a paciente <SEXO_PACIENTE> de <EDAD>, quien manifiesta preocupación por la persistencia de <FENOTIPO> y el nuevo inicio de <FENOTIPO>.
+Ingreso a sala de internación por presentar <FENOTIPO> refractario a tratamiento ambulatorio, sumado a <FENOTIPO> de inicio reciente.
+Con <TEMPERATURA> de temperatura y <SATURACION_OXIGENO> de saturación, el paciente <SEXO_PACIENTE> refiere que el episodio de <FENOTIPO> actual fue peor que su habitual <FENOTIPO>.
+Hace <TIEMPO_PASADO>, el paciente <SEXO_PACIENTE> comenzó con <FENOTIPO>, evolucionando tórpidamente hacia <FENOTIPO> y requiriendo asistencia en la <ETAPA_DIA>.
+Se ajusta la medicación para <FENOTIPO> en paciente <SEXO_PACIENTE> de (POSSIBLE_WEIGHT), intentando mitigar los episodios nocturnos de <FENOTIPO>.
+Se registra en la historia clínica la coexistencia de <FENOTIPO> primario junto con <FENOTIPO> secundario a su patología de base.
+Antecedentes médicos: paciente <SEXO_PACIENTE> de <EDAD> con historial documentado de <FENOTIPO>, <FENOTIPO> y un episodio aislado de <FENOTIPO> ocurrido hace <TIEMPO_PASADO>.
+Internaciones previas: registro de ingreso a<LUGAR_MEDICO> durante la <ETAPA_DIA>, donde fue tratado por <FENOTIPO> y <FENOTIPO> sin complicaciones mayores.
+Antecedentes heredofamiliares: según refiere <ACOMPANANTE>, existe una fuerte carga genética para <FENOTIPO> y antecedente directo de <FENOTIPO> en la familia.
+Resumen de epicrisis pasada: paciente <SEXO_PACIENTE> cursó una internación de <TIEMPO_PASADO> de duración debido a un cuadro de <FENOTIPO> que se complicó con <FENOTIPO>.
+Historia de la enfermedad actual (retrospectiva): el cuadro inició como <FENOTIPO> a las <HORA>, progresando rápidamente hacia <FENOTIPO> y obligando a consultar.
+Antecedentes patológicos personales: diagnóstico previo de <FENOTIPO>, el cual requirió manejo avanzado al asociarse con <FENOTIPO> y desaturación hasta <SATURACION_OXIGENO>.
+Historial clínico ambulatorio: hace <TIEMPO_PASADO>, el paciente <SEXO_PACIENTE> reportó <FENOTIPO> crónico, manteniendo en aquel control un peso de <PESO> y <FRECUENCIA_CARDIACA> de frecuencia basal.
+Revisión de historias anteriores: se constató antecedente de <FENOTIPO> tratado a tiempo y de <FENOTIPO>.
+Antecedentes crónicos: portador de <FENOTIPO> de antigua data, con registros históricos de <PRESION_SANGUINEA> y episodios recurrentes de <FENOTIPO> a predominio de la <ETAPA_DIA>.
+Evolución histórica: a la edad de <EDAD>, el paciente <SEXO_PACIENTE> debutó con <FENOTIPO>, presentando además picos febriles de <TEMPERATURA> y signos compatibles con <FENOTIPO>.
