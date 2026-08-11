@@ -33,3 +33,33 @@ Historial clínico ambulatorio: hace <TIEMPO_PASADO>, el paciente <SEXO_PACIENTE
 Revisión de historias anteriores: se constató antecedente de <FENOTIPO> tratado a tiempo y de <FENOTIPO>.
 Antecedentes crónicos: portador de <FENOTIPO> de antigua data, con registros históricos de <PRESION_SANGUINEA> y episodios recurrentes de <FENOTIPO> a predominio de la <ETAPA_DIA>.
 Evolución histórica: a la edad de <EDAD>, el paciente <SEXO_PACIENTE> debutó con <FENOTIPO>, presentando además picos febriles de <TEMPERATURA> y signos compatibles con <FENOTIPO>.
+Motivo de consulta: <FENOTIPO>, <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+Ingresa a <LUGAR_MEDICO> presentando <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+<ACOMPANANTE_INICIO> refiere que comenzó con <FENOTIPO>, seguido de <FENOTIPO> y <FENOTIPO>.
+Cuadro clínico de <TIEMPO_PASADO> de evolución caracterizado por <FENOTIPO>, <FENOTIPO>, y episodios de <FENOTIPO>.
+Paciente de <EDAD> con <FENOTIPO>, <FENOTIPO> y <FENOTIPO> de inicio súbito.
+Se constata <FENOTIPO>, asociado a <FENOTIPO> y <FENOTIPO>.
+Síntomas al ingreso: <FENOTIPO>, <FENOTIPO>, <FENOTIPO>.
+En la <ETAPA_DIA> experimentó <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+Evoluciona con <FENOTIPO>, <FENOTIPO>, y empeoramiento del cuadro de <FENOTIPO>.
+Presenta <FENOTIPO>, <FENOTIPO> y <FENOTIPO> que dificultan el descanso.
+Al examen físico destaca <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+Ingresa a <LUGAR_MEDICO> por presentar <FENOTIPO>, <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+El paciente refiere <FENOTIPO>, asociado con <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+Cuadro clínico compatible con <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+Presenta <FENOTIPO>, <FENOTIPO>, además de <FENOTIPO>.
+Evolución tórpida en la <ETAPA_DIA> con <FENOTIPO>, <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+En la anamnesis destaca: <FENOTIPO>, <FENOTIPO>, <FENOTIPO>.
+Refiere haber tenido <FENOTIPO>, <FENOTIPO> y <FENOTIPO> durante la <ETAPA_DIA>.
+A su llegada a <LUGAR_MEDICO>, manifiesta <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+<ACOMPANANTE_INICIO> indica presencia de <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+Sintomatología actual al ingreso: <FENOTIPO>, <FENOTIPO>, <FENOTIPO>.
+Sufre de <FENOTIPO>, <FENOTIPO>, <FENOTIPO> y <FENOTIPO> desde hace <TIEMPO_PASADO>.
+Se observa <FENOTIPO>, <FENOTIPO> e intenso <FENOTIPO> a las <HORA>.
+Comienza de forma repentina con <FENOTIPO>, <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+El examen revela <FENOTIPO>, <FENOTIPO>, y marcado <FENOTIPO>.
+Refiere antecedentes recientes de <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.
+Interrogatorio positivo para <FENOTIPO>, <FENOTIPO>, <FENOTIPO>.
+El cuadro se acompaña de <FENOTIPO>, <FENOTIPO>, y a veces <FENOTIPO>.
+Relata un episodio de <FENOTIPO>, <FENOTIPO>, seguido de <FENOTIPO>.
+Presentó de forma brusca <FENOTIPO>, <FENOTIPO>, <FENOTIPO> y <FENOTIPO>.

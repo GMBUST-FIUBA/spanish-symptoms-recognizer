@@ -178,6 +178,7 @@ TEMPLATES_FILES = [
     "multple_phenotypes_templates.txt",
     "no_phenotypes_templates.txt",
     "single_phenotype_templates.txt",
+    "boundary_templates.txt",
 ]
 
 def add_noise_to_text(text, phenotypes):
@@ -244,8 +245,12 @@ def tokenize_and_tag(text, phenotypes):
             
     return tokens, tags
 
-def generate_medical_history_sentences(main_phenotype_name, sentences_templates, all_phenotypes):
-    for template_sentence, template_variables in sentences_templates:
+def generate_medical_history_sentences(main_phenotype_name, split_templates, split_phenotypes, templates_limit):
+
+    phenotype_templates_limit = min(templates_limit, len(split_templates))
+    selected_templates = random.sample(split_templates, phenotype_templates_limit)
+
+    for template_sentence, template_variables in selected_templates:
         sentence_variables_values = {}
         inserted_phenotypes = []
 
@@ -254,7 +259,7 @@ def generate_medical_history_sentences(main_phenotype_name, sentences_templates,
                 if var == "FENOTIPO_1":
                     pheno = convert_first_char_to_lower_case(main_phenotype_name)
                 else:
-                    random_phenotype = random.choice(all_phenotypes)["name"]
+                    random_phenotype = random.choice(split_phenotypes)["name"]
                     pheno = convert_first_char_to_lower_case(random_phenotype)
                 
                 sentence_variables_values[var] = pheno
@@ -302,10 +307,18 @@ def generate_medical_history_sentences(main_phenotype_name, sentences_templates,
             }
             yield json.dumps(json_record, ensure_ascii=False) + "\n"
 
-def generate_data_file(file_name, sentences_templates, split_phenotypes, all_phenotypes):
+
+def generate_data_file(file_name, sentences_templates, split_phenotypes):
     with open(f"./output_data/{file_name}.jsonl", mode="w", encoding="utf-8") as output_file:
         for phenotype in split_phenotypes:
-            resultant_texts = generate_medical_history_sentences(phenotype["name"], sentences_templates, all_phenotypes)
+            templates_to_use = random.randint(5, 7)
+
+            resultant_texts = generate_medical_history_sentences(
+                phenotype["name"], 
+                sentences_templates, 
+                split_phenotypes, 
+                templates_to_use
+            )
             for text in resultant_texts:
                 output_file.write(text)
 
@@ -361,9 +374,9 @@ def generate_dataset(test_split, validation_split):
     test_phenotypes = phenotypes[val_phenos_end:]
 
     # Gemerate datasets
-    generate_data_file("train_set", train_templates, train_phenotypes, phenotypes)
-    generate_data_file("validation_set", validation_templates, validation_phenotypes, phenotypes)
-    generate_data_file("test_set", test_templates, test_phenotypes, phenotypes)
+    generate_data_file("train_set", train_templates, train_phenotypes)
+    generate_data_file("validation_set", validation_templates, validation_phenotypes)
+    generate_data_file("test_set", test_templates, test_phenotypes)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

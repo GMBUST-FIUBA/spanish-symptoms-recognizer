@@ -1,0 +1,30 @@
+Antecedentes patológicos: <FENOTIPO>.
+Refiere episodios de <FENOTIPO> (desde hace <TIEMPO_PASADO>).
+Diagnóstico presuntivo: cuadro de <FENOTIPO>/<FENOTIPO>.
+Medicación indicada por el cuadro de <FENOTIPO> severo.
+"Siento mucho <FENOTIPO>", refiere el paciente de <EDAD>.
+¿Presentó <FENOTIPO>? Sí, a las <HORA>.
+Observaciones: paciente con <FENOTIPO>; se decide internación en <LUGAR_MEDICO>.
+Signos vitales estables, pero con persistencia de <FENOTIPO>...
+TA: <PRESION_SANGUINEA> - FC: <FRECUENCIA_CARDIACA> - <FENOTIPO>.
+Ingresa por <FENOTIPO>(<FENOTIPO>).
+Motivo: <FENOTIPO>.
+Presenta (<FENOTIPO>) desde hace <TIEMPO_PASADO>.
+Diagnóstico diferencial en guardia: <FENOTIPO> / <FENOTIPO>.
+"Tengo <FENOTIPO>", indica el paciente de <EDAD>.
+Observación clínica: <FENOTIPO>; requiere evaluación.
+Interconsulta de urgencia por <FENOTIPO>...
+¿<FENOTIPO>? Sí, a confirmar con laboratorio.
+Alto riesgo de <FENOTIPO>-<FENOTIPO> según la historia previa.
+El paciente (con <FENOTIPO>) ingresa a <LUGAR_MEDICO>.
+Destaca al ingreso: 1. <FENOTIPO> 2. <FENOTIPO>.
+Signos de alarma: -<FENOTIPO> -<FENOTIPO> -<FENOTIPO>.
+Sospecha clínica de <FENOTIPO> (y leve <FENOTIPO>).
+Evaluar <FENOTIPO>/<FENOTIPO>/<FENOTIPO> durante la internación.
+Confirmado por el médico de turno: <FENOTIPO>.
+Refiere la aparición de '<FENOTIPO>' en su domicilio.
+Evoluciona en la <ETAPA_DIA> con <FENOTIPO>; <FENOTIPO>; <FENOTIPO>.
+HC actual: <FENOTIPO>, <FENOTIPO> (a descartar evolución desfavorable).
+FR: <FRECUENCIA_CARDIACA>, paciente con <FENOTIPO>.
+Síntomas predominantes [<FENOTIPO> y <FENOTIPO>].
+Se reporta <FENOTIPO>(<FENOTIPO>) a las <HORA>.
