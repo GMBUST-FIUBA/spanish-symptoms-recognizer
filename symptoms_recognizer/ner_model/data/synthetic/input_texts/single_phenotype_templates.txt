@@ -36,3 +36,23 @@ Interconsulta por <FENOTIPO> persistente hace  <TIEMPO_PASADO>, se ajusta dosis.
 <ACOMPANANTE_INICIO> refiere ant de <FENOTIPO> de  <SEXO_PACIENTE>, s/ recaídas recientes.
 Se decide alta de<LUGAR_MEDICO> luego del ep de <FENOTIPO> a las  <HORA>.
 Actual c/ <FENOTIPO> leve desde hace  <TIEMPO_PASADO>, lucido y hd compensado.
+Refiere <FENOTIPO> de <INTENSIDAD>.
+Presenta <FENOTIPO> de localización <LOCALIZACION>.
+Cuadro de <FENOTIPO> con características <CARACTERISTICA>.
+Ingresa por <FENOTIPO> (<INTENSIDAD>) de tipo <CARACTERISTICA>.
+El paciente refiere <FENOTIPO> <LOCALIZACION> de <INTENSIDAD>.
+Presenta <FENOTIPO> <CARACTERISTICA> que dificulta la marcha.
+Se constata <FENOTIPO> de <INTENSIDAD> y evolución favorable.
+Episodios de <FENOTIPO> <CARACTERISTICA> asociados al estrés.
+Comienza con <FENOTIPO> <LOCALIZACION> hace varias horas.
+Consulta en guardia por <FENOTIPO> <CARACTERISTICA>.
+Padece <FENOTIPO> de <INTENSIDAD> resistente a medicación.
+Evaluación por <FENOTIPO> <LOCALIZACION> de inicio agudo.
+Acude por <FENOTIPO> <CARACTERISTICA> (<INTENSIDAD>).
+Se observa <FENOTIPO> <LOCALIZACION> con irradiación.
+Historial reciente de <FENOTIPO> <CARACTERISTICA> y malestar.
+Refiere despertar con <FENOTIPO> de <INTENSIDAD>.
+Familiar describe un <FENOTIPO> <LOCALIZACION> repentino.
+Marcado <FENOTIPO> <CARACTERISTICA> durante la exploración.
+Relata <FENOTIPO> de <INTENSIDAD> que cede con el reposo.
+Se interroga sobre <FENOTIPO> <LOCALIZACION> recurrente.

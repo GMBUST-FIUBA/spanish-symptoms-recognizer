@@ -158,6 +158,54 @@ POSSIBLE_PATIENT_SEX = [
     "mujer",
 ]
 
+POSSIBLE_SECTION_NUMBER = [
+    "1", "2", "3", "4", "5", "6", "1.1", "1.2", "1.3", "1.4", "2.1", "2.2", "2.3", "3.1", "3.2", "I", "II", "III", "IV"
+]
+
+POSSIBLE_SECTION = [
+    "Anamnesis", "Motivo de Consulta", "Enfermedad Actual", 
+    "Antecedentes Personales", "Antecedentes Familiares", "Examen Físico", 
+    "Signos Vitales", "Examen Neuropsiquiátrico", "Impresión Diagnóstica", 
+    "Plan de Indicaciones", "Estudios Complementarios", "Evolución", "Epicrisis"
+]
+
+POSSIBLE_MEDICAMENT = [
+    "Ranitidina", "Ondansetrón", "Ibuprofeno", "Dipirona", 
+    "Dexketoprofeno", "Paracetamol", "Levonorgestrel", "Etinilestradiol", 
+    "Omeprazol", "Aspirina", "Clonazepam", "Amoxicilina", "Losartán"
+]
+
+POSSIBLE_DOSE = [
+    "40 mg", "8 mg EV en bolo", "1000 ml a 21 gotas/min", 
+    "500 mg", "1 g", "cada 8 horas", "10 mg", "20 mg", 
+    "50 mg", "1 ampolla", "2 comprimidos", "VO cada 12 hs"
+]
+
+POSSIBLE_STUDY = [
+    "Tomografía Computada de Cerebro (TAC)", "Electrocardiograma (ECG)", 
+    "Hemograma", "Laboratorio completo", "Ionograma", "Glucemia digital", 
+    "Radiografía de tórax", "Resonancia Magnética", "Ecografía abdominal", 
+    "Urocultivo", "Hepatograma", "Coagulograma"
+]
+
+POSSIBLE_INTENSITY = [
+    "gran intensidad", "leve intensidad", "moderada intensidad", 
+    "8/10 en escala analógica visual", "5/10", "severa", "muy severa", 
+    "9/10", "2/10", "intensidad fluctuante", "baja intensidad", "intensidad intolerable"
+]
+
+POSSIBLE_LOCATION = [
+    "holocraneana", "focalizada", "difusa", "frontal", "occipital", 
+    "abdominal", "en fosa posterior", "parietal", "lumbar", "cervical", 
+    "torácica", "en miembros inferiores", "hemicraneal"
+]
+
+POSSIBLE_CHARACTERISTIC = [
+    "pulsátil", "inespecífica", "opresivo", "punzante", "rotatorio", 
+    "en proyectil", "urente", "sordo", "intermitente", "constante", 
+    "agudo", "crónico", "lacerante"
+]
+
 def convert_first_char_to_lower_case(text: str):
     return text.replace(text[0], text[0].lower(), 1)
 
@@ -179,6 +227,7 @@ TEMPLATES_FILES = [
     "no_phenotypes_templates.txt",
     "single_phenotype_templates.txt",
     "boundary_templates.txt",
+    "structural_templates.txt",
 ]
 
 def add_noise_to_text(text, phenotypes):
@@ -291,6 +340,24 @@ def generate_medical_history_sentences(main_phenotype_name, split_templates, spl
                 sentence_variables_values[var] = random.choice(POSSIBLE_WEIGHT)
             elif "SATURACION_OXIGENO" in var:
                 sentence_variables_values[var] = random.choice(POSSIBLE_OXYGEN_SATURATION)
+            elif "NUMERO_SECCION" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_SECTION_NUMBER)
+            elif "SECCION" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_SECTION)
+            elif "MEDICAMENTO" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_MEDICAMENT)
+            elif "DOSIS" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_DOSE)
+            elif "ESTUDIO" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_STUDY)
+            elif "INTENSIDAD" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_INTENSITY)
+            elif "LOCALIZACION" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_LOCATION)
+            elif "CARACTERISTICA" in var:
+                sentence_variables_values[var] = random.choice(POSSIBLE_CHARACTERISTIC)
+            else:
+                raise Exception(f"Found variable {var}")
 
         generated_text = template_sentence.format(**sentence_variables_values)
         
@@ -311,7 +378,7 @@ def generate_medical_history_sentences(main_phenotype_name, split_templates, spl
 def generate_data_file(file_name, sentences_templates, split_phenotypes):
     with open(f"./output_data/{file_name}.jsonl", mode="w", encoding="utf-8") as output_file:
         for phenotype in split_phenotypes:
-            templates_to_use = random.randint(5, 7)
+            templates_to_use = random.randint(15, 20)
 
             resultant_texts = generate_medical_history_sentences(
                 phenotype["name"], 
@@ -325,13 +392,10 @@ def generate_data_file(file_name, sentences_templates, split_phenotypes):
 def generate_dataset(test_split, validation_split):
     phenotypes = get_phenotypes()
 
-    train_templates = []
-    validation_templates = []
-    test_templates = []
+    all_templates = []
 
-    # Go over all templates files
+    # Load templates together
     for file_name in TEMPLATES_FILES:
-        file_templates = []
         with open(f"input_texts/{file_name}", mode="r", encoding="utf-8") as file:
             for template in file:
                 total_variables = {}
@@ -345,20 +409,7 @@ def generate_dataset(test_split, validation_split):
                     return f"{{{new_elem_name}}}"
 
                 new_template = re.sub(r"<([^>]+)>", change_variable_name, template)
-                file_templates.append((new_template.strip(), internal_variables))
-
-        # Mix and split between sets
-        random.shuffle(file_templates)
-        total = len(file_templates)
-        test_count = int(test_split * total)
-        val_count = int(validation_split * total)
-
-        train_end = total - (test_count + val_count)
-        val_end = total - test_count
-
-        train_templates.extend(file_templates[:train_end])
-        validation_templates.extend(file_templates[train_end:val_end])
-        test_templates.extend(file_templates[val_end:])
+                all_templates.append((new_template.strip(), internal_variables))
 
     # Split phenotypes
     random.shuffle(phenotypes)
@@ -374,9 +425,9 @@ def generate_dataset(test_split, validation_split):
     test_phenotypes = phenotypes[val_phenos_end:]
 
     # Gemerate datasets
-    generate_data_file("train_set", train_templates, train_phenotypes)
-    generate_data_file("validation_set", validation_templates, validation_phenotypes)
-    generate_data_file("test_set", test_templates, test_phenotypes)
+    generate_data_file("train_set", all_templates, train_phenotypes)
+    generate_data_file("validation_set", all_templates, validation_phenotypes)
+    generate_data_file("test_set", all_templates, test_phenotypes)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

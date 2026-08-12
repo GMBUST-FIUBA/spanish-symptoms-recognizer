@@ -1,0 +1,20 @@
+<NUMERO_SECCION>. <SECCION>
+<SECCION>:
+<NUMERO_SECCION> - <SECCION>:
+Medicación habitual: <MEDICAMENTO> (<DOSIS>).
+Se indica <MEDICAMENTO> <DOSIS>.
+Tratamiento farmacológico con <MEDICAMENTO> y <MEDICAMENTO>.
+<SECCION>: <ESTUDIO>.
+Se solicita <ESTUDIO> sin contraste.
+Resultados de <ESTUDIO>: dentro de parámetros normales.
+Administrar <MEDICAMENTO> <DOSIS> (monitoreando signos).
+<SECCION> general conservada, sin alteraciones.
+Plan: <MEDICAMENTO> <DOSIS> y reevaluación.
+Se realiza <ESTUDIO> de urgencia.
+Suspensión de <MEDICAMENTO> por protocolo de <SECCION>.
+Pendiente resultado de <ESTUDIO> y <ESTUDIO>.
+<NUMERO_SECCION>.1. Detalles de <SECCION>:
+Interconsulta con servicio por resultados de <ESTUDIO>.
+Iniciar <MEDICAMENTO> <DOSIS> por vía oral.
+<MEDICAMENTO> <DOSIS> a demanda.
+Control de <ESTUDIO> en <TIEMPO_PASADO>.
