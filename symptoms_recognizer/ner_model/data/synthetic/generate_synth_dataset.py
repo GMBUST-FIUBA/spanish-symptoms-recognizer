@@ -232,10 +232,6 @@ TEMPLATES_FILES = [
 
 def add_noise_to_text(text, phenotypes):
     modified_text = text
-    
-    # Protect phenotypes
-    for i, phenotype in enumerate(phenotypes):
-        modified_text = modified_text.replace(phenotype, f"[[FENOTIPO_PROTEGIDO_{i}]]")
 
     words_replacements = {
         r"\bpaciente\b": ["pte", "pte.", "pac."],
@@ -378,7 +374,7 @@ def generate_medical_history_sentences(main_phenotype_name, split_templates, spl
 def generate_data_file(file_name, sentences_templates, split_phenotypes):
     with open(f"./output_data/{file_name}.jsonl", mode="w", encoding="utf-8") as output_file:
         for phenotype in split_phenotypes:
-            templates_to_use = random.randint(5, 10)
+            templates_to_use = random.randint(4, 8)
 
             resultant_texts = generate_medical_history_sentences(
                 phenotype["name"], 
@@ -392,10 +388,13 @@ def generate_data_file(file_name, sentences_templates, split_phenotypes):
 def generate_dataset(test_split, validation_split):
     phenotypes = get_phenotypes()
 
-    all_templates = []
+    train_templates = []
+    validation_templates = []
+    test_templates = []
 
-    # Load templates together
+    # Load templates from all files
     for file_name in TEMPLATES_FILES:
+        file_templates = []
         with open(f"input_texts/{file_name}", mode="r", encoding="utf-8") as file:
             for template in file:
                 total_variables = {}
@@ -409,9 +408,28 @@ def generate_dataset(test_split, validation_split):
                     return f"{{{new_elem_name}}}"
 
                 new_template = re.sub(r"<([^>]+)>", change_variable_name, template)
-                all_templates.append((new_template.strip(), internal_variables))
+                file_templates.append((new_template.strip(), internal_variables))
+        
+        # Shuffle templates from file
+        random.shuffle(file_templates)
+        
+        total_file_tpl = len(file_templates)
+        test_count_tpl = int(test_split * total_file_tpl)
+        val_count_tpl = int(validation_split * total_file_tpl)
 
-    # Split phenotypes
+        train_tpl_end = total_file_tpl - (test_count_tpl + val_count_tpl)
+        val_tpl_end = total_file_tpl - test_count_tpl
+
+        # Add templates to global templates
+        train_templates.extend(file_templates[:train_tpl_end])
+        validation_templates.extend(file_templates[train_tpl_end:val_tpl_end])
+        test_templates.extend(file_templates[val_tpl_end:])
+
+    random.shuffle(train_templates)
+    random.shuffle(validation_templates)
+    random.shuffle(test_templates)
+
+    # Separate phenotypes
     random.shuffle(phenotypes)
     total_phenotypes = len(phenotypes)
     test_count_phenos = int(test_split * total_phenotypes)
@@ -424,10 +442,10 @@ def generate_dataset(test_split, validation_split):
     validation_phenotypes = phenotypes[train_phenos_end:val_phenos_end]
     test_phenotypes = phenotypes[val_phenos_end:]
 
-    # Gemerate datasets
-    generate_data_file("train_set", all_templates, train_phenotypes)
-    generate_data_file("validation_set", all_templates, validation_phenotypes)
-    generate_data_file("test_set", all_templates, test_phenotypes)
+    # Generate datasets
+    generate_data_file("train_set", train_templates, train_phenotypes)
+    generate_data_file("validation_set", validation_templates, validation_phenotypes)
+    generate_data_file("test_set", test_templates, test_phenotypes)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
