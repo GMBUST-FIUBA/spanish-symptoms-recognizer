@@ -6,8 +6,10 @@ import symptoms_recognizer.ner_model.data.nubes.nubes_convert_brat_to_bio
 import symptoms_recognizer.ner_model.data.symptemist.symptemist_brat_to_bio_conv
 import symptoms_recognizer.ner_model.data.cwlc.cwlc_brat_to_bio_conv
 
-TRAINING_DATASETS_PATHS_FILE = "utils/datasets_train_paths.csv"
-TESTING_DATASETS_PATHS_FILE = "utils/datasets_test_paths.csv"
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+TRAINING_DATASETS_PATHS_FILE = os.path.join(CURRENT_DIR, "datasets_train_paths.csv")
+TESTING_DATASETS_PATHS_FILE = os.path.join(CURRENT_DIR, "datasets_test_paths.csv")
 
 TRAINING_TEMP_OUTPUT_NAME = "temp_train_set.jsonl"
 TRAINING_DATASET_OUTPUT_NAME = "train_set.jsonl"
@@ -47,7 +49,9 @@ def create_training_set():
                 for line in training_datasets_paths:
                     # Get data from line
                     name = line[0]
-                    path = line[1]
+
+                    base_data_dir = os.path.dirname(CURRENT_DIR)
+                    path = os.path.normpath(os.path.join(base_data_dir, line[1]))
 
                     # Use converter
                     print(f"Reading from {name} dataset...")
@@ -70,7 +74,9 @@ def create_testing_set():
             for line in testing_datasets_paths:
                 # Get data from line
                 name = line[0]
-                path = line[1]
+
+                base_data_dir = os.path.dirname(CURRENT_DIR)
+                path = os.path.normpath(os.path.join(base_data_dir, line[1]))
 
                 # Use converter
                 print(f"Reading from {name} dataset...")

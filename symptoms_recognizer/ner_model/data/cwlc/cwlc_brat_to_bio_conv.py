@@ -3,11 +3,6 @@ import os
 import random
 import spacy
 
-from transformers import AutoTokenizer
-
-tokenizer_path = "/home/gonzalo/Escritorio/Facultad/Trabajo profesional/spanish-symptoms-recognizer/base_model/bsc-bio-ehr-es"
-tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
-
 nlp = spacy.load("es_core_news_sm", disable=["ner", "parser", "attribute_ruler", "lemmatizer"])
 nlp.add_pipe("sentencizer")
 
@@ -76,30 +71,20 @@ def convert_brat_to_bio(input_path, primary_data_output_file, secondary_data_out
             if not sent.text.strip():
                 continue
 
-            # Encode sentence
-            encoded_sentence = tokenizer(
-                sent.text,
-                max_length=512,
-                truncation=True,
-                return_offsets_mapping=True,
-                add_special_tokens=False
-                )
-            tokens_offsets = encoded_sentence["offset_mapping"]
-            sentence_tokens = [sent.text[s:e] for s, e in tokens_offsets]
-
+            sentence_tokens = []
             sentence_tags = []
 
-            # Iterate over all tokens
-            sent_start_idx = sent.start_char
-            for i, (start, end) in enumerate(tokens_offsets):
-                if start == end:
-                    sentence_tags.append("O") 
+            # Iterate over words
+            for token in sent:
+                if not token.text.strip():
                     continue
                 
-                token_txt_start = start + sent_start_idx
-                token_txt_end = end + sent_start_idx
+                sentence_tokens.append(token.text)
                 
-                # For every entity
+                # Get start and end
+                token_txt_start = token.idx
+                token_txt_end = token.idx + len(token.text)
+                
                 tag = "O"
                 for entity_start, entity_end in entities:
                     # If token overlaps with entity
@@ -120,18 +105,9 @@ def convert_brat_to_bio(input_path, primary_data_output_file, secondary_data_out
                         sentence_tags[j] = "B-SINTOMA"
 
 
-            # Take out elements that make noise
-            final_tokens = []
-            final_tags = []
-            
-            for token, tag in zip(sentence_tokens, sentence_tags):
-                if token.strip():
-                    final_tokens.append(token)
-                    final_tags.append(tag)
-
-            if len(final_tokens) > 0:
-                # Prepare data for storage
-                record = {"tokens": final_tokens, "ner_tags": final_tags}
+            # Prepare data for storage (ya no hay que filtrar ruido porque spaCy lo maneja bien)
+            if len(sentence_tokens) > 0:
+                record = {"tokens": sentence_tokens, "ner_tags": sentence_tags}
 
                 # Select output
                 if secondary_data_output_file is None or random.random() > data_split:

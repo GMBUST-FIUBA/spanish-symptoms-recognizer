@@ -378,7 +378,7 @@ def generate_medical_history_sentences(main_phenotype_name, split_templates, spl
 def generate_data_file(file_name, sentences_templates, split_phenotypes):
     with open(f"./output_data/{file_name}.jsonl", mode="w", encoding="utf-8") as output_file:
         for phenotype in split_phenotypes:
-            templates_to_use = random.randint(15, 20)
+            templates_to_use = random.randint(5, 10)
 
             resultant_texts = generate_medical_history_sentences(
                 phenotype["name"], 
