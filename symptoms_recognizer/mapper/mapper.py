@@ -34,6 +34,9 @@ MIN_DISTANCE_VECTORS = 0.2
 
 class PhenotypeOntologyMapper:
     def __init__(self, model_path = None, tokenizer_path = None, ontology = None, ontology_file_path=None):
+        # Set operations device
+        self.pytorch_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
         # Get ontology
         if ontology in ACCEPTED_ONTOLOGIES:
             self.mapped_ontology = ontology
@@ -47,9 +50,9 @@ class PhenotypeOntologyMapper:
 
         # Get models
         if not model_path:
-            self.model = self._get_el_model(DEFAULT_LOCAL_MODEL_PATH)
+            self.model = self._get_el_model(DEFAULT_LOCAL_MODEL_PATH).to(self.pytorch_device)
         else:
-            self.model = self._get_el_model(model_path)
+            self.model = self._get_el_model(model_path).to(self.pytorch_device)
 
         if not tokenizer_path:
             self.tokenizer = self._get_el_tokenizer(DEFAULT_LOCAL_MODEL_PATH)
@@ -95,20 +98,22 @@ class PhenotypeOntologyMapper:
         return phenotypes_mapped
 
     def _get_encoded_phenotypes_list(self, phenotypes_list: list[str]):
-        encoded_phenotypes_list = []
         with torch.no_grad():
-            for symptom in phenotypes_list:
-                tokenized_symptom = self.tokenizer(symptom, return_tensors="pt", padding=True, truncation=True, max_length=512)
-                model_output = self.model(**tokenized_symptom)
-                cls_embedding = model_output.last_hidden_state[0, 0, :]
-                symptom_embedding = F.normalize(cls_embedding.unsqueeze(0), p=2, dim=1).squeeze().numpy()
+            tokenized_symptoms = self.tokenizer(
+                phenotypes_list,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=512).to(self.pytorch_device)
 
-                encoded_phenotypes_list.append(symptom_embedding)
+            phenotypes_model_output = self.model(**tokenized_symptoms)
+            phenotypes_cls_embedding = phenotypes_model_output.last_hidden_state[:, 0, :]
+            encoded_phenotypes_list = F.normalize(phenotypes_cls_embedding, p=2, dim=1)
 
         return encoded_phenotypes_list
 
     def _get_codes_batch(self, input_file):
-        return torch.load(input_file, map_location=torch.device('cpu'))
+        return torch.load(input_file, map_location=self.pytorch_device)
 
     def _calculate_distance(self, vector1, vector2):
         return distance.cosine(vector1, vector2)
