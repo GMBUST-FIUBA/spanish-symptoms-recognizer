@@ -25,7 +25,7 @@ ACCEPTED_ONTOLOGIES_FILES = {
 }
 
 # Default location for entity linking model
-LOCAL_MODEL_RELATIVE_PATH = "semantic_model"
+LOCAL_MODEL_RELATIVE_PATH = "semantic_model/clinlinker-kb-gp"
 DEFAULT_LOCAL_MODEL_PATH = os.path.join(CURRENT_DIR, LOCAL_MODEL_RELATIVE_PATH)
 
 

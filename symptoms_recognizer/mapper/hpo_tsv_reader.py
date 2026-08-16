@@ -8,8 +8,8 @@ from transformers import AutoTokenizer, AutoModel
 
 # Embeddings generator
 ## Local path
-LOCAL_TOKENIZER_PATH = "semantic_model"
-LOCAL_MODEL_PATH = "semantic_model"
+LOCAL_TOKENIZER_PATH = "semantic_model/clinlinker-kb-gp"
+LOCAL_MODEL_PATH = "semantic_model/clinlinker-kb-gp"
 
 ## Files for token generation
 ORIGINAL_TSV_FILE = "hpo/hp-es.babelon.tsv"
