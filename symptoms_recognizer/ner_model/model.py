@@ -37,14 +37,23 @@ class PhenotypesDetector:
             "token-classification",
             model=model,
             tokenizer=tokenizer,
-            grouped_entities=True
+            aggregation_strategy="simple",
         )
 
     def detect_phenotypes(self, sentence):
         phenotypes_list = []
 
+        # Tokenize and decode after to force truncation and padding
+        tokens = self.tokenizer.encode(
+            sentence, 
+            truncation=True, 
+            max_length=512, 
+            padding="max_length"
+        )
+        truncated_sentence = self.tokenizer.decode(tokens, skip_special_tokens=True)
+
         # Detect phenotypes
-        sentence_results = self.ner_model_pipeline(sentence, max_length=512, truncation=True)
+        sentence_results = self.ner_model_pipeline(truncated_sentence)
 
         # Get solutions
         for results_dictionary in sentence_results:

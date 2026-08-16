@@ -1,4 +1,5 @@
 .python-version
+.env
 symptoms_recognizer/ner_model/training/output/
 symptoms_recognizer/ner_model/model/
 symptoms_recognizer/ner_model/training/data/cwlc/all/
