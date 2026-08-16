@@ -2,9 +2,9 @@ import argparse
 import csv
 import os
 
-import symptoms_recognizer.ner_model.data.nubes.nubes_convert_brat_to_bio
-import symptoms_recognizer.ner_model.data.symptemist.symptemist_brat_to_bio_conv
-import symptoms_recognizer.ner_model.data.cwlc.cwlc_brat_to_bio_conv
+import symptoms_recognizer.ner_model.training.data.nubes.nubes_convert_brat_to_bio
+import symptoms_recognizer.ner_model.training.data.symptemist.symptemist_brat_to_bio_conv
+import symptoms_recognizer.ner_model.training.data.cwlc.cwlc_brat_to_bio_conv
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -18,8 +18,8 @@ TESTING_DATASET_OUTPUT_NAME = "test_set.jsonl"
 
 TRAINING_DATASET_CONVERTERS = {
     "SYMPTEMIST" : symptoms_recognizer.ner_model.data.symptemist.symptemist_brat_to_bio_conv.convert_brat_to_bio,
-    "NUBES" : symptoms_recognizer.ner_model.data.nubes.nubes_convert_brat_to_bio.convert_brat_to_bio,
-    "CWLC" : symptoms_recognizer.ner_model.data.cwlc.cwlc_brat_to_bio_conv.convert_brat_to_bio
+    "NUBES" : symptoms_recognizer.ner_model.training.data.nubes.nubes_convert_brat_to_bio.convert_brat_to_bio,
+    "CWLC" : symptoms_recognizer.ner_model.training.data.cwlc.cwlc_brat_to_bio_conv.convert_brat_to_bio
 }
 
 TESTING_DATASET_CONVERTERS = {
