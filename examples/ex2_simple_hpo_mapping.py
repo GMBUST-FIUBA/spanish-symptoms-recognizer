@@ -15,7 +15,7 @@ if __name__ == "__main__":
         print(f" - {phenotype} => {joined_codes}")
 
     # Results
-    results = recognizer.map(possible_expected_results.keys())
+    results = recognizer.map(list(possible_expected_results.keys()))
 
     print("-------------------------------")
     print(f"Resultados:")

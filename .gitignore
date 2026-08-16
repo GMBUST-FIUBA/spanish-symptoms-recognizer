@@ -10,7 +10,7 @@ validation_set.jsonl
 test_set.jsonl
 data/analysis
 base_model
-symptoms_recognizer/mapper/hpo/hpo-tokens.pt
+symptoms_recognizer/mapper/hpo/hpo_batches
 symptoms_recognizer/mapper/hpo/hp-es.babelon.tsv
 symptoms_recognizer/mapper/semantic_model
 symptoms_recognizer/ner_model/data/synthetic/input_texts/hp-es.babelon.tsv
