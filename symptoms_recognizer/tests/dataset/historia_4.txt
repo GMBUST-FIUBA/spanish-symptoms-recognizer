@@ -1,0 +1,18 @@
+HISTORIA CLÍNICA DE INGRESO
+
+Datos de Identificación: Paciente varón, 45 años.
+Motivo de Consulta: Alteraciones visuales y dolor de cabeza crónico.
+
+Enfermedad Actual:
+Paciente de 45 años derivado al servicio de endocrinología. Refiere un cuadro de 2 años de evolución caracterizado por dolor de cabeza opresivo, diagnosticado como una cefalea. En los últimos meses nota pérdida de la visión periférica, motivo por el cual acudió al oftalmólogo, quien mediante una campimetría documentó una hemianopsia bitemporal. La esposa del paciente refiere que este ha presentado un aumento progresivo del tamaño de manos y pies, obligándolo a cambiar su talla de calzado repetidas veces, y que suda excesivamente incluso en reposo, lo cual se cataloga clínicamente como hiperhidrosis.
+
+Examen Físico:
+- Facies: Se evidencia un engrosamiento de los rasgos faciales. A la inspección lateral de la mandíbula se observa una prominencia marcada del maxilar inferior, diagnosticada como prognatismo.
+- Cavidad oral: Lengua de tamaño marcadamente aumentado que dificulta la articulación de ciertas palabras, confirmando una macroglosia.
+
+Estudios Complementarios:
+- Laboratorio: Factor de Crecimiento Insulinoide tipo 1 (IGF-1) marcadamente elevado. Hormona de crecimiento (GH) que no suprime tras la prueba de tolerancia oral a la glucosa.
+- Resonancia Magnética de Silla Turca: Se evidencia un macroadenoma hipofisario de 15 mm.
+
+Impresión Diagnóstica:
+El cuadro clínico, bioquímico e imagenológico es categórico para el diagnóstico de una acromegalia. Se programa evaluación neuroquirúrgica para resección transesfenoidal.
