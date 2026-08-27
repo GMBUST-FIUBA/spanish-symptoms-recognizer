@@ -1,10 +1,9 @@
+from symptoms_recognizer.mapper.mapper import PhenotypeOntologyMapper
 from symptoms_recognizer.ner_model.model import PhenotypesDetector
-from symptoms_recognizer.mapper.mapper import PhenotypeOntologyMapper
+from symptoms_recognizer.text_parser.senteces_parser import SentencesParser
+from symptoms_recognizer.text_parser.text_parser_interface import HistoryRecordParser
 
 import spacy
-
-import spacy
-from symptoms_recognizer.mapper.mapper import PhenotypeOntologyMapper
 
 class PhenotypesRecognizer:
     def __init__(
@@ -16,7 +15,8 @@ class PhenotypesRecognizer:
         ontology=None,
         ontology_file_path=None,
         allowed_entity_groups=None,
-        agg_strategy="simple"
+        agg_strategy="simple",
+        text_paser="sentences-parser"
     ):
 
         # Initialize NER model
@@ -36,24 +36,13 @@ class PhenotypesRecognizer:
         )
 
         # Initialize text splitter
-        self.text_nlp = spacy.blank("es")
-        self.text_nlp.add_pipe("sentencizer")
+        if text_paser == "sentences-parser":
+            self.text_parser = SentencesParser()
+        else:
+            raise Exception("No known parser")
 
     def recognize(self, text: str) -> list[str]:
-        symptoms_list = []
-        doc = self.text_nlp(text)
-
-        for sent in doc.sents:
-            sentence_text = sent.text.strip()
-            
-            if not sentence_text:
-                continue
-
-            # Detect phenotypes by sentence
-            sentence_results = self.ner_model.detect_phenotypes(sentence_text)
-            symptoms_list.extend(sentence_results)
-
-        return symptoms_list
+        return self.text_parser.apply(text, self.ner_model)
 
     def map(self, phenotypes_list: list[str]) -> list[str]:
         return self.mapper.map_phenotypes(phenotypes_list)
