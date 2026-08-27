@@ -6,7 +6,7 @@ if __name__ == "__main__":
         clinical_history = document.read()
 
     # Get phenotypes recognizer
-    recognizer = PhenotypesRecognizer(ontology="hpo")
+    recognizer = PhenotypesRecognizer(ontology="hpo", text_parser="sections-sentences-parser")
 
     # Expected results:
     expected_results = {
