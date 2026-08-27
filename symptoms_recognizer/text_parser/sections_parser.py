@@ -22,6 +22,16 @@ class SectionsSentencesParser(HistoryRecordParser):
             SectionRule(literal="Antecedentes personales patológicos", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "personales"}, {"LOWER": "patológicos"}]),
             SectionRule(literal="Historia médica", category="antecedentes", pattern=[{"LOWER": "historia"}, {"LOWER": "médica"}]),
             SectionRule(literal="Antecedentes", category="antecedentes", pattern=[{"LOWER": "antecedentes"}]),
+            SectionRule(literal="Antecedentes Heredofamiliares", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "heredofamiliares"}]),
+            SectionRule(literal="Antecedentes Personales Socioeconómicos", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "personales"}, {"LOWER": "socioeconómicos"}]),
+            SectionRule(literal="Antecedentes Toxicológicos y Hábitos", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "toxicológicos"}, {"LOWER": "y"}, {"LOWER": "hábitos"}]),
+            SectionRule(literal="Antecedentes Toxicológicos", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "toxicológicos"}]),
+            SectionRule(literal="Antecedentes Perinatales y Obstétricos", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "perinatales"}, {"LOWER": "y"}, {"LOWER": "obstétricos"}]),
+            SectionRule(literal="Antecedentes del Desarrollo Psicomotor", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "del"}, {"LOWER": "desarrollo"}, {"LOWER": "psicomotor"}]),
+            SectionRule(literal="Antecedentes Quirúrgicos y Traumatológicos", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "quirúrgicos"}, {"LOWER": "y"}, {"LOWER": "traumatológicos"}]),
+            SectionRule(literal="Inmunizaciones y Alergias", category="antecedentes", pattern=[{"LOWER": "inmunizaciones"}, {"LOWER": "y"}, {"LOWER": "alergias"}]),
+            SectionRule(literal="Revisión por Aparatos y Sistemas", category="antecedentes", pattern=[{"LOWER": "revisión"}, {"LOWER": "por"}, {"LOWER": "aparatos"}, {"LOWER": "y"}, {"LOWER": "sistemas"}]),
+            SectionRule(literal="Revisión Cardiopulmonar", category="antecedentes", pattern=[{"LOWER": "revisión"}, {"LOWER": "cardiopulmonar"}]),
 
             # Current illnesses
             SectionRule(literal="Enfermedad actual", category="enfermedad_actual", pattern=[{"LOWER": "enfermedad"}, {"LOWER": "actual"}]),
