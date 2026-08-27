@@ -13,7 +13,6 @@ class PhenotypesDetector:
     def __init__(self, model_path=None,
                  tokenizer_path=None,
                  allowed_entity_groups=None,
-                 ner_model_operation_type="token-classification",
                  agg_strategy="simple"):
 
         # Set model and tokenizer paths
@@ -29,7 +28,7 @@ class PhenotypesDetector:
 
         # Create pipeline
         self.ner_pipeline = pipeline(
-            ner_model_operation_type,
+            "ner",
             model=self.model,
             tokenizer=self.tokenizer,
             aggregation_strategy=agg_strategy,

@@ -16,7 +16,6 @@ class PhenotypesRecognizer:
         ontology=None,
         ontology_file_path=None,
         allowed_entity_groups=None,
-        ner_model_operation_type="token-classification",
         agg_strategy="simple"
     ):
 
@@ -25,7 +24,6 @@ class PhenotypesRecognizer:
             model_path=ner_model_path, 
             tokenizer_path=ner_tokenizer_path,
             allowed_entity_groups=allowed_entity_groups,
-            ner_model_operation_type=ner_model_operation_type,
             agg_strategy=agg_strategy
         )
 
