@@ -39,7 +39,15 @@ class PhenotypesDetector:
         phenotypes_list = []
 
         # Use pipeline
-        sentence_results = self.ner_pipeline(sentence, truncation=True, max_length=512)
+        tokens = self.tokenizer.encode(
+            sentence, 
+            truncation=True, 
+            max_length=512
+        )
+        truncated_sentence = self.tokenizer.decode(tokens, skip_special_tokens=True)
+
+        # Get results
+        sentence_results = self.ner_pipeline(truncated_sentence)
 
         # Filter results
         for res in sentence_results:
