@@ -37,6 +37,15 @@ def compare_models():
             }
         },
         {
+                    "nombre_prueba": "base-nat-data (agg: average)",
+                    "kwargs": {
+                        "ner_model_path": os.path.join(models_dir, "base-nat-data"),
+                        "ner_tokenizer_path": os.path.join(models_dir, "base-nat-data"),
+                        "ontology": "hpo",
+                        "agg_strategy": "average"
+                    }
+                },
+        {
             "nombre_prueba": "HUMADEX (agg: simple)",
             "kwargs": {
                 "ner_model_path": os.path.join(models_dir, "HUMADEX"),
