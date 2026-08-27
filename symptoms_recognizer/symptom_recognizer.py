@@ -1,7 +1,7 @@
 from symptoms_recognizer.mapper.mapper import PhenotypeOntologyMapper
 from symptoms_recognizer.ner_model.model import PhenotypesDetector
+from symptoms_recognizer.text_parser.chunks_sentences_parser import ChunkSentencesParser
 from symptoms_recognizer.text_parser.senteces_parser import SentencesParser
-from symptoms_recognizer.text_parser.text_parser_interface import HistoryRecordParser
 
 import spacy
 
@@ -16,7 +16,7 @@ class PhenotypesRecognizer:
         ontology_file_path=None,
         allowed_entity_groups=None,
         agg_strategy="simple",
-        text_paser="sentences-parser"
+        text_parser="sentences-parser"
     ):
 
         # Initialize NER model
@@ -36,7 +36,9 @@ class PhenotypesRecognizer:
         )
 
         # Initialize text splitter
-        if text_paser == "sentences-parser":
+        if text_parser == "chunk-sentences-parser":
+            self.text_parser = ChunkSentencesParser(max_chunk_tokens=384, overlap_sentences=1)
+        elif text_parser == "sentences-parser":
             self.text_parser = SentencesParser()
         else:
             raise Exception("No known parser")
