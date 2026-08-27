@@ -10,53 +10,42 @@ LOCAL_MODEL_RELATIVE_PATH = "model/base-nat-data"
 DEFAULT_LOCAL_MODEL_PATH = os.path.join(CURRENT_DIR, LOCAL_MODEL_RELATIVE_PATH)
 
 class PhenotypesDetector:
-    def __init__(self, model_path=None, tokenizer_path=None):
-        # Get NER model
-        if model_path:
-            self.model = self._get_ner_model(model_path)
-        else:
-            self.model = self._get_ner_model(DEFAULT_LOCAL_MODEL_PATH)
+    def __init__(self, model_path=None,
+                 tokenizer_path=None,
+                 allowed_entity_groups=None,
+                 ner_model_operation_type="token-classification",
+                 agg_strategy="simple"):
 
-        # Get tokenizer
-        if tokenizer_path:
-            self.tokenizer = self._get_ner_tokenizer(tokenizer_path)
-        else:
-            self.tokenizer = self._get_ner_tokenizer(DEFAULT_LOCAL_MODEL_PATH)
+        # Set model and tokenizer paths
+        model_path = model_path or DEFAULT_LOCAL_MODEL_PATH
+        tokenizer_path = tokenizer_path or model_path
+
+        # Get allowed entity groups
+        self.allowed_entity_groups = set(allowed_entity_groups) if allowed_entity_groups else None
+
+        # Get models
+        self.model = AutoModelForTokenClassification.from_pretrained(model_path)
+        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
 
         # Create pipeline
-        self.ner_model_pipeline = self.__init_pipeline(self.model, self.tokenizer)
-
-    def _get_ner_tokenizer(self, path):
-        return AutoTokenizer.from_pretrained(path)
-
-    def _get_ner_model(self, path):
-        return AutoModelForTokenClassification.from_pretrained(path)
-
-    def __init_pipeline(self, model, tokenizer) -> pipeline:
-        return pipeline(
-            "token-classification",
-            model=model,
-            tokenizer=tokenizer,
-            aggregation_strategy="simple",
+        self.ner_pipeline = pipeline(
+            ner_model_operation_type,
+            model=self.model,
+            tokenizer=self.tokenizer,
+            aggregation_strategy=agg_strategy,
         )
 
-    def detect_phenotypes(self, sentence):
+    def detect_phenotypes(self, sentence: str) -> list[str]:
         phenotypes_list = []
 
-        # Tokenize and decode after to force truncation and padding
-        tokens = self.tokenizer.encode(
-            sentence, 
-            truncation=True, 
-            max_length=512, 
-            padding="max_length"
-        )
-        truncated_sentence = self.tokenizer.decode(tokens, skip_special_tokens=True)
+        # Use pipeline
+        sentence_results = self.ner_pipeline(sentence, truncation=True, max_length=512)
 
-        # Detect phenotypes
-        sentence_results = self.ner_model_pipeline(truncated_sentence)
+        # Filter results
+        for res in sentence_results:
+            entity_group = res.get("entity_group")
 
-        # Get solutions
-        for results_dictionary in sentence_results:
-            phenotypes_list.append(results_dictionary["word"].strip())
+            if not self.allowed_entity_groups or entity_group in self.allowed_entity_groups:
+                phenotypes_list.append(res["word"].strip())
 
         return phenotypes_list
