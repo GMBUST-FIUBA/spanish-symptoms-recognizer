@@ -14,7 +14,7 @@ The idea is not only to find the right combination of parameters for the clinica
 
 ## Results
 
-### First attempt
+### First test
 
 A table with the results of those models with different aggregation methods for sub-words and text parsing methods ordered by F1 score is presented:
 
@@ -50,7 +50,7 @@ A table with the results of those models with different aggregation methods for 
 
 As it can be seen, the models trained on data with little to no AI involvement have better overall predictions scores, being [Medspanner's model](https://huggingface.co/medspaner/roberta-es-clinical-trials-umls-7sgs-ner) the best one. However it is worth noting that the models have an intrinsic hallucination problem, which is evident in the best models where sometimes there is a 4:1 ratio between false positives (hallucinations) and true positives. And finally what is inferred through this results is that the aggregation method known as *first* works better than the other ones no matter the model used.
 
-### Second attempt
+### Second test
 
 What was theorized was that adjusting the minimum distance a vector must have to an HPO type could help reduce the false positives and it was changed from 0.2 to 0.1 using de cosine distance. The results are shown as follows:
 
@@ -84,7 +84,7 @@ What was theorized was that adjusting the minimum distance a vector must have to
 | HUMADEX (agg: simple, parsing: sentences) | HUMADEX | simple | 1 | 18 | 46 | 0.0526 | 0.0213 | 0.0303 |
 | HUMADEX (agg: simple, parsing: sections-sentences) | HUMADEX | simple | 1 | 18 | 46 | 0.0526 | 0.0213 | 0.0303 |
 
-The results validate the hypothesis and confirm that a tighter distance between vectors helps with the false positives but at the cost of not capturing some phenotypes. This means that the hallucination problem is made by elements in the text that have a medical meaning but are not really that close semantically to the HPO phenotypes.
+The results validate the hypothesis and confirm that a tighter distance between vectors helps by almost halving the number of hallucinations with the false positives but at the cost of not capturing some phenotypes. This means that the hallucination problem is made by elements in the text that have a medical meaning but are not really that close semantically to the HPO phenotypes, and that some phenotypes that must be captured are not that close semantically to the HPO names and therefore are not captured at the end of the mapping state.
 
 ---
 
