@@ -210,6 +210,102 @@ def compare_models():
                 "text_parser" : "chunks-sentences-parser"
             }
         },
+        {
+            "nombre_prueba": "base-nat-data (agg: simple, parsing: sections-sentences)",
+            "kwargs": {
+                "ner_model_path": os.path.join(models_dir, "base-nat-data"),
+                "ner_tokenizer_path": os.path.join(models_dir, "base-nat-data"),
+                "ontology": "hpo",
+                "agg_strategy": "simple",
+                "text_parser" : "sections-sentences-parser"
+            }
+        },
+        {
+            "nombre_prueba": "base-nat-data (agg: first, parsing: sections-sentences)",
+            "kwargs": {
+                "ner_model_path": os.path.join(models_dir, "base-nat-data"),
+                "ner_tokenizer_path": os.path.join(models_dir, "base-nat-data"),
+                "ontology": "hpo",
+                "agg_strategy": "first",
+                "text_parser" : "sections-sentences-parser"
+            }
+        },
+        {
+            "nombre_prueba": "base-nat-data (agg: average, parsing: sections-sentences)",
+            "kwargs": {
+                "ner_model_path": os.path.join(models_dir, "base-nat-data"),
+                "ner_tokenizer_path": os.path.join(models_dir, "base-nat-data"),
+                "ontology": "hpo",
+                "agg_strategy": "average",
+                "text_parser" : "sections-sentences-parser"
+            }
+        },
+        {
+            "nombre_prueba": "HUMADEX (agg: simple, parsing: sections-sentences)",
+            "kwargs": {
+                "ner_model_path": os.path.join(models_dir, "HUMADEX"),
+                "ner_tokenizer_path": os.path.join(models_dir, "HUMADEX"),
+                "ontology": "hpo",
+                "agg_strategy": "simple",
+                "allowed_entity_groups" : ["PROBLEM"],
+                "text_parser" : "sections-sentences-parser"
+            }
+        },
+        {
+            "nombre_prueba": "HUMADEX (agg: first, parsing: sections-sentences)",
+            "kwargs": {
+                "ner_model_path": os.path.join(models_dir, "HUMADEX"),
+                "ner_tokenizer_path": os.path.join(models_dir, "HUMADEX"),
+                "ontology": "hpo",
+                "agg_strategy": "first",
+                "allowed_entity_groups" : ["PROBLEM"],
+                "text_parser" : "sections-sentences-parser"
+            }
+        },
+        {
+            "nombre_prueba": "HUMADEX (agg: average, parsing: sections-sentences)",
+            "kwargs": {
+                "ner_model_path": os.path.join(models_dir, "HUMADEX"),
+                "ner_tokenizer_path": os.path.join(models_dir, "HUMADEX"),
+                "ontology": "hpo",
+                "agg_strategy": "average",
+                "allowed_entity_groups" : ["PROBLEM"],
+                "text_parser" : "sections-sentences-parser"
+            }
+        },
+        {
+            "nombre_prueba": "roberta-es-clinical-trials (agg: simple, parsing: sections-sentences)",
+            "kwargs": {
+                "ner_model_path": os.path.join(models_dir, "roberta-es-clinical-trials-umls-7sgs-ner"),
+                "ner_tokenizer_path": os.path.join(models_dir, "roberta-es-clinical-trials-umls-7sgs-ner"),
+                "ontology": "hpo",
+                "agg_strategy": "simple",
+                "allowed_entity_groups" : ["DISO"],
+                "text_parser" : "sections-sentences-parser"
+            }
+        },
+        {
+            "nombre_prueba": "roberta-es-clinical-trials (agg: first, parsing: sections-sentences)",
+            "kwargs": {
+                "ner_model_path": os.path.join(models_dir, "roberta-es-clinical-trials-umls-7sgs-ner"),
+                "ner_tokenizer_path": os.path.join(models_dir, "roberta-es-clinical-trials-umls-7sgs-ner"),
+                "ontology": "hpo",
+                "agg_strategy": "first",
+                "allowed_entity_groups" : ["DISO"],
+                "text_parser" : "sections-sentences-parser"
+            }
+        },
+        {
+            "nombre_prueba": "roberta-es-clinical-trials (agg: average, parsing: sections-sentences)",
+            "kwargs": {
+                "ner_model_path": os.path.join(models_dir, "roberta-es-clinical-trials-umls-7sgs-ner"),
+                "ner_tokenizer_path": os.path.join(models_dir, "roberta-es-clinical-trials-umls-7sgs-ner"),
+                "ontology": "hpo",
+                "agg_strategy": "average",
+                "allowed_entity_groups" : ["DISO"],
+                "text_parser" : "sections-sentences-parser"
+            }
+        },
     ]
 
     print(f"Se encontraron {len(TESTED_CONFIGURATIONS)} configuraciones para evaluar.\n")

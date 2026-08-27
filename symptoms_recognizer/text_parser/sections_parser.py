@@ -19,6 +19,7 @@ class SectionsSentencesParser(HistoryRecordParser):
 
             # Background
             SectionRule(literal="Antecedentes personales", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "personales"}]),
+            SectionRule(literal="Antecedentes personales patológicos", category="antecedentes", pattern=[{"LOWER": "antecedentes"}, {"LOWER": "personales"}, {"LOWER": "patológicos"}]),
             SectionRule(literal="Historia médica", category="antecedentes", pattern=[{"LOWER": "historia"}, {"LOWER": "médica"}]),
             SectionRule(literal="Antecedentes", category="antecedentes", pattern=[{"LOWER": "antecedentes"}]),
 
@@ -26,11 +27,25 @@ class SectionsSentencesParser(HistoryRecordParser):
             SectionRule(literal="Enfermedad actual", category="enfermedad_actual", pattern=[{"LOWER": "enfermedad"}, {"LOWER": "actual"}]),
 
             # Physical exam
-            SectionRule(literal="Examen físico", category="examen_fisico", pattern=[{"LOWER": "examen"}, {"LOWER": "físico"}])
+            SectionRule(literal="Examen físico", category="examen_fisico", pattern=[{"LOWER": "examen"}, {"LOWER": "físico"}]),
+
+            # Other studies
+            SectionRule(literal="Estudios complementarios", category="estudios_complementarios", pattern=[{"LOWER": "estudios"}, {"LOWER": "complementarios"}]),
+
+            # Final section
+            SectionRule(literal="Impresión Diagnóstica y Plan", category="seccion_final", pattern=[{"LOWER": "impresión"}, {"LOWER": "diagnóstica"}, {"LOWER": "y"}, {"LOWER": "plan"}]),
+            SectionRule(literal="Impresión Diagnóstica", category="seccion_final", pattern=[{"LOWER": "impresión"}, {"LOWER": "diagnóstica"}]),
         ]
         self.sectionizer.add(section_rules)
 
-        self.target_sections = {"motivo_consulta", "enfermedad_actual", "antecedentes"}
+        self.target_sections = {
+            "motivo_consulta", 
+            "enfermedad_actual", 
+            "antecedentes",
+            "examen_fisico",
+            "estudios_complementarios",
+            "seccion_final"
+        }
 
     def apply(self, text: str, ner_model: PhenotypesDetector) -> list[str]:
         doc = self.text_nlp(text)
