@@ -14,6 +14,8 @@ The idea is not only to find the right combination of parameters for the clinica
 
 ## Results
 
+### First attempt
+
 A table with the results of those models with different aggregation methods for sub-words and text parsing methods ordered by F1 score is presented:
 
 | Test name | Model name | Aggregation strategy | TP | FP | FN | Precision | Recall | F1 score |
@@ -45,6 +47,45 @@ A table with the results of those models with different aggregation methods for 
 | base-nat-data (agg: average, parsing: sentences) | base-nat-data | average | 6 | 57 | 41 | 0.0952 | 0.1277 | 0.1091 |
 | base-nat-data (agg: average, parsing: sections-sentences) | base-nat-data | average | 6 | 57 | 41 | 0.0952 | 0.1277 | 0.1091 |
 | HUMADEX (agg: simple, parsing: chunks-sentences) | HUMADEX | simple | 3 | 32 | 44 | 0.0857 | 0.0638 | 0.0732 |
+
+As it can be seen, the models trained on data with little to no AI involvement have better overall predictions scores, being [Medspanner's model](https://huggingface.co/medspaner/roberta-es-clinical-trials-umls-7sgs-ner) the best one. However it is worth noting that the models have an intrinsic hallucination problem, which is evident in the best models where sometimes there is a 4:1 ratio between false positives (hallucinations) and true positives. And finally what is inferred through this results is that the aggregation method known as *first* works better than the other ones no matter the model used.
+
+### Second attempt
+
+What was theorized was that adjusting the minimum distance a vector must have to an HPO type could help reduce the false positives and it was changed from 0.2 to 0.1 using de cosine distance. The results are shown as follows:
+
+| Test name | Model name | Aggregation strategy | TP | FP | FN | Precision | Recall | F1 score |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| roberta-es-clinical-trials (agg: first, parsing: sentences) | roberta-es-clinical-trials-umls-7sgs-ner | first | 13 | 31 | 34 | 0.2955 | 0.2766 | 0.2857 |
+| roberta-es-clinical-trials (agg: first, parsing: sections-sentences) | roberta-es-clinical-trials-umls-7sgs-ner | first | 13 | 31 | 34 | 0.2955 | 0.2766 | 0.2857 |
+| roberta-es-clinical-trials (agg: first, parsing: chunks-sentences) | roberta-es-clinical-trials-umls-7sgs-ner | first | 13 | 31 | 34 | 0.2955 | 0.2766 | 0.2857 |
+| roberta-es-clinical-trials (agg: simple, parsing: chunks-sentences) | roberta-es-clinical-trials-umls-7sgs-ner | simple | 12 | 28 | 35 | 0.3000 | 0.2553 | 0.2759 |
+| roberta-es-clinical-trials (agg: simple, parsing: sections-sentences) | roberta-es-clinical-trials-umls-7sgs-ner | simple | 12 | 28 | 35 | 0.3000 | 0.2553 | 0.2759 |
+| roberta-es-clinical-trials (agg: simple, parsing: sentences) | roberta-es-clinical-trials-umls-7sgs-ner | simple | 12 | 28 | 35 | 0.3000 | 0.2553 | 0.2759 |
+| roberta-es-clinical-trials (agg: average, parsing: chunks-sentences) | roberta-es-clinical-trials-umls-7sgs-ner | average | 10 | 25 | 37 | 0.2857 | 0.2128 | 0.2439 |
+| roberta-es-clinical-trials (agg: average, parsing: sections-sentences) | roberta-es-clinical-trials-umls-7sgs-ner | average | 10 | 25 | 37 | 0.2857 | 0.2128 | 0.2439 |
+| roberta-es-clinical-trials (agg: average, parsing: sentences) | roberta-es-clinical-trials-umls-7sgs-ner | average | 10 | 25 | 37 | 0.2857 | 0.2128 | 0.2439 |
+| base-nat-data (agg: simple, parsing: chunks-sentences) | base-nat-data | simple  | 7 | 14 | 40 | 0.3333 | 0.1489 | 0.2059 |
+| base-nat-data (agg: first, parsing: chunks-sentences) | base-nat-data | first  | 7 | 16 | 40 | 0.3043 | 0.1489 | 0.2000 |
+| base-nat-data (agg: first, parsing: sections-sentences) | base-nat-data | first  | 7 | 17 | 40 | 0.2917 | 0.1489 | 0.1972 |
+| base-nat-data (agg: first, parsing: sentences) | base-nat-data | first  | 7 | 17 | 40 | 0.2917 | 0.1489 | 0.1972 |
+| base-nat-data (agg: average, parsing: chunks-sentences) | base-nat-data | average  | 6 | 13 | 41 | 0.3158 | 0.1277 | 0.1818 |
+| base-nat-data (agg: simple, parsing: sections-sentences) | base-nat-data | simple  | 6 | 14 | 41 | 0.3000 | 0.1277 | 0.1791 |
+| base-nat-data (agg: simple, parsing: sentences) | base-nat-data | simple  | 6 | 14 | 41 | 0.3000 | 0.1277 | 0.1791 |
+| base-nat-data (agg: average, parsing: sections-sentences) | base-nat-data | average  | 5 | 14 | 42 | 0.2632 | 0.1064 | 0.1515 |
+| base-nat-data (agg: average, parsing: sentences) | base-nat-data | average  | 5 | 14 | 42 | 0.2632 | 0.1064 | 0.1515 |
+| HUMADEX (agg: first, parsing: sentences) | HUMADEX | first | 3 | 27 | 44 | 0.1000 | 0.0638 | 0.0779 |
+| HUMADEX (agg: first, parsing: sections-sentences) | HUMADEX | first | 3 | 27 | 44 | 0.1000 | 0.0638 | 0.0779 |
+| HUMADEX (agg: average, parsing: sentences) | HUMADEX | average | 3 | 30 | 44 | 0.0909 | 0.0638 | 0.0750 |
+| HUMADEX (agg: average, parsing: sections-sentences) | HUMADEX | average | 3 | 30 | 44 | 0.0909 | 0.0638 | 0.0750 |
+| HUMADEX (agg: average, parsing: chunks-sentences) | HUMADEX | average | 3 | 32 | 44 | 0.0857 | 0.0638 | 0.0732 |
+| HUMADEX (agg: first, parsing: chunks-sentences) | HUMADEX | first | 2 | 31 | 45 | 0.0606 | 0.0426 | 0.0500 |
+| HUMADEX (agg: simple, parsing: chunks-sentences) | HUMADEX | simple | 1 | 14 | 46 | 0.0667 | 0.0213 | 0.0323 |
+| HUMADEX (agg: simple, parsing: sentences) | HUMADEX | simple | 1 | 18 | 46 | 0.0526 | 0.0213 | 0.0303 |
+| HUMADEX (agg: simple, parsing: sections-sentences) | HUMADEX | simple | 1 | 18 | 46 | 0.0526 | 0.0213 | 0.0303 |
+
+The results validate the hypothesis and confirm that a tighter distance between vectors helps with the false positives but at the cost of not capturing some phenotypes. This means that the hallucination problem is made by elements in the text that have a medical meaning but are not really that close semantically to the HPO phenotypes.
+
 ---
 
 ## Citations & References

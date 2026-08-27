@@ -30,7 +30,7 @@ DEFAULT_LOCAL_MODEL_PATH = os.path.join(CURRENT_DIR, LOCAL_MODEL_RELATIVE_PATH)
 
 
 # Minimun distance between vectors
-MIN_DISTANCE_VECTORS = 0.2
+MIN_DISTANCE_VECTORS = 0.1
 
 
 class PhenotypeOntologyMapper:
