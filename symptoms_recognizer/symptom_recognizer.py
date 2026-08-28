@@ -37,11 +37,11 @@ class PhenotypesRecognizer:
         )
 
         # Initialize text splitter
-        if text_parser == "chunks-sentences-parser":
+        if text_parser == "chunks-sentences":
             self.text_parser = ChunkSentencesParser(max_chunk_tokens=384, overlap_sentences=1)
-        elif text_parser == "sentences-parser":
+        elif text_parser == "sentences":
             self.text_parser = SentencesParser()
-        elif text_parser == "sections-sentences-parser":
+        elif text_parser == "sections-sentences":
             self.text_parser = SectionsSentencesParser()
         else:
             raise Exception("No known parser")
