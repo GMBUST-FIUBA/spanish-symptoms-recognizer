@@ -13,15 +13,12 @@ from symptoms_recognizer.tests.evaluator import Evaluator
 
 warnings.filterwarnings("ignore", message="Tokenizer does not support real words")
 
-def compare_models():
+def get_ner_models_test_config():
     models_dir = os.path.join(PROJECT_ROOT, "symptoms_recognizer", "ner_model", "model")
-    dataset_dir = os.path.join(CURRENT_DIR, "dataset")
 
     MODEL_NAMES = ["base-nat-data", "HUMADEX", "roberta-es-clinical-trials-umls-7sgs-ner"]
     AGG_STRATEGIES = ["simple", "first", "average"]
     PARSING_STYLES = ["sentences", "chunks-sentences", "sections-sentences"]
-
-    TESTED_CONFIGURATIONS = []
 
     for model_name in MODEL_NAMES:
         for agg_strat in AGG_STRATEGIES:
@@ -37,9 +34,34 @@ def compare_models():
                     }
                 }
 
-                TESTED_CONFIGURATIONS.append(new_config)
+                yield new_config
 
-    print(f"Se encontraron {len(TESTED_CONFIGURATIONS)} configuraciones para evaluar.\n")
+def get_llm_models_test_config():
+    models_dir = os.path.join(PROJECT_ROOT, "symptoms_recognizer", "ner_model", "model")
+
+    MODEL_NAMES = ["Qwen2.5-0.5B-Instruct", "Qwen2.5-1.5B-Instruct"]
+    PARSING_STYLES = ["full-text", "chunks-sentences", "sections-sentences"]
+
+    for model_name in MODEL_NAMES:
+        for parsing_style in PARSING_STYLES:
+            new_config = {
+                "nombre_prueba": f"{model_name} (parsing: {parsing_style})",
+                "kwargs": {
+                    "ner_model_path": os.path.join(models_dir, model_name),
+                    "ner_tokenizer_path": os.path.join(models_dir, model_name),
+                    "ontology": "hpo",
+                    "text_parser" : parsing_style,
+                    "phenotypes_model_type" : "llm",
+                }
+            }
+
+            yield new_config
+
+def compare_models():
+    dataset_dir = os.path.join(CURRENT_DIR, "dataset")
+
+    TESTED_CONFIGURATIONS = get_llm_models_test_config()
+
     comparison_results = []
 
     for config in TESTED_CONFIGURATIONS:
