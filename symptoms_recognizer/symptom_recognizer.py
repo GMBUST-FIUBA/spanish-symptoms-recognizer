@@ -1,6 +1,7 @@
 from symptoms_recognizer.mapper.mapper import PhenotypeOntologyMapper
 from symptoms_recognizer.ner_model.model import PhenotypesDetector
 from symptoms_recognizer.text_parser.chunks_sentences_parser import ChunkSentencesParser
+from symptoms_recognizer.text_parser.full_text_parser import FullTextParser
 from symptoms_recognizer.text_parser.sections_parser import SectionsSentencesParser
 from symptoms_recognizer.text_parser.sentences_parser import SentencesParser
 
@@ -17,7 +18,8 @@ class PhenotypesRecognizer:
         ontology_file_path=None,
         allowed_entity_groups=None,
         agg_strategy="simple",
-        text_parser="sentences-parser"
+        text_parser="sentences",
+        phenotypes_model_type="ner"
     ):
 
         # Initialize NER model
@@ -25,7 +27,8 @@ class PhenotypesRecognizer:
             model_path=ner_model_path, 
             tokenizer_path=ner_tokenizer_path,
             allowed_entity_groups=allowed_entity_groups,
-            agg_strategy=agg_strategy
+            agg_strategy=agg_strategy,
+            phenotypes_model_type=phenotypes_model_type
         )
 
         # Initialize mapper
@@ -43,6 +46,8 @@ class PhenotypesRecognizer:
             self.text_parser = SentencesParser()
         elif text_parser == "sections-sentences":
             self.text_parser = SectionsSentencesParser()
+        elif text_parser == "full-text":
+            self.text_parser = FullTextParser()
         else:
             raise Exception("No known parser")
 

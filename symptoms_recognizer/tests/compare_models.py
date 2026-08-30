@@ -10,7 +10,8 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from symptoms_recognizer.symptom_recognizer import PhenotypesRecognizer
 from symptoms_recognizer.tests.evaluator import Evaluator 
-
+from transformers import logging as hf_logging
+hf_logging.set_verbosity_error()
 warnings.filterwarnings("ignore", message="Tokenizer does not support real words")
 
 def get_ner_models_test_config():
@@ -101,6 +102,10 @@ def compare_models():
             if 'recognizer' in locals(): del recognizer
             if 'evaluator' in locals(): del evaluator
             gc.collect()
+
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
     df_comparison = pd.DataFrame(comparison_results)
     if not df_comparison.empty:
