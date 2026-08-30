@@ -111,10 +111,10 @@ EJEMPLO DE SALIDA:
 
             try:
                 interaction = self.client.interactions.create(
-                    model="gemini-3.6-flash",
+                    model="gemini-3.1-flash-lite-preview",
                     input=full_prompt
                 )
-                
+
                 response_text = interaction.output_text
 
                 clean_text = response_text.replace("```json", "").replace("```", "").strip()

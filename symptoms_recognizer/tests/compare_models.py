@@ -60,7 +60,7 @@ def get_llm_models_test_config():
 
 def get_llm_api_models_test_config():
     yield {
-        "nombre_prueba": f"Gemini 3.6-flash",
+        "nombre_prueba": f"Gemini 3.1-flash-lite",
         "kwargs": {
             "ontology": "hpo",
             "text_parser" : "full-text",
@@ -70,9 +70,7 @@ def get_llm_api_models_test_config():
 
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
-
     TESTED_CONFIGURATIONS = get_llm_api_models_test_config()
-
     comparison_results = []
 
     for config in TESTED_CONFIGURATIONS:
@@ -81,29 +79,39 @@ def compare_models():
         
         try:
             recognizer = PhenotypesRecognizer(**config["kwargs"])
-
             evaluator = Evaluator(recognizer)
-            evaluator.evaluate_directory(dataset_dir, csv_hpo_column="hpo_code")
+            
+            evaluator.evaluate_directory(
+                dataset_dir, 
+                csv_hpo_column="hpo_code",
+                csv_text_column="phen_texts"
+            )
 
-            global_scores = evaluator._calculate_f1(
-                evaluator.global_tp, 
-                evaluator.global_fp, 
-                evaluator.global_fn
+            text_scores = evaluator._calculate_f1(
+                evaluator.global_text_tp, 
+                evaluator.global_text_fp, 
+                evaluator.global_text_fn
+            )
+            
+            code_scores = evaluator._calculate_f1(
+                evaluator.global_code_tp, 
+                evaluator.global_code_fp, 
+                evaluator.global_code_fn
             )
 
             comparison_results.append({
                 "Prueba": test_name,
-                "Modelo_Path": os.path.basename(config["kwargs"].get("ner_model_path", "")),
-                "Agg_Strategy": config["kwargs"].get("agg_strategy", "N/A"),
-                "TP": evaluator.global_tp,
-                "FP": evaluator.global_fp,
-                "FN": evaluator.global_fn,
-                "Precision": global_scores["Precision"],
-                "Recall": global_scores["Recall"],
-                "F1_Score": global_scores["F1_Score"]
-            })
 
-            print(f"[{test_name}] Completado. F1-Score: {global_scores['F1_Score']:.4f}\n")
+                "Txt_TP": evaluator.global_text_tp,
+                "Txt_FP": evaluator.global_text_fp,
+                "Txt_FN": evaluator.global_text_fn,
+                "Txt_F1": text_scores["F1_Score"],
+
+                "Code_TP": evaluator.global_code_tp,
+                "Code_FP": evaluator.global_code_fp,
+                "Code_FN": evaluator.global_code_fn,
+                "Code_F1": code_scores["F1_Score"]
+            })
             
         except Exception as e:
             print(f"Error evaluando la configuración '{test_name}': {str(e)}")
@@ -119,7 +127,8 @@ def compare_models():
 
     df_comparison = pd.DataFrame(comparison_results)
     if not df_comparison.empty:
-        df_comparison = df_comparison.sort_values(by="F1_Score", ascending=False).reset_index(drop=True)
+        # Ordenamos por el rendimiento global
+        df_comparison = df_comparison.sort_values(by="Code_F1", ascending=False).reset_index(drop=True)
         
     return df_comparison
 
@@ -127,8 +136,8 @@ if __name__ == "__main__":
     df_results = compare_models()
     
     if not df_results.empty:
-        print("\n" + "=" * 90)
-        print("REPORTE COMPARATIVO DE MODELOS Y ESTRATEGIAS".center(90))
-        print("=" * 90)
+        print("\n" + "=" * 120)
+        print("REPORTE COMPARATIVO DE MODELOS (TEXTO vs HPO)".center(120))
+        print("=" * 120)
         print(df_results.to_string())
-        print("=" * 90)
+        print("=" * 120)

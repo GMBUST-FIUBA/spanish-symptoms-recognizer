@@ -5,8 +5,6 @@ from symptoms_recognizer.text_parser.full_text_parser import FullTextParser
 from symptoms_recognizer.text_parser.sections_parser import SectionsSentencesParser
 from symptoms_recognizer.text_parser.sentences_parser import SentencesParser
 
-import spacy
-
 class PhenotypesRecognizer:
     def __init__(
         self, 

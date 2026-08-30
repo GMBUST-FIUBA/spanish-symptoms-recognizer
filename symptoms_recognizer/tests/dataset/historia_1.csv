@@ -1,10 +1,14 @@
-hpo_code,symptom
-HP:0005080,Poliartritis simétrica
-HP:0030880,Fenómeno de Raynaud
-HP:0002725,Lupus eritematoso sistémico
-HP:0001701,Pericarditis
-HP:0025300,Eritema malar
-HP:0025091,Alopecia no cicatricial
-HP:0000155,Úlcera oral
-HP:0000093,Proteinuria
-HP:0004818,Nefritis lúpica
+oracion,phen_texts,hpo_code,fenotipo_estandar
+"Motivo de Consulta: Sensación febril, artralgias generalizadas y lesiones dermatológicas.","Sensación febril",HP:0001945,"Fiebre"
+"Motivo de Consulta: Sensación febril, artralgias generalizadas y lesiones dermatológicas.","artralgias generalizadas",HP:0002829,"Artralgia"
+"Paciente de 28 años de edad que ingresa al servicio de Clínica Médica por un cuadro de 3 semanas de evolución caracterizado por astenia profunda, mialgias y exacerbación de dolores articulares.","astenia profunda",HP:0025406,"Astenia"
+"Paciente de 28 años de edad que ingresa al servicio de Clínica Médica por un cuadro de 3 semanas de evolución caracterizado por astenia profunda, mialgias y exacerbación de dolores articulares.","mialgias",HP:0003326,"Mialgia"
+"La paciente refiere que el dolor afecta de manera bilateral las pequeñas articulaciones de ambas manos (metacarpofalángicas e interfalángicas proximales) y muñecas, asociando rigidez matinal de más de una hora.","rigidez matinal",HP:0011855,"Rigidez matinal"
+"Tras la evaluación reumatológica inicial en la guardia, este cuadro articular se diagnostica formalmente como una poliartritis simétrica.","poliartritis simétrica",HP:0001377,"Poliartritis"
+"Al interrogatorio dirigido sobre fenómenos vasomotores, menciona episodios frecuentes de palidez severa seguida de cianosis distal en los dedos de las manos, desencadenados por la exposición al frío ambiental, compatibles con y diagnosticados como un fenómeno de Raynaud severo.","fenómeno de Raynaud severo",HP:0030880,"Fenómeno de Raynaud"
+"En dicho ingreso se le realizó un ecocardiograma transtorácico que confirmó el diagnóstico de una pericarditis aguda con derrame leve, la cual se encuentra actualmente resuelta.","pericarditis aguda",HP:0001701,"Pericarditis"
+"Piel y faneras: Se evidencia a nivel facial un eritema fijo, plano, de bordes netos sobre las eminencias malares y el puente nasal que respeta estrictamente los surcos nasogenianos; el servicio de dermatología es interconsultado y documenta en su evolución la presencia de un eritema malar clásico.","eritema malar clásico",HP:0025300,"Eritema malar"
+"A la maniobra de tracción del cuero cabelludo (pull test positivo), presenta pérdida de cabello difusa que el especialista diagnostica como alopecia no cicatricial.","alopecia no cicatricial",HP:0011364,"Alopecia no cicatricial"
+"Cavidad oral: A la inspección de la mucosa yugal y el paladar duro, se constata la presencia de múltiples úlceras orales de fondo sucio y bordes eritematosos, indoloras a la palpación.","úlceras orales",HP:0000155,"Úlcera oral"
+"El recuento de proteínas en orina de 24 horas arroja un valor de 1.8 g/24h; en base a estos estudios se determina que la paciente cursa con una proteinuria patológica.","proteinuria patológica",HP:0000093,"Proteinuria"
+"El servicio de anatomía patológica concluye de manera definitiva el diagnóstico de una nefritis lúpica proliferativa focal (Clase III).","nefritis lúpica proliferativa focal",HP:0004811,"Nefritis"

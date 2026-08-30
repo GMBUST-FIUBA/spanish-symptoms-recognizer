@@ -1,6 +1,6 @@
-﻿hpo_code,symptom
-HP:0003419,Lumbalgia
-HP:0011855,Rigidez matinal
-HP:0000554,Uveítis
-HP:0004088,Sacroiliítis
-HP:0003306,Espondilitis anquilosante
+oracion,phen_texts,hpo_code,fenotipo_estandar
+"Paciente derivado de consultorios externos por referir un cuadro de 18 meses de evolución caracterizado por un dolor lumbar bajo intermitente, diagnosticado semiológicamente como lumbalgia.","lumbalgia",HP:0003419,"Dolor de espalda bajo"
+"Asimismo, experimenta dificultad y pesadez para movilizar la columna al despertarse, lo cual el reumatólogo registra como rigidez matinal de más de 45 minutos de duración.","rigidez matinal",HP:0011855,"Rigidez matinal"
+"Maniobra de Schober modificada positiva (limitación a la flexión de la columna lumbar).","limitación a la flexión de la columna lumbar",HP:0008499,"Movilidad reducida de la columna"
+"En la consulta multidisciplinaria, el oftalmólogo evalúa un cuadro de ojo rojo doloroso de 2 semanas de evolución, diagnosticando una uveítis anterior aguda bilateral.","uveítis anterior aguda bilateral",HP:0000547,"Uveítis anterior"
+"Imágenes: La resonancia magnética nuclear (RMN) de pelvis evidencia edema óseo subcondral, esclerosis y erosiones articulares, confirmando una sacroiliítis bilateral activa.","sacroiliítis bilateral activa",HP:0004015,"Sacroiliitis"

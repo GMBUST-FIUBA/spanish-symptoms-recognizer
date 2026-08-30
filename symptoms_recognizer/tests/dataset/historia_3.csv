@@ -1,8 +1,10 @@
-﻿hpo_code,symptom
-HP:0002028,Diarrea crónica
-HP:0002027,Dolor abdominal
-HP:0001824,Pérdida de peso
-HP:0012253,Eritema nodoso
-HP:0100694,Fístula perianal
-HP:0001889,Anemia megaloblástica
-HP:0100279,Enfermedad de Crohn
+oracion,phen_texts,hpo_code,fenotipo_estandar
+"Relata evacuaciones líquidas sin moco ni sangre, de 4 a 5 episodios diarios, constituyendo un cuadro clínico de diarrea crónica.","diarrea crónica",HP:0002028,"Diarrea crónica"
+"El paciente asocia este cuadro a episodios de molestias tipo cólico en fosa ilíaca derecha, referidos como dolor abdominal severo recurrente tras la ingesta de alimentos.","dolor abdominal severo",HP:0002027,"Dolor abdominal"
+"Refiere además astenia, hiporexia y constata una disminución de 12 kilogramos de peso desde el inicio de los síntomas, lo cual se registra como pérdida de peso patológica.","astenia",HP:0025406,"Astenia"
+"Refiere además astenia, hiporexia y constata una disminución de 12 kilogramos de peso desde el inicio de los síntomas, lo cual se registra como pérdida de peso patológica.","hiporexia",HP:0004396,"Hiporexia"
+"Refiere además astenia, hiporexia y constata una disminución de 12 kilogramos de peso desde el inicio de los síntomas, lo cual se registra como pérdida de peso patológica.","pérdida de peso patológica",HP:0001824,"Pérdida de peso"
+"Piel y faneras: En las caras extensoras de ambas extremidades inferiores se palpan múltiples nódulos subcutáneos, indurados, eritematosos y calientes, muy dolorosos al tacto, compatibles clínica y dermatológicamente con eritema nodoso.","eritema nodoso",HP:0012253,"Eritema nodoso"
+"Región perianal: A la inspección de la región perineal por el servicio de proctología, se identifica un orificio supurativo en la posición de horas 5 (según la esfera del reloj), con trayecto hacia el canal anal, confirmándose el diagnóstico de una fístula perianal.","fístula perianal",HP:0100693,"Fístula perianal"
+"Laboratorio completo: Destaca un volumen corpuscular medio (VCM) de 115 fL y niveles séricos de Vitamina B12 indetectables, configurando el diagnóstico hematológico de una anemia megaloblástica.","anemia megaloblástica",HP:0001889,"Anemia megaloblástica"
+"Endoscopia digestiva baja: La colonoscopia revela la presencia de úlceras aftoides profundas, longitudinales, intercaladas con mucosa sana (patrón en empedrado) que comprometen el íleon terminal y ciego.","úlceras aftoides",HP:0011107,"Úlcera aftosa"

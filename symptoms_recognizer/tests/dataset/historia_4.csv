@@ -1,7 +1,9 @@
-﻿hpo_code,symptom
-HP:0002315,Cefalea
-HP:0000673,Hemianopsia bitemporal
-HP:0000975,Hiperhidrosis
-HP:0000303,Prognatismo
-HP:0000158,Macroglosia
-HP:0000845,Acromegalia
+oracion,phen_texts,hpo_code,fenotipo_estandar
+"Refiere un cuadro de 2 años de evolución caracterizado por dolor de cabeza opresivo, diagnosticado como una cefalea.","cefalea",HP:0002315,"Cefalea"
+"En los últimos meses nota pérdida de la visión periférica, motivo por el cual acudió al oftalmólogo, quien mediante una campimetría documentó una hemianopsia bitemporal.","hemianopsia bitemporal",HP:0000646,"Hemianopsia bitemporal"
+"La esposa del paciente refiere que este ha presentado un aumento progresivo del tamaño de manos y pies, obligándolo a cambiar su talla de calzado repetidas veces, y que suda excesivamente incluso en reposo, lo cual se cataloga clínicamente como hiperhidrosis.","hiperhidrosis",HP:0000975,"Hiperhidrosis"
+"Facies: Se evidencia un engrosamiento de los rasgos faciales.","engrosamiento de los rasgos faciales",HP:0000280,"Rasgos faciales toscos"
+"A la inspección lateral de la mandíbula se observa una prominencia marcada del maxilar inferior, diagnosticada como prognatismo.","prognatismo",HP:0000303,"Prognatismo"
+"Cavidad oral: Lengua de tamaño marcadamente aumentado que dificulta la articulación de ciertas palabras, confirmando una macroglosia.","macroglosia",HP:0000158,"Macroglosia"
+"Laboratorio: Factor de Crecimiento Insulinoide tipo 1 (IGF-1) marcadamente elevado.","Factor de Crecimiento Insulinoide tipo 1 (IGF-1) marcadamente elevado",HP:0000837,"Nivel elevado de IGF-1"
+"Resonancia Magnética de Silla Turca: Se evidencia un macroadenoma hipofisario de 15 mm.","macroadenoma hipofisario",HP:0011747,"Macroadenoma hipofisario"

@@ -1,7 +1,8 @@
-﻿hpo_code,symptom
-HP:0002322,Temblor de reposo
-HP:0001260,Disartria
-HP:0002240,Hepatomegalia
-HP:0001098,Anillo de Kayser-Fleischer
-HP:0002150,Ceruloplasmina sérica disminuida
-HP:0001399,Insuficiencia hepática
+oracion,phen_texts,hpo_code,fenotipo_estandar
+"La familia nota que el paciente comenzó con movimientos oscilatorios rítmicos e involuntarios en las manos, presentes incluso cuando está relajado, los cuales el servicio de neurología documenta como un franco temblor de reposo.","temblor de reposo",HP:0002322,"Temblor de reposo"
+"A esto se sumó, en las últimas semanas, una dificultad motora marcada para la fonación y articulación de las palabras, diagnosticada durante el examen neurológico como disartria.","disartria",HP:0001260,"Disartria"
+"Diagnosticado en la adolescencia temprana con cuadros repetitivos de transaminasas elevadas de etiología no filiada.","transaminasas elevadas",HP:0002910,"Niveles elevados de transaminasas hepáticas"
+"A la evaluación con lámpara de hendidura, se confirma la presencia bilateral de un anillo pigmentado de color pardo-verdoso en la periferia de la membrana de Descemet, diagnosticado como un anillo de Kayser-Fleischer.","anillo de Kayser-Fleischer",HP:0001103,"Anillo de Kayser-Fleischer"
+"A la palpación profunda se detecta el borde inferior del hígado a 4 cm por debajo del reborde costal derecho, confirmándose la presencia de hepatomegalia de consistencia firme.","hepatomegalia",HP:0002240,"Hepatomegalia"
+"El dosaje de proteínas séricas evidencia una ceruloplasmina sérica disminuida (5 mg/dL, valor normal > 20).","ceruloplasmina sérica disminuida",HP:0003155,"Nivel reducido de ceruloplasmina"
+"Evolución: Ante la alteración concomitante del coagulograma (RIN 2.5) y el aumento desproporcionado de bilirrubina directa, el equipo de hepatología determina que el paciente está desarrollando una insuficiencia hepática aguda.","insuficiencia hepática aguda",HP:0006554,"Insuficiencia hepática aguda"

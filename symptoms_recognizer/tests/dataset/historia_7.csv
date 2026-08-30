@@ -1,5 +1,6 @@
-﻿hpo_code,symptom
-HP:0005261,Hemartrosis
-HP:0011891,Hematoma
-HP:0003645,Tiempo de tromboplastina parcial prolongado
-HP:0000737,Hemofilia A
+oracion,phen_texts,hpo_code,fenotipo_estandar
+"Paciente traído por su madre por presentar dolor intenso e impotencia funcional en el miembro inferior derecho tras un traumatismo leve (caída desde su propia altura mientras jugaba).","dolor intenso",HP:0012531,"Dolor"
+"A la evaluación traumatológica se evidencia un derrame articular a tensión en la rodilla, cuya punción diagnóstica confirma que se trata de sangre, diagnosticándose una hemartrosis.","hemartrosis",HP:0005261,"Hemartrosis"
+"En la exploración del muslo ipsilateral se palpa una colección hemática encapsulada a nivel subcutáneo, catalogada como un hematoma en evolución.","hematoma en evolución",HP:0007420,"Hematoma"
+"En el laboratorio general se detecta un coagulograma marcadamente alterado, reportando un tiempo de tromboplastina parcial prolongado (KPTT de 85 segundos, valor normal hasta 35).","tiempo de tromboplastina parcial prolongado",HP:0003645,"Tiempo de tromboplastina parcial prolongado"
+"El dosaje de factores de coagulación revela niveles de Factor VIII menores al 1%.","niveles de Factor VIII menores al 1%",HP:0003646,"Nivel reducido de factor VIII"
