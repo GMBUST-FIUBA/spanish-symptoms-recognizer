@@ -86,6 +86,16 @@ What was theorized was that adjusting the minimum distance a vector must have to
 
 The results validate the hypothesis and confirm that a tighter distance between vectors helps by almost halving the number of hallucinations with the false positives but at the cost of not capturing some phenotypes. This means that the hallucination problem is made by elements in the text that have a medical meaning but are not really that close semantically to the HPO phenotypes, and that some phenotypes that must be captured are not that close semantically to the HPO names and therefore are not captured at the end of the mapping state.
 
+### Third test
+
+The next test was made to test an LLM in order to detect phenotypes in the clinical records. The reluctance to test this models was due to their non-deterministic results. So, as a proof of concept it was used a Gemini 3.6-flash free trial to test if this was the case and this are the results:
+
+| Test name | Model name | TP | FP | FN | Precision | Recall | F1 score |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Gemini 3.6-flash | 11 | 14 | 36 | 0.44 | 0.234 | 0.3056 |
+
+This result is better than all the other models used before and give as much hallucinations as the other ones.
+
 ---
 
 ## Citations & References

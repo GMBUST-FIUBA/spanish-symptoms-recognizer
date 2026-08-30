@@ -6,7 +6,7 @@ if __name__ == "__main__":
         clinical_history = document.read()
 
     # Get phenotypes recognizer
-    recognizer = PhenotypesRecognizer(ontology="hpo", text_parser="sections-sentences-parser")
+    recognizer = PhenotypesRecognizer(ontology="hpo", text_parser="full-text", phenotypes_model_type="llm_api")
 
     # Expected results:
     expected_results = {
@@ -32,9 +32,9 @@ if __name__ == "__main__":
     print("--------------------------------\n")
     print("Se obtuvo:")
 
-    results = recognizer.recognize(clinical_history)
+    results = recognizer.scan(clinical_history)
 
-    for result in results:
-        print(f" - {result}")
+    for phenotype, code in results:
+        print(f" - {code} : {phenotype}")
 
     print("--------------------------------")

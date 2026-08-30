@@ -58,10 +58,20 @@ def get_llm_models_test_config():
 
             yield new_config
 
+def get_llm_api_models_test_config():
+    yield {
+        "nombre_prueba": f"Gemini 3.6-flash",
+        "kwargs": {
+            "ontology": "hpo",
+            "text_parser" : "full-text",
+            "phenotypes_model_type" : "llm_api",
+        }
+    }
+
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
 
-    TESTED_CONFIGURATIONS = get_llm_models_test_config()
+    TESTED_CONFIGURATIONS = get_llm_api_models_test_config()
 
     comparison_results = []
 

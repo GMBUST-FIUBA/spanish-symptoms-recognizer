@@ -1,5 +1,6 @@
+from google import genai
 from pathlib import Path
-from transformers import AutoTokenizer, AutoModelForTokenClassification, GenerationConfig
+from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
 import json
@@ -64,6 +65,23 @@ EJEMPLO DE ENTRADA:
 EJEMPLO DE SALIDA:
 {"fenotipos": ["cefalea severa", "fotofobia"]}"""
 
+        elif phenotypes_model_type == "llm_api":
+            self.client = genai.Client()
+
+            self.base_prompt = """Eres un asistente médico experto en extraer signos y síntomas clínicos. Tu tarea es extraer los fenotipos positivos del paciente actual a partir del texto y devolverlos estrictamente en formato JSON.
+            
+REGLAS:
+1. Extrae SOLO los síntomas o signos que el paciente SÍ tiene.
+2. IGNORA los síntomas negados (ejemplo: "sin fiebre", "niega dolor").
+3. IGNORA los antecedentes de familiares (ejemplo: "madre con asma").
+4. Responde ÚNICAMENTE con un objeto JSON, sin texto adicional ni explicaciones.
+
+EJEMPLO DE ENTRADA:
+"Paciente presenta cefalea severa y fotofobia. Sin náuseas. Padre con hipertensión."
+
+EJEMPLO DE SALIDA:
+{"fenotipos": ["cefalea severa", "fotofobia"]}"""
+
         else:
             raise Exception("Non-existent model type")
 
@@ -84,6 +102,38 @@ EJEMPLO DE SALIDA:
                 entity_group = res.get("entity_group")
                 if not self.allowed_entity_groups or entity_group in self.allowed_entity_groups:
                     phenotypes_list.append(res["word"].strip())
+
+        elif self.phenotypes_model_type == "llm_api":
+            if not sentence or not sentence.strip():
+                return []
+
+            full_prompt = f"{self.base_prompt}\n\nTexto de entrada:\n{sentence}"
+
+            try:
+                interaction = self.client.interactions.create(
+                    model="gemini-3.6-flash",
+                    input=full_prompt
+                )
+                
+                response_text = interaction.output_text
+
+                clean_text = response_text.replace("```json", "").replace("```", "").strip()
+                
+                match = re.search(r'\{.*\}', clean_text, re.DOTALL)
+                if match:
+                    clean_text = match.group(0)
+
+                parsed_data = json.loads(clean_text)
+
+                raw_phenotypes = parsed_data.get("fenotipos", [])
+                phenotypes_list = list(set(raw_phenotypes))
+
+            except json.JSONDecodeError:
+                print(f"Fallo al parsear JSON. Salida cruda del modelo:\n{response_text}")
+                phenotypes_list = []
+            except Exception as e:
+                print(f"Error interno del pipeline LLM de Gemini: {e}")
+                phenotypes_list = []
 
         else:
             if not sentence or not sentence.strip():
