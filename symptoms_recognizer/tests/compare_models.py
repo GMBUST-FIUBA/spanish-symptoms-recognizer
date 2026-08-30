@@ -70,7 +70,10 @@ def get_llm_api_models_test_config():
 
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
-    TESTED_CONFIGURATIONS = get_llm_api_models_test_config()
+    
+    # Asegurate de incluir las listas de configs que necesites evaluar
+    TESTED_CONFIGURATIONS = list(get_llm_api_models_test_config()) + list(get_ner_models_test_config())
+    
     comparison_results = []
 
     for config in TESTED_CONFIGURATIONS:
@@ -102,15 +105,19 @@ def compare_models():
             comparison_results.append({
                 "Prueba": test_name,
 
-                "Txt_TP": evaluator.global_text_tp,
-                "Txt_FP": evaluator.global_text_fp,
-                "Txt_FN": evaluator.global_text_fn,
-                "Txt_F1": text_scores["F1_Score"],
+                "NER TP": evaluator.global_text_tp,
+                "NER FP": evaluator.global_text_fp,
+                "NER FN": evaluator.global_text_fn,
+                "NER Prec": text_scores["Precision"],
+                "NER Rec": text_scores["Recall"],
+                "NER F1": text_scores["F1_Score"],
 
-                "Code_TP": evaluator.global_code_tp,
-                "Code_FP": evaluator.global_code_fp,
-                "Code_FN": evaluator.global_code_fn,
-                "Code_F1": code_scores["F1_Score"]
+                "Map TP": evaluator.global_code_tp,
+                "Map FP": evaluator.global_code_fp,
+                "Map FN": evaluator.global_code_fn,
+                "Map Prec": code_scores["Precision"],
+                "Map Rec": code_scores["Recall"],
+                "Map F1": code_scores["F1_Score"]
             })
             
         except Exception as e:
@@ -127,7 +134,6 @@ def compare_models():
 
     df_comparison = pd.DataFrame(comparison_results)
     if not df_comparison.empty:
-        # Ordenamos por el rendimiento global
         df_comparison = df_comparison.sort_values(by="Code_F1", ascending=False).reset_index(drop=True)
         
     return df_comparison

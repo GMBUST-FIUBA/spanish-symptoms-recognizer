@@ -94,7 +94,13 @@ The next test was made to test an LLM in order to detect phenotypes in the clini
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Gemini 3.6-flash | 11 | 14 | 36 | 0.44 | 0.234 | 0.3056 |
 
-This result is better than all the other models used before and give as much hallucinations as the other ones.
+This result is better than all the other models used before and give as much hallucinations as the other ones. Another test with Gemini 3.1 Flash Lite gave this results with more granular statistics:
+
+| Model name | NER TP | NER FP | NER FN | NER F1 score | Map TP | Map FP | Map FN | Map F1 score |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Gemini 3.1-flash-lite | 50 | 57 | 9 | 0.6024 | 17 | 12 | 42 | 0.3864 |
+
+Which gives really good statistics but shows the mapping, which uses ClinLinker, needs more work.
 
 ---
 
