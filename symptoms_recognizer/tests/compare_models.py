@@ -70,9 +70,8 @@ def get_llm_api_models_test_config():
 
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
-    
-    # Asegurate de incluir las listas de configs que necesites evaluar
-    TESTED_CONFIGURATIONS = list(get_llm_api_models_test_config()) + list(get_ner_models_test_config())
+
+    TESTED_CONFIGURATIONS = get_ner_models_test_config()
     
     comparison_results = []
 
@@ -134,7 +133,7 @@ def compare_models():
 
     df_comparison = pd.DataFrame(comparison_results)
     if not df_comparison.empty:
-        df_comparison = df_comparison.sort_values(by="Code_F1", ascending=False).reset_index(drop=True)
+        df_comparison = df_comparison.sort_values(by="Map F1", ascending=False).reset_index(drop=True)
         
     return df_comparison
 
