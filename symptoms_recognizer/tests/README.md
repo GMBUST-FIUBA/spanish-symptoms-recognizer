@@ -90,8 +90,8 @@ The results validate the hypothesis and confirm that a tighter distance between 
 
 The next test was made to test an LLM in order to detect phenotypes in the clinical records. The reluctance to test this models was due to their non-deterministic results. So, as a proof of concept it was used a Gemini 3.6-flash free trial and the results were promosing, so a more detailed test was made in a model with more requests available as the Gemini 3.1 Flash Lite model:
 
-| Model name | NER TP | NER FP | NER FN | NER F1 score | Map TP | Map FP | Map FN | Map F1 score |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Model name | NER TP | NER FP | NER FN | NER Prec | NER Rec | NER F1 score | Map TP | Map FP | Map FN | Map Prec | Map Rec | Map F1 score |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Gemini 3.1-flash-lite | 50 | 59 | 9 | 0.4587 | 0.8475 | 0.5952 | 17 | 17 | 42 | 0.5 | 0.2881 | 0.3656 |
 
 This is a major breakthrough in terms of performance since not only where almost all phenotypes detected (84% where detected) but also the hallucinations where reduced by almost 87%. Also, this implies that an upgrade in the LLMs used will more likely upgrade the detection of phenotypes. However an improvement needs to be made in the mapping stage since the mapper model used for this stage, the [ClinLinker-KB-GP](https://huggingface.co/ICB-UMA/ClinLinker-KB-GP), can't appropiately match the terms acquired by the NER model to the HPO phenotypes.
