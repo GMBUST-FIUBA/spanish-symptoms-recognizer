@@ -3,10 +3,12 @@ from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
+import subprocess
 import json
 import os
 import re
 import torch
+from openai import OpenAI
 
 # Local model path
 CURRENT_DIR = Path(__file__).parent.resolve()
@@ -20,9 +22,24 @@ class PhenotypesDetector:
                  tokenizer_path=None,
                  allowed_entity_groups=None,
                  agg_strategy="simple",
-                 phenotypes_model_type="ner"):
+                 phenotypes_model_type="ner",
+                 api_model_name=None):
 
         self.phenotypes_model_type = phenotypes_model_type
+
+        self.base_prompt = """Eres un asistente médico experto en extraer signos y síntomas clínicos. Tu tarea es extraer los fenotipos positivos del paciente actual a partir del texto y devolverlos estrictamente en formato JSON.
+
+REGLAS:
+1. Extrae SOLO los síntomas o signos que el paciente SÍ tiene.
+2. IGNORA los síntomas negados (ejemplo: "sin fiebre", "niega dolor").
+3. IGNORA los antecedentes de familiares (ejemplo: "madre con asma").
+4. Responde ÚNICAMENTE con un objeto JSON, sin texto adicional ni explicaciones.
+
+EJEMPLO DE ENTRADA:
+"Paciente presenta cefalea severa y fotofobia. Sin náuseas. Padre con hipertensión."
+
+EJEMPLO DE SALIDA:
+{"fenotipos": ["cefalea severa", "fotofobia"]}"""
 
         if phenotypes_model_type == "ner":
             model_path = model_path or DEFAULT_LOCAL_MODEL_PATH
@@ -51,36 +68,16 @@ class PhenotypesDetector:
                 device_map="auto",
                 dtype=torch.bfloat16,
             )
-            self.base_prompt = """Eres un asistente médico experto en extraer signos y síntomas clínicos. Tu tarea es extraer los fenotipos positivos del paciente actual a partir del texto y devolverlos estrictamente en formato JSON.
-
-REGLAS:
-1. Extrae SOLO los síntomas o signos que el paciente SÍ tiene.
-2. IGNORA los síntomas negados (ejemplo: "sin fiebre", "niega dolor").
-3. IGNORA los antecedentes de familiares (ejemplo: "madre con asma").
-4. Responde ÚNICAMENTE con un objeto JSON, sin texto adicional ni explicaciones.
-
-EJEMPLO DE ENTRADA:
-"Paciente presenta cefalea severa y fotofobia. Sin náuseas. Padre con hipertensión."
-
-EJEMPLO DE SALIDA:
-{"fenotipos": ["cefalea severa", "fotofobia"]}"""
 
         elif phenotypes_model_type == "llm_api":
             self.client = genai.Client()
 
-            self.base_prompt = """Eres un asistente médico experto en extraer signos y síntomas clínicos. Tu tarea es extraer los fenotipos positivos del paciente actual a partir del texto y devolverlos estrictamente en formato JSON.
-            
-REGLAS:
-1. Extrae SOLO los síntomas o signos que el paciente SÍ tiene.
-2. IGNORA los síntomas negados (ejemplo: "sin fiebre", "niega dolor").
-3. IGNORA los antecedentes de familiares (ejemplo: "madre con asma").
-4. Responde ÚNICAMENTE con un objeto JSON, sin texto adicional ni explicaciones.
-
-EJEMPLO DE ENTRADA:
-"Paciente presenta cefalea severa y fotofobia. Sin náuseas. Padre con hipertensión."
-
-EJEMPLO DE SALIDA:
-{"fenotipos": ["cefalea severa", "fotofobia"]}"""
+        # NUEVO BLOQUE: Integración con Codex/OpenAI
+        elif phenotypes_model_type == "openai_api":
+            self.api_model_name = api_model_name
+            # Como usarás 'codex exec', la API Key ya está en el entorno.
+            # OpenAI() la detecta automáticamente.
+            self.client = OpenAI() 
 
         else:
             raise Exception("Non-existent model type")
@@ -103,6 +100,9 @@ EJEMPLO DE SALIDA:
                 if not self.allowed_entity_groups or entity_group in self.allowed_entity_groups:
                     phenotypes_list.append(res["word"].strip())
 
+        elif self.phenotypes_model_type == "api":
+            raise Exception("TODO! Put available models")
+
         elif self.phenotypes_model_type == "llm_api":
             if not sentence or not sentence.strip():
                 return []
@@ -116,7 +116,6 @@ EJEMPLO DE SALIDA:
                 )
 
                 response_text = interaction.output_text
-
                 clean_text = response_text.replace("```json", "").replace("```", "").strip()
                 
                 match = re.search(r'\{.*\}', clean_text, re.DOTALL)
@@ -124,7 +123,6 @@ EJEMPLO DE SALIDA:
                     clean_text = match.group(0)
 
                 parsed_data = json.loads(clean_text)
-
                 raw_phenotypes = parsed_data.get("fenotipos", [])
                 phenotypes_list = list(set(raw_phenotypes))
 
@@ -135,7 +133,7 @@ EJEMPLO DE SALIDA:
                 print(f"Error interno del pipeline LLM de Gemini: {e}")
                 phenotypes_list = []
 
-        else:
+        else: # Local LLM
             if not sentence or not sentence.strip():
                 return []
 
@@ -143,14 +141,8 @@ EJEMPLO DE SALIDA:
             safe_sentence = self.tokenizer.decode(input_tokens, skip_special_tokens=True)
 
             messages = [
-                {
-                    "role": "system", 
-                    "content": self.base_prompt
-                },
-                {
-                    "role": "user", 
-                    "content": f"Texto de entrada:\n{safe_sentence}"
-                }
+                {"role": "system", "content": self.base_prompt},
+                {"role": "user", "content": f"Texto de entrada:\n{safe_sentence}"}
             ]
 
             try:
@@ -172,13 +164,11 @@ EJEMPLO DE SALIDA:
 
             try:
                 clean_text = response_text.replace("```json", "").replace("```", "").strip()
-                
                 match = re.search(r'\{.*\}', clean_text, re.DOTALL)
                 if match:
                     clean_text = match.group(0)
 
                 parsed_data = json.loads(clean_text)
-
                 raw_phenotypes = parsed_data.get("fenotipos", [])
                 phenotypes_list = list(set(raw_phenotypes))
 

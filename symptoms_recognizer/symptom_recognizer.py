@@ -17,7 +17,8 @@ class PhenotypesRecognizer:
         allowed_entity_groups=None,
         agg_strategy="simple",
         text_parser="sentences",
-        phenotypes_model_type="ner"
+        phenotypes_model_type="ner",
+        api_model_name=None,
     ):
 
         # Initialize NER model
@@ -26,7 +27,8 @@ class PhenotypesRecognizer:
             tokenizer_path=ner_tokenizer_path,
             allowed_entity_groups=allowed_entity_groups,
             agg_strategy=agg_strategy,
-            phenotypes_model_type=phenotypes_model_type
+            phenotypes_model_type=phenotypes_model_type,
+            api_model_name=api_model_name,
         )
 
         # Initialize mapper

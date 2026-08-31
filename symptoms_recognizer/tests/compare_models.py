@@ -68,10 +68,24 @@ def get_llm_api_models_test_config():
         }
     }
 
+def get_openai_api_models_test_config():
+    MODEL_NAMES = ["gpt-5.4"]
+
+    for model_name in MODEL_NAMES:
+        yield {
+            "nombre_prueba": f"ChatGPT {model_name}",
+            "kwargs": {
+                "ontology": "hpo",
+                "text_parser" : "full-text",
+                "phenotypes_model_type" : "openai_api",
+                "api_model_name" : model_name
+            }
+        }
+
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
 
-    TESTED_CONFIGURATIONS = get_ner_models_test_config()
+    TESTED_CONFIGURATIONS = get_openai_api_models_test_config()
     
     comparison_results = []
 
