@@ -3,7 +3,6 @@ from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
-import subprocess
 import json
 import os
 import re
@@ -30,19 +29,26 @@ class PhenotypesDetector:
         self.api_provider = api_provider
         self.api_model_name = api_model_name
 
+        # NUEVO PROMPT: Pide explícitamente el fenotipo Y el contexto (la oración)
         self.base_prompt = """Eres un asistente médico experto en extraer signos y síntomas clínicos. Tu tarea es extraer los fenotipos positivos del paciente actual a partir del texto y devolverlos estrictamente en formato JSON.
 
 REGLAS:
 1. Extrae SOLO los síntomas o signos que el paciente SÍ tiene.
 2. IGNORA los síntomas negados (ejemplo: "sin fiebre", "niega dolor").
 3. IGNORA los antecedentes de familiares (ejemplo: "madre con asma").
-4. Responde ÚNICAMENTE con un objeto JSON, sin texto adicional ni explicaciones.
+4. Para cada fenotipo, extrae también la oración o fragmento exacto del texto original donde se menciona (como 'contexto').
+5. Responde ÚNICAMENTE con un objeto JSON, sin texto adicional ni explicaciones, siguiendo exactamente la estructura del ejemplo.
 
 EJEMPLO DE ENTRADA:
-"Paciente presenta cefalea severa y fotofobia. Sin náuseas. Padre con hipertensión."
+"Paciente de 45 años. Presenta cefalea severa y fotofobia desde ayer. Sin náuseas. Padre con hipertensión."
 
 EJEMPLO DE SALIDA:
-{"fenotipos": ["cefalea severa", "fotofobia"]}"""
+{
+  "fenotipos": [
+    {"fenotipo": "cefalea severa", "contexto": "Presenta cefalea severa y fotofobia desde ayer."},
+    {"fenotipo": "fotofobia", "contexto": "Presenta cefalea severa y fotofobia desde ayer."}
+  ]
+}"""
 
         if phenotypes_model_type == "ner":
             model_path = model_path or DEFAULT_LOCAL_MODEL_PATH
@@ -86,31 +92,31 @@ EJEMPLO DE SALIDA:
         else:
             raise Exception("Non-existent model type")
 
-    def detect_phenotypes(self, sentence: str) -> list[str]:
+    # RENOMBRADO: 'sentence' a 'text_chunk' porque puede ser el texto completo
+    def detect_phenotypes(self, text_chunk: str) -> list[tuple[str, str]]:
         phenotypes_list = []
 
         if self.phenotypes_model_type == "ner":
             tokens = self.tokenizer.encode(
-                sentence, 
+                text_chunk, 
                 truncation=True, 
                 max_length=512
             )
             truncated_sentence = self.tokenizer.decode(tokens, skip_special_tokens=True)
-
             sentence_results = self.ner_pipeline(truncated_sentence)
 
             for res in sentence_results:
                 entity_group = res.get("entity_group")
                 if not self.allowed_entity_groups or entity_group in self.allowed_entity_groups:
-                    phenotypes_list.append(res["word"].strip())
+                    # NER tradicional no separa oraciones fácil, así que usamos el chunk como contexto
+                    phenotypes_list.append((res["word"].strip(), text_chunk))
 
-        # BLOQUE UNIFICADO PARA APIs EXTERNAS
         elif self.phenotypes_model_type == "api":
-            if not sentence or not sentence.strip():
+            if not text_chunk or not text_chunk.strip():
                 return []
 
             response_text = ""
-            full_prompt = f"{self.base_prompt}\n\nTexto de entrada:\n{sentence}"
+            full_prompt = f"{self.base_prompt}\n\nTexto de entrada:\n{text_chunk}"
 
             try:
                 if self.api_provider == "gemini":
@@ -125,34 +131,21 @@ EJEMPLO DE SALIDA:
                         model=self.api_model_name,
                         messages=[
                             {"role": "system", "content": self.base_prompt},
-                            {"role": "user", "content": f"Texto de entrada:\n{sentence}"}
+                            {"role": "user", "content": f"Texto de entrada:\n{text_chunk}"}
                         ]
                     )
                     response_text = response.choices[0].message.content
 
-                clean_text = response_text.replace("```json", "").replace("```", "").strip()
-                
-                match = re.search(r'\{.*\}', clean_text, re.DOTALL)
-                if match:
-                    clean_text = match.group(0)
+                phenotypes_list = self._parse_llm_json_output(response_text, text_chunk)
 
-                parsed_data = json.loads(clean_text)
-                raw_phenotypes = parsed_data.get("fenotipos", [])
-                phenotypes_list = list(set(raw_phenotypes))
-
-            except json.JSONDecodeError:
-                print(f"Fallo al parsear JSON. Salida cruda del modelo:\n{response_text}")
-                phenotypes_list = []
             except Exception as e:
                 print(f"Error interno del pipeline API de {self.api_provider}: {e}")
-                phenotypes_list = []
 
-        # LOCAL LLM
         elif self.phenotypes_model_type == "llm":
-            if not sentence or not sentence.strip():
+            if not text_chunk or not text_chunk.strip():
                 return []
 
-            input_tokens = self.tokenizer.encode(sentence, truncation=True, max_length=2048)
+            input_tokens = self.tokenizer.encode(text_chunk, truncation=True, max_length=2048)
             safe_sentence = self.tokenizer.decode(input_tokens, skip_special_tokens=True)
 
             messages = [
@@ -168,27 +161,42 @@ EJEMPLO DE SALIDA:
                     do_sample=False,
                     return_full_text=False
                 )
+                
+                if outputs and isinstance(outputs, list) and len(outputs) > 0:
+                    response_text = outputs[0].get("generated_text", "")
+                    phenotypes_list = self._parse_llm_json_output(response_text, text_chunk)
+
             except Exception as e:
                 print(f"Error interno del pipeline LLM local en este chunk: {e}")
-                return []
-
-            if not outputs or not isinstance(outputs, list) or len(outputs) == 0:
-                return []
-
-            response_text = outputs[0].get("generated_text", "")
-
-            try:
-                clean_text = response_text.replace("```json", "").replace("```", "").strip()
-                match = re.search(r'\{.*\}', clean_text, re.DOTALL)
-                if match:
-                    clean_text = match.group(0)
-
-                parsed_data = json.loads(clean_text)
-                raw_phenotypes = parsed_data.get("fenotipos", [])
-                phenotypes_list = list(set(raw_phenotypes))
-
-            except json.JSONDecodeError:
-                print(f"Fallo al parsear JSON. Salida cruda del modelo:\n{response_text}")
-                phenotypes_list = []
 
         return phenotypes_list
+
+    def _parse_llm_json_output(self, response_text: str, fallback_context: str) -> list[tuple[str, str]]:
+        """
+        Lógica unificada para extraer la tupla (fenotipo, contexto) del JSON del LLM.
+        """
+        extracted_list = []
+        try:
+            clean_text = response_text.replace("```json", "").replace("```", "").strip()
+            match = re.search(r'\{.*\}', clean_text, re.DOTALL)
+            if match:
+                clean_text = match.group(0)
+
+            parsed_data = json.loads(clean_text)
+            raw_items = parsed_data.get("fenotipos", [])
+
+            for item in raw_items:
+                if isinstance(item, dict):
+                    feno = item.get("fenotipo", "").strip()
+                    ctx = item.get("contexto", fallback_context).strip()
+                    if feno:
+                        extracted_list.append((feno, ctx))
+                elif isinstance(item, str):
+                    # Fallback por si el LLM alucina y devuelve una lista de strings
+                    extracted_list.append((item.strip(), fallback_context))
+                    
+        except json.JSONDecodeError:
+            print(f"Fallo al parsear JSON. Salida cruda del modelo:\n{response_text}")
+            
+        # Deduplicamos usando un set, manteniendo el formato (fenotipo, contexto)
+        return list(set(extracted_list))
