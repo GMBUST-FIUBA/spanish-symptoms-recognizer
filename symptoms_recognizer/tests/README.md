@@ -96,6 +96,17 @@ The next test was made to test an LLM in order to detect phenotypes in the clini
 
 This is a major breakthrough in terms of performance since not only where almost all phenotypes detected (84% where detected) but also the hallucinations where reduced by almost 87%. Also, this implies that an upgrade in the LLMs used will more likely upgrade the detection of phenotypes. However an improvement needs to be made in the mapping stage since the mapper model used for this stage, the [ClinLinker-KB-GP](https://huggingface.co/ICB-UMA/ClinLinker-KB-GP), can't appropiately match the terms acquired by the NER model to the HPO phenotypes.
 
+After this a new test was developed in order to get more data. This was tested using the Gemini models Gemini 3.5 Flash, Gemini 3.1 Flash Lite and Gemini 3 Flash (preview stage). The results are shown as follows:
+
+| Model name | NER TP | NER FP | NER FN | NER Prec | NER Rec | NER F1 score | Map TP | Map FP | Map FN | Map Prec | Map Rec | Map F1 score |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Gemini - gemini-3.5-flash | 52 | 40 | 7 | 0.5652 | 0.8814 | 0.6887 | 17 | 11 | 42 | 0.6071 | 0.2881 | 0.3908 |
+| Gemini - gemini-3.1-flash-lite | 51 | 62 | 8 | 0.4513 | 0.8644 | 0.5930 | 17 | 13 | 42 | 0.5667 | 0.2881 | 0.3820 |
+| Gemini - gemini-3-flash-preview | 48 | 82 | 11  | 0.3692 | 0.8136 | 0.5079 | 16 | 13 | 43 | 0.5517 | 0.2712 | 0.3636 |
+
+As can be shown in the table above, the result is the best so far overall but specially at the NER stage where the false positives are at their lowest. More models will be used in the future in order to determine the best ones.
+
+
 ---
 
 ## Citations & References
