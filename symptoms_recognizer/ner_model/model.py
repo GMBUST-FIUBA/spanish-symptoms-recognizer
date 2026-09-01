@@ -23,9 +23,12 @@ class PhenotypesDetector:
                  allowed_entity_groups=None,
                  agg_strategy="simple",
                  phenotypes_model_type="ner",
+                 api_provider=None,
                  api_model_name=None):
 
         self.phenotypes_model_type = phenotypes_model_type
+        self.api_provider = api_provider
+        self.api_model_name = api_model_name
 
         self.base_prompt = """Eres un asistente médico experto en extraer signos y síntomas clínicos. Tu tarea es extraer los fenotipos positivos del paciente actual a partir del texto y devolverlos estrictamente en formato JSON.
 
@@ -69,15 +72,16 @@ EJEMPLO DE SALIDA:
                 dtype=torch.bfloat16,
             )
 
-        elif phenotypes_model_type == "llm_api":
-            self.client = genai.Client()
+        elif phenotypes_model_type == "api":
+            if not api_model_name:
+                raise ValueError("api_model_name es obligatorio cuando phenotypes_model_type='api'")
 
-        # NUEVO BLOQUE: Integración con Codex/OpenAI
-        elif phenotypes_model_type == "openai_api":
-            self.api_model_name = api_model_name
-            # Como usarás 'codex exec', la API Key ya está en el entorno.
-            # OpenAI() la detecta automáticamente.
-            self.client = OpenAI() 
+            if self.api_provider == "gemini":
+                self.client = genai.Client()
+            elif self.api_provider == "openai":
+                self.client = OpenAI()
+            else:
+                raise Exception(f"Proveedor de API no soportado: {self.api_provider}")
 
         else:
             raise Exception("Non-existent model type")
@@ -100,22 +104,32 @@ EJEMPLO DE SALIDA:
                 if not self.allowed_entity_groups or entity_group in self.allowed_entity_groups:
                     phenotypes_list.append(res["word"].strip())
 
+        # BLOQUE UNIFICADO PARA APIs EXTERNAS
         elif self.phenotypes_model_type == "api":
-            raise Exception("TODO! Put available models")
-
-        elif self.phenotypes_model_type == "llm_api":
             if not sentence or not sentence.strip():
                 return []
 
+            response_text = ""
             full_prompt = f"{self.base_prompt}\n\nTexto de entrada:\n{sentence}"
 
             try:
-                interaction = self.client.interactions.create(
-                    model="gemini-3.1-flash-lite-preview",
-                    input=full_prompt
-                )
+                if self.api_provider == "gemini":
+                    interaction = self.client.interactions.create(
+                        model=self.api_model_name,
+                        input=full_prompt
+                    )
+                    response_text = interaction.output_text
+                    
+                elif self.api_provider == "openai":
+                    response = self.client.chat.completions.create(
+                        model=self.api_model_name,
+                        messages=[
+                            {"role": "system", "content": self.base_prompt},
+                            {"role": "user", "content": f"Texto de entrada:\n{sentence}"}
+                        ]
+                    )
+                    response_text = response.choices[0].message.content
 
-                response_text = interaction.output_text
                 clean_text = response_text.replace("```json", "").replace("```", "").strip()
                 
                 match = re.search(r'\{.*\}', clean_text, re.DOTALL)
@@ -130,10 +144,11 @@ EJEMPLO DE SALIDA:
                 print(f"Fallo al parsear JSON. Salida cruda del modelo:\n{response_text}")
                 phenotypes_list = []
             except Exception as e:
-                print(f"Error interno del pipeline LLM de Gemini: {e}")
+                print(f"Error interno del pipeline API de {self.api_provider}: {e}")
                 phenotypes_list = []
 
-        else: # Local LLM
+        # LOCAL LLM
+        elif self.phenotypes_model_type == "llm":
             if not sentence or not sentence.strip():
                 return []
 
@@ -154,7 +169,7 @@ EJEMPLO DE SALIDA:
                     return_full_text=False
                 )
             except Exception as e:
-                print(f"Error interno del pipeline LLM en este chunk: {e}")
+                print(f"Error interno del pipeline LLM local en este chunk: {e}")
                 return []
 
             if not outputs or not isinstance(outputs, list) or len(outputs) == 0:
