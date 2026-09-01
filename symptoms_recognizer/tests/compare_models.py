@@ -72,8 +72,8 @@ def get_gemini_api_models_test_config():
                 "ontology": "hpo",
                 "text_parser": "full-text",
                 "phenotypes_model_type": "api",
-                "api_provider": "gemini",
-                "api_model_name": model_name,
+                "ner_api_provider": "gemini",
+                "ner_api_model_name": model_name,
             }
         }
 
@@ -86,15 +86,45 @@ def get_openai_api_models_test_config():
             "kwargs": {
                 "ontology": "hpo",
                 "text_parser" : "full-text",
-                "phenotypes_model_type" : "openai_api",
-                "api_model_name" : model_name
+                "phenotypes_model_type" : "api", 
+                "ner_api_provider": "openai",
+                "ner_api_model_name" : model_name
             }
         }
+
+def get_gemini_test_api_models_ner_and_map_config():
+    NER_MODEL_NAMES = [
+        "gemini-3.5-flash",
+        "gemini-3-flash-preview",
+        "gemini-3.1-flash-lite",
+    ]
+
+    MAP_MODEL_NAMES = [
+        "gemini-3.5-flash",
+    ]
+
+    for ner_model_name in NER_MODEL_NAMES:
+        for map_model_name in MAP_MODEL_NAMES:
+            yield {
+                "nombre_prueba": f"Gemini - NER: {ner_model_name} - MAP: {map_model_name}",
+                "kwargs": {
+                    "ontology": "hpo",
+                    "text_parser": "full-text",
+                    "phenotypes_model_type": "api",
+
+                    "ner_api_provider": "gemini",
+                    "ner_api_model_name": ner_model_name,
+
+                    "map_api_provider": "gemini",
+                    "map_api_model_name": map_model_name,
+                }
+            }
 
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
 
-    TESTED_CONFIGURATIONS = get_gemini_api_models_test_config()
+    # Aquí cambias el generador que quieres evaluar
+    TESTED_CONFIGURATIONS = get_gemini_test_api_models_ner_and_map_config()
     
     comparison_results = []
 

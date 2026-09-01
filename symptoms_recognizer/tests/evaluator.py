@@ -60,7 +60,13 @@ class Evaluator:
                 text = f.read()
 
             predicted_texts_list = self.recognizer.recognize(text)
-            predicted_texts = set([txt.lower().strip() for txt in predicted_texts_list if txt])
+            
+            predicted_texts = set()
+            for item in predicted_texts_list:
+                if isinstance(item, tuple) and item[0]:
+                    predicted_texts.add(item[0].lower().strip())
+                elif isinstance(item, str) and item:
+                    predicted_texts.add(item.lower().strip())
 
             predicted_hpo_list = self.recognizer.map(predicted_texts_list)
             predicted_hpo = set([code.strip() for code in predicted_hpo_list if code != "None"])
