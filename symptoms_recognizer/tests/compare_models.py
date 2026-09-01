@@ -58,15 +58,26 @@ def get_llm_models_test_config():
 
             yield new_config
 
-def get_llm_api_models_test_config():
-    yield {
-        "nombre_prueba": f"Gemini 3.1-flash-lite",
-        "kwargs": {
-            "ontology": "hpo",
-            "text_parser" : "full-text",
-            "phenotypes_model_type" : "llm_api",
+def get_gemini_api_models_test_config():
+    MODEL_NAMES = [
+        "gemini-3.5-flash",
+        "gemini-3-flash-preview",
+        "gemini-3.1-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite"
+    ]
+
+    for model_name in MODEL_NAMES:
+        yield {
+            "nombre_prueba": f"Gemini - {model_name}",
+            "kwargs": {
+                "ontology": "hpo",
+                "text_parser": "full-text",
+                "phenotypes_model_type": "api",
+                "api_provider": "gemini",
+                "api_model_name": model_name,
+            }
         }
-    }
 
 def get_openai_api_models_test_config():
     MODEL_NAMES = ["gpt-5.4"]
@@ -85,7 +96,7 @@ def get_openai_api_models_test_config():
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
 
-    TESTED_CONFIGURATIONS = get_openai_api_models_test_config()
+    TESTED_CONFIGURATIONS = get_gemini_api_models_test_config()
     
     comparison_results = []
 
