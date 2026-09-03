@@ -29,7 +29,6 @@ class PhenotypesDetector:
         self.api_provider = api_provider
         self.api_model_name = api_model_name
 
-        # NUEVO PROMPT: Pide explícitamente el fenotipo Y el contexto (la oración)
         self.base_prompt = """Eres un asistente médico experto en extraer signos y síntomas clínicos. Tu tarea es extraer los fenotipos positivos del paciente actual a partir del texto y devolverlos estrictamente en formato JSON.
 
 REGLAS:
