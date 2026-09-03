@@ -122,8 +122,9 @@ def get_gemini_test_api_models_ner_and_map_config():
 
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
-
-    TESTED_CONFIGURATIONS = get_gemini_test_api_models_ner_and_map_config()
+    reports_dir = os.path.join(CURRENT_DIR, "reports") 
+    
+    TESTED_CONFIGURATIONS = get_gemini_api_models_test_config()
 
     comparison_results = []
 
@@ -140,6 +141,8 @@ def compare_models():
                 csv_hpo_column="hpo_code",
                 csv_text_column="phen_texts"
             )
+
+            evaluator.export_detailed_reports(output_dir=reports_dir, test_name=test_name)
 
             text_scores = evaluator._calculate_f1(
                 evaluator.global_text_tp, 
@@ -170,6 +173,8 @@ def compare_models():
                 "Map Rec": code_scores["Recall"],
                 "Map F1": code_scores["F1_Score"]
             })
+
+            print(f"Evaluación terminada. Reportes guardados en: {reports_dir}")
 
         except Exception as e:
             print(f"Error evaluando la configuración '{test_name}': {str(e)}")

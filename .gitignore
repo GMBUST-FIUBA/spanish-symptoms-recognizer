@@ -17,4 +17,5 @@ symptoms_recognizer/mapper/semantic_model
 symptoms_recognizer/ner_model/training/data/synthetic/input_texts/hp-es.babelon.tsv
 symptoms_recognizer/ner_model/training/data/synthetic/output_data
 symptoms_recognizer/ner_model/training/data/analysis
+symptoms_recognizer/tests/reports
 __pycache__
