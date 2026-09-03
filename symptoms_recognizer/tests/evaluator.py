@@ -91,6 +91,9 @@ class Evaluator:
                 "Code_F1": doc_code_scores["F1_Score"],
                 "Text_F1": doc_text_scores["F1_Score"],
 
+                "Expected_Texts": expected_texts,
+                "Expected_HPO": expected_hpo,
+
                 "Text_TP": text_tp_set,
                 "Text_FP": text_fp_set,
                 "Text_FN": text_fn_set,
@@ -127,8 +130,13 @@ class Evaluator:
                 doc_name = doc["Document"]
                 text_input = doc["Input_Text"]
 
+                # NER stage
                 f_ner.write(f"DOCUMENTO: {doc_name}\n")
                 f_ner.write(f"--- ENTRADA ---\n{text_input}\n\n")
+
+                f_ner.write(f"ESPERADOS [{len(doc['Expected_Texts'])}]:\n")
+                for item in sorted(doc["Expected_Texts"]): f_ner.write(f"  - {item}\n")
+                f_ner.write("\n")
 
                 f_ner.write(f"TP (Aciertos) [{len(doc['Text_TP'])}]:\n")
                 for item in doc["Text_TP"]: f_ner.write(f"  - {item}\n")
@@ -141,8 +149,13 @@ class Evaluator:
 
                 f_ner.write("\n" + "-"*80 + "\n\n")
 
+                # Mapping stage
                 f_map.write(f"DOCUMENTO: {doc_name}\n")
                 f_map.write(f"--- ENTRADA ---\n{text_input}\n\n")
+
+                f_map.write(f"🎯 ESPERADOS [{len(doc['Expected_HPO'])}]:\n")
+                for item in sorted(doc["Expected_HPO"]): f_map.write(f"  - {item}\n")
+                f_map.write("\n")
 
                 f_map.write(f"TP (Códigos Correctos) [{len(doc['HPO_TP'])}]:\n")
                 for item in doc["HPO_TP"]: f_map.write(f"  - {item}\n")
