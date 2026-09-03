@@ -25,7 +25,7 @@ MIN_DISTANCE_VECTORS = 0.3
 
 class PhenotypeOntologyMapper:
     def __init__(self, model_path=None, tokenizer_path=None, ontology=None, ontology_file_path=None, 
-                 api_provider=None, api_model_name=None, top_k=10):
+                 api_provider=None, api_model_name=None, top_k=5):
         
         self.pytorch_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.api_provider = api_provider
