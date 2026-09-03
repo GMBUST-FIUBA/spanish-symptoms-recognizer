@@ -106,6 +106,29 @@ After this a new test was developed in order to get more data. This was tested u
 
 As can be shown in the table above, the result is the best so far overall but specially at the NER stage where the false positives are at their lowest. More models will be used in the future in order to determine the best ones.
 
+### Fourth test
+
+Since the mapping stage was very inefficient at mapping phenotypes to their right codes, then a new idea was developed in order to better the results. What was found after analyzing the model was that even though the cosine distance is good at detecting similarities between phenotypes and HPO terms, if only the phenotype is sent to the mapping stage then a several possible codes can be found for a found. For example, if a the phenotype is "mocos" (mucus) then some possible HPO terms may be for "secreción anormal de moco nasal" (abnormal nasal mucus secretion) or "Rinorrea" (Rhinorrhea) since all the information provided is "mocos". This can be aided by the introduction of some context for the phenotype in the analysis. Therefore what is decided is that the NER stage must also separate the context of the phenotype detected and pass it to the mapping stage to process it, and to accomplish this task of reasoning using the context an AI model will be used.
+
+Another point to consider was how to guess the possible HPO codes. Since the HPO currently has over 18.000 terms if all of them are made of words that can be tokenized in 6 tokens (something that isn't really tru but serves as an example) then a total of 108.000 tokens need to be analyzed on each call to the AI in order to correctly assess the HPO code to use, which is not only impractical since a lot of LLMs that can fit this context nowadays are considered among the best but it is also very costly computationally and econnomically speaking. Therefore a RAG approach was decided, where the *ClinLinker* will still be used in order to define the closest HPO terms to the detected phenotype using the cosine distance but the top-K closest phenotypes (where K is a natural number) will be sent to the AI model in order to consider them as possible candidates to the HPO code.
+
+This approach was implemented on the code and here are the results for K=5 and K=10 respectively:
+
+| Model name | NER TP | NER FP | NER FN | NER Prec | NER Rec | NER F1 score | Map TP | Map FP | Map FN | Map Prec | Map Rec | Final F1 score |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Gemini - NER: gemini-3.5-flash - MAP: gemini-3.5-flash | 52 | 56 | 7 | 0.4815 | 0.8814 | 0.6228 | 34 | 45 | 25 | 0.4304 | 0.5763 | 0.4928 |
+| Gemini - NER: gemini-3.1-flash-lite - MAP: gemini-3.5-flash | 51 | 55 | 8 | 0.4811 | 0.8644 | 0.6182 | 32 | 46 | 27 | 0.4103 | 0.5424 | 0.4672 |
+| Gemini - NER: gemini-3-flash-preview - MAP: gemini-3.5-flash | 52 | 93 | 7 | 0.3586 | 0.8814 | 0.5098 | 32 | 65 | 27 | 0.3299 | 0.5424 | 0.4103 |
+
+
+| Model name | NER TP | NER FP | NER FN | NER Prec | NER Rec | NER F1 score | Map TP | Map FP | Map FN | Map Prec | Map Rec | Final F1 score |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Gemini - NER: gemini-3.5-flash - MAP: gemini-3.5-flash | 49 | 66 | 10 | 0.4261 | 0.8305 | 0.5632 | 33 | 47 | 26 | 0.4125 | 0.5593 | 0.4748 |
+| Gemini - NER: gemini-3.1-flash-lite - MAP: gemini-3.5-flash | 50 | 55 | 9 | 0.4762 | 0.8475 | 0.6098 | 31 | 49 | 28 | 0.3875 | 0.5254 | 0.4460 |
+| Gemini - NER: gemini-3-flash-preview - MAP: gemini-3.5-flash | 52 | 94 | 7 | 0.3562 | 0.8814 | 0.5073 | 32 | 60 | 27 | 0.3478 | 0.5424 | 0.4238 |
+
+
+As can be seen the results improve significantly even when models not known for reasoning are used, so this indicates that the idea is correct and that this approach will bring better results as better models are used.
 
 ---
 

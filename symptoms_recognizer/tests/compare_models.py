@@ -123,19 +123,18 @@ def get_gemini_test_api_models_ner_and_map_config():
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
 
-    # Aquí cambias el generador que quieres evaluar
     TESTED_CONFIGURATIONS = get_gemini_test_api_models_ner_and_map_config()
-    
+
     comparison_results = []
 
     for config in TESTED_CONFIGURATIONS:
         test_name = config["nombre_prueba"]
         print(f"[{test_name}] Iniciando evaluación...")
-        
+
         try:
             recognizer = PhenotypesRecognizer(**config["kwargs"])
             evaluator = Evaluator(recognizer)
-            
+
             evaluator.evaluate_directory(
                 dataset_dir, 
                 csv_hpo_column="hpo_code",
@@ -147,7 +146,7 @@ def compare_models():
                 evaluator.global_text_fp, 
                 evaluator.global_text_fn
             )
-            
+
             code_scores = evaluator._calculate_f1(
                 evaluator.global_code_tp, 
                 evaluator.global_code_fp, 
@@ -171,7 +170,7 @@ def compare_models():
                 "Map Rec": code_scores["Recall"],
                 "Map F1": code_scores["F1_Score"]
             })
-            
+
         except Exception as e:
             print(f"Error evaluando la configuración '{test_name}': {str(e)}")
 
@@ -187,12 +186,12 @@ def compare_models():
     df_comparison = pd.DataFrame(comparison_results)
     if not df_comparison.empty:
         df_comparison = df_comparison.sort_values(by="Map F1", ascending=False).reset_index(drop=True)
-        
+
     return df_comparison
 
 if __name__ == "__main__":
     df_results = compare_models()
-    
+
     if not df_results.empty:
         print("\n" + "=" * 120)
         print("REPORTE COMPARATIVO DE MODELOS (TEXTO vs HPO)".center(120))

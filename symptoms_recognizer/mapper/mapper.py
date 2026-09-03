@@ -21,11 +21,11 @@ ACCEPTED_ONTOLOGIES_FILES = { HPO_ONTOLOGY_CODE : HPO_ABSOLUTE_INPUT_FILE_PATH }
 
 LOCAL_MODEL_RELATIVE_PATH = "semantic_model/clinlinker-kb-gp"
 DEFAULT_LOCAL_MODEL_PATH = os.path.join(CURRENT_DIR, LOCAL_MODEL_RELATIVE_PATH)
-MIN_DISTANCE_VECTORS = 0.1
+MIN_DISTANCE_VECTORS = 0.3
 
 class PhenotypeOntologyMapper:
     def __init__(self, model_path=None, tokenizer_path=None, ontology=None, ontology_file_path=None, 
-                 api_provider=None, api_model_name=None, top_k=5):
+                 api_provider=None, api_model_name=None, top_k=10):
         
         self.pytorch_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.api_provider = api_provider
@@ -102,7 +102,6 @@ class PhenotypeOntologyMapper:
                 mapped_phenotypes[i] = sorted_candidates[0][1]
                 continue
 
-            # Extraemos la oracion especifica de contexto para este fenotipo
             phenotype_name = phenotypes_with_context[i][0]
             context_sentence = phenotypes_with_context[i][1]
 
