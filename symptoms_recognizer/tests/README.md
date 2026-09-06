@@ -14,7 +14,7 @@ The idea is not only to find the right combination of parameters for the clinica
 
 ## Results
 
-### First test
+### First test: NER models test
 
 A table with the results of those models with different aggregation methods for sub-words and text parsing methods ordered by F1 score is presented:
 
@@ -50,7 +50,7 @@ A table with the results of those models with different aggregation methods for 
 
 As it can be seen, the models trained on data with little to no AI involvement have better overall predictions scores, being [Medspanner's model](https://huggingface.co/medspaner/roberta-es-clinical-trials-umls-7sgs-ner) the best one. However it is worth noting that the models have an intrinsic hallucination problem, which is evident in the best models where sometimes there is a 4:1 ratio between false positives (hallucinations) and true positives at the end of the end of the pipeline, but a ratio of almost 1:35 at the end of the NER stage. And finally what is inferred through this results is that the aggregation method known as *first* works better than the other ones no matter the model used, and *chunks of sentences* text parsing is better in general.
 
-### Second test
+### Second test: Minimum vectors cosine distance lowered
 
 What was hypothesised was that adjusting the minimum distance a vector must have to an HPO type could help reduce the false positives and it was changed from 0.2 to 0.1 using de cosine distance. The results are shown as follows:
 
@@ -86,7 +86,7 @@ What was hypothesised was that adjusting the minimum distance a vector must have
 
 The results validate the hypothesis and confirm that a tighter distance between vectors helps by almost halving the number of hallucinations at the end of the pipeline with the false positives but at the cost of not capturing some phenotypes. This means that the hallucination problem is made by elements in the text that the NER model considers as phenotypes but are not really that close semantically to the HPO phenotypes (and this includes both noise and some relevant medical concepts that have no interest here), and that some phenotypes that must be captured are not that close semantically to the HPO names using the selected embedding and therefore are not captured at the end of the mapping stage.
 
-### Third test
+### Third test: NER stage done by LLM's
 
 The next test was made to test an LLM in order to detect phenotypes in the clinical records. The reluctance to test this models was due to their non-deterministic results. So, as a proof of concept it was used a Gemini 3.6-flash free trial and the results were promosing, so a more detailed test was made in a model with more requests available as the Gemini 3.1 Flash Lite model:
 
@@ -106,7 +106,7 @@ After this a new test was developed in order to get more data. This was tested u
 
 As can be shown in the table above, the result is the best so far overall but specially at the NER stage where the false positives are at their lowest. More models will be used in the future in order to determine the best ones.
 
-### Fourth test
+### Fourth test: Mapping HPO codes with RAG and context using LLM's
 
 Since the mapping stage was very inefficient at mapping phenotypes to their right codes, then a new idea was developed in order to better the results. What was found after analyzing the model was that even though the cosine distance is good at detecting similarities between phenotypes and HPO terms, if only the phenotype is sent to the mapping stage then a several possible codes can be found for a found. For example, if a the phenotype is "mocos" (mucus) then some possible HPO terms may be for "secreción anormal de moco nasal" (abnormal nasal mucus secretion) or "Rinorrea" (Rhinorrhea) since all the information provided is "mocos". This can be aided by the introduction of some context for the phenotype in the analysis. Therefore what is decided is that the NER stage must also separate the context of the phenotype detected and pass it to the mapping stage to process it, and to accomplish this task of reasoning using the context an AI model will be used.
 
@@ -129,6 +129,117 @@ This approach was implemented on the code and here are the results for K=5 and K
 
 
 As can be seen the results improve significantly even when models not known for reasoning are used, so this indicates that the idea is correct and that this approach will bring better results as better models are used.
+
+### Fifth test: LLM's test
+
+#### NER stage
+
+Since the model Gemini 3.5 Flash performed better no matter the test in the last tests then it will be used as the base case for testing the rest of the models. Now the models tested are, in addition to Gemini 3.5 Flash, the OpenAI models GPT-5.6 Terra, GPT-5.6 Luna, GPT-5.4 nano, GPT-5.4 Mini, GPT-5 Mini, GPT-4o Mini and GPT-4.1 Mini. At the same time the next Cluade models will be Claude Haiku 4.5 and Claude Sonnet 5.
+
+Here are the results counting only NER F1:
+
+| Test name | NER TP | NER FP | NER FN | NER Prec | NER Rec | NER F1 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Gemini - gemini-3.5-flash | 50 | 54 | 9 | 0.4808 | 0.8475 | 0.6135 |
+| Claude - claude-sonnet-5 | 35 | 42 | 24 | 0.4545 | 0.5932 | 0.5147 |
+| Claude - claude-haiku-4-5-20251001 | 45 | 71 | 14 | 0.3879 | 0.7627 | 0.5143 |
+| ChatGPT - gpt-4.1-mini | 39 | 58 | 20 | 0.4021 | 0.6610 | 0.5000 |
+| ChatGPT - gpt-4o-mini | 32 | 38 | 27 | 0.4571 | 0.5424 | 0.4961 |
+| ChatGPT - gpt-5.6-luna | 45 | 80 | 14 | 0.3600 | 0.7627 | 0.4891 |
+| ChatGPT - gpt-5.4-mini | 47 | 93 | 12 | 0.3357 | 0.7966 | 0.4724 |
+| ChatGPT - gpt-5.6-terra | 37 | 70 | 22 | 0.3458 | 0.6271 | 0.4458 |
+| ChatGPT - gpt-5-mini | 41 | 86 | 18 | 0.3228 | 0.6949 | 0.4409 |
+| ChatGPT - gpt-5.4-nano | 36 | 113 | 23 | 0.2416 | 0.6102 | 0.3462 |
+
+Now, when analyzing the results from different models what was seen was that there was both a problem at measuring the F1 score and a normalization problem, which combined generated the loss of F1 score for the NER stage. In short, the evaluation metrics where made by comparing literally the texts and if a word was missing it was automatically seen as a false positive, therefore inflating the number. At the same time, phrases refering to the same phenotype that are written differently are considered two separate phenotypes, which is not correct. This last problem was also fixed by asking the model to use more standard or common medical terms.
+
+This are the results after changing the prompts used and changing the evaluation are shown as follows:
+
+```text
+Eres un anotador clínico experto especializado en la Ontología de Fenotipos Humanos (HPO). Tu tarea es extraer signos, síntomas y anormalidades fenotípicas de la historia clínica.
+
+REGLAS ESTRICTAS:
+1. SOLO FENOTIPOS Y ANORMALIDADES: Extrae manifestaciones clínicas, signos físicos y síntomas reportados u observados.
+2. ENFERMEDADES GLOBALES vs. FENOTIPOS ESPECÍFICOS: Ignora los diagnósticos de enfermedades sistémicas o síndromes globales (ej. "Lupus eritematoso sistémico", "Esclerosis sistémica"). Sin embargo, SÍ DEBES extraer anormalidades estructurales o inflamaciones específicas de órganos (ej. "pericarditis", "nefritis", "poliartritis").
+3. MANEJO DE LABORATORIOS: No extraigas nombres de anticuerpos (ej. "ANA positivos", "anti-Scl70") ni valores numéricos crudos. SÍ puedes extraer alteraciones de laboratorio normalizadas que representen un fenotipo (ej. "proteinuria", "leucopenia").
+4. NORMALIZACIÓN EXTREMA: El valor de "fenotipo" debe ser el concepto médico estandarizado más corto posible (idealmente 1 a 3 palabras). 
+   - MAL: "rigidez matinal de más de una hora" -> BIEN: "rigidez matinal"
+   - MAL: "proteinuria patológica (1.8 g/24h)" -> BIEN: "proteinuria"
+   - MAL: "eritema fijo, plano, de bordes netos" -> BIEN: "eritema malar"
+5. IGNORA todo síntoma negado ("sin fiebre") y antecedentes familiares.
+6. Devuelve ÚNICAMENTE un objeto JSON válido, sin texto antes ni después.
+
+EJEMPLO DE ENTRADA:
+"Paciente con lupus. Presenta poliartritis simétrica y nefritis severa. Laboratorio: ANA positivo y proteinuria de 2g. Sin fiebre."
+
+EJEMPLO DE SALIDA:
+{
+  "fenotipos": [
+    {"fenotipo": "poliartritis", "contexto": "Presenta poliartritis simétrica y nefritis severa."},
+    {"fenotipo": "nefritis", "contexto": "Presenta poliartritis simétrica y nefritis severa."},
+    {"fenotipo": "proteinuria", "contexto": "Laboratorio: ANA positivo y proteinuria de 2g."}
+  ]
+}
+```
+
+| Test name | NER TP | NER FP | NER FN | NER Prec | NER Rec | NER F1 |
+| --- | --- | --- | --- | --- | --- | --- |
+| ChatGPT - gpt-4o-mini | 48 | 15 | 11 | 0.7619 | 0.8136 | 0.7869 |
+| Claude - claude-haiku-4-5-20251001 | 48 | 21 | 11 | 0.6957 | 0.8136 | 0.7500 |
+| Claude - claude-sonnet-5 | 52 | 30 | 7 | 0.6341 | 0.8814 | 0.7376 |
+| ChatGPT - gpt-4.1-mini | 46 | 28 | 13 | 0.6216 | 0.7797 | 0.6917 |
+| ChatGPT - gpt-5.6-terra | 47 | 32 | 12 | 0.5949 | 0.7966 | 0.6812 |
+| ChatGPT - gpt-5.6-luna | 46 | 33 | 13 | 0.5823 | 0.7797 | 0.6667 |
+| Gemini - gemini-3.5-flash | 48 | 38 | 11 | 0.5581 | 0.8136 | 0.6621 |
+| ChatGPT - gpt-5.4-mini | 47 | 36 | 12 | 0.5663 | 0.7966 | 0.6620 |
+| ChatGPT - gpt-5-mini | 47 | 44 | 12 | 0.5165 | 0.7966 | 0.6267 |
+| ChatGPT - gpt-5.4-nano | 42 | 35 | 17 | 0.5455 | 0.7119 | 0.6176 |
+
+The results show a significant improvement at the cost of specificity. Therefore the phenotypes are detected but at the cost of specificity. Another test was done with another prompt and the results are shown below:
+
+```text
+Eres un anotador clínico experto especializado en la Ontología de Fenotipos Humanos (HPO). Tu tarea es extraer signos, síntomas y anormalidades fenotípicas de la historia clínica.
+
+REGLAS ESTRICTAS DE EXTRACCIÓN:
+1. EXTRACCIÓN ESPECÍFICA (GRANULARIDAD): Extrae el síntoma manteniendo sus modificadores clínicos clave (tipo, anatomía, lateralidad, severidad). Usa las palabras literales del texto siempre que sea posible.
+   - BIEN: "disfagia motora", "poliartritis simétrica", "dolor abdominal severo", "eritema malar clásico".
+2. ELIMINA TIEMPOS Y EXPLICACIONES: El fenotipo NO debe contener descripciones de duración, frases conectoras ni explicaciones.
+   - MAL: "rigidez matinal de más de una hora" -> BIEN: "rigidez matinal"
+   - MAL: "pérdida de cabello difusa que el especialista diagnostica como alopecia" -> BIEN: "alopecia no cicatricial" o "pérdida de cabello difusa"
+3. ENFERMEDADES GLOBALES vs. FENOTIPOS: Ignora diagnósticos de enfermedades sistémicas (ej. "Lupus", "Espondilitis"). SÍ extrae manifestaciones específicas de órganos (ej. "pericarditis", "nefritis lúpica", "sacroiliítis bilateral").
+4. LABORATORIOS: Ignora anticuerpos (ej. "ANA positivos") y marcadores inflamatorios ("PCR elevada"). SÍ extrae anormalidades fisiológicas base (ej. "proteinuria", "anemia megaloblástica").
+5. IGNORA síntomas negados ("sin fiebre") y antecedentes familiares.
+6. Devuelve ÚNICAMENTE un objeto JSON válido, sin texto adicional.
+
+EJEMPLO DE ENTRADA:
+"Paciente con lupus. Presenta poliartritis simétrica severa desde hace 2 meses y nefritis. Laboratorio: ANA positivo y proteinuria de 2g. Sin fiebre."
+
+EJEMPLO DE SALIDA:
+{
+  "fenotipos": [
+    {"fenotipo": "poliartritis simétrica severa", "contexto": "Presenta poliartritis simétrica severa desde hace 2 meses y nefritis."},
+    {"fenotipo": "nefritis", "contexto": "Presenta poliartritis simétrica severa desde hace 2 meses y nefritis."},
+    {"fenotipo": "proteinuria", "contexto": "Laboratorio: ANA positivo y proteinuria de 2g."}
+  ]
+}
+```
+
+| Test name | NER TP | NER FP | NER FN | NER Prec | NER Rec | NER F1 |
+| --- | --- | --- | --- | --- | --- | --- |
+| ChatGPT - gpt-4o-mini | 44 | 23 | 15 | 0.6567 | 0.7458 | 0.6984 |
+| ChatGPT - gpt-5.4-mini | 45 | 34 | 14 | 0.5696 | 0.7627 | 0.6522 |
+| Claude - claude-haiku-4-5-20251001 | 42 | 38 | 17 | 0.5250 | 0.7119 | 0.6043 |
+| Gemini - gemini-3.5-flash | 40 | 43 | 19 | 0.4819 | 0.6780 | 0.5634 |
+| ChatGPT - gpt-4.1-mini | 38 | 38 | 21 | 0.5000 | 0.6441 | 0.5630 |
+| Claude - claude-sonnet-5 | 39 | 43 | 20 | 0.4756 | 0.6610 | 0.5532 |
+| ChatGPT - gpt-5.4-nano | 41 | 59 | 18 | 0.4100 | 0.6949 | 0.5157 |
+| ChatGPT - gpt-5.6-luna | 36 | 51 | 23 | 0.4138 | 0.6102 | 0.4932 |
+| ChatGPT - gpt-5.6-terra | 32 | 55 | 27 | 0.3678 | 0.5424 | 0.4384 |
+| ChatGPT - gpt-5-mini | 36 | 72 | 23 | 0.3333 | 0.6102 | 0.4311 |
+
+This prompt was evaluated in strict text comparisons and as it can be seen the results are still better than in the previous section of tests but, more importantly, they have more specificity than the previous test.
+
+What is clear, however, is that the model GPT 4O Mini is the one with better performance despiter being more modern examples like GPT Luna and Terra available.
 
 ---
 

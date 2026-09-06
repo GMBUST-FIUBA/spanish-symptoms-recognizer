@@ -56,6 +56,8 @@ class Evaluator:
             else:
                 expected_texts = set()
 
+            csv_records = df_expected.to_dict('records')
+
             with open(txt_path, "r", encoding="utf-8") as f:
                 text = f.read()
 
@@ -79,20 +81,24 @@ class Evaluator:
 
             doc_code_metrics = self._calculate_metrics(expected_hpo, predicted_hpo)
             doc_code_scores = self._calculate_f1(doc_code_metrics["TP"], doc_code_metrics["FP"], doc_code_metrics["FN"])
-            
+
             hpo_tp_set = expected_hpo.intersection(predicted_hpo)
             hpo_fp_set = predicted_hpo - expected_hpo
             hpo_fn_set = expected_hpo - predicted_hpo
-            
+
             self.results_per_doc.append({
                 "Document": os.path.basename(txt_path),
                 "Input_Text": text.strip(),
+                "CSV_Records": csv_records, 
 
                 "Code_F1": doc_code_scores["F1_Score"],
                 "Text_F1": doc_text_scores["F1_Score"],
 
                 "Expected_Texts": expected_texts,
                 "Expected_HPO": expected_hpo,
+
+                "Predicted_Texts": predicted_texts,
+                "Predicted_HPO": predicted_hpo,
 
                 "Text_TP": text_tp_set,
                 "Text_FP": text_fp_set,
@@ -110,6 +116,10 @@ class Evaluator:
             self.global_text_tp += doc_text_metrics["TP"]
             self.global_text_fp += doc_text_metrics["FP"]
             self.global_text_fn += doc_text_metrics["FN"]
+
+    def _get_safe_str(self, val):
+        """Función auxiliar para limpiar NaNs de pandas al imprimir"""
+        return str(val).strip() if pd.notna(val) else ""
 
     def export_detailed_reports(self, output_dir: str, test_name: str):
         os.makedirs(output_dir, exist_ok=True)
@@ -130,18 +140,35 @@ class Evaluator:
                 doc_name = doc["Document"]
                 text_input = doc["Input_Text"]
 
-                # NER stage
+                ground_truth_block = "--- GROUND TRUTH (Datos del CSV Original) ---\n"
+                for row in doc["CSV_Records"]:
+                    oracion = self._get_safe_str(row.get("oracion"))
+                    texto = self._get_safe_str(row.get("phen_texts"))
+                    feno = self._get_safe_str(row.get("fenotipo_estandar"))
+                    codigo = self._get_safe_str(row.get("hpo_code"))
+                    
+                    ground_truth_block += f"  • Texto: '{texto}' | Código: {codigo} | Estándar: '{feno}'\n"
+                    ground_truth_block += f"    Oración: '{oracion}'\n\n"
+
+                # ---------------------------------------------------------
+                # ESCRITURA REPORTE NER
+                # ---------------------------------------------------------
                 f_ner.write(f"DOCUMENTO: {doc_name}\n")
                 f_ner.write(f"--- ENTRADA ---\n{text_input}\n\n")
+                f_ner.write(ground_truth_block)
 
-                f_ner.write(f"ESPERADOS [{len(doc['Expected_Texts'])}]:\n")
+                f_ner.write(f"ESPERADOS (Total únicos) [{len(doc['Expected_Texts'])}]:\n")
                 for item in sorted(doc["Expected_Texts"]): f_ner.write(f"  - {item}\n")
+                f_ner.write("\n")
+
+                f_ner.write(f"DETECTADOS (Predicciones del NER) [{len(doc['Predicted_Texts'])}]:\n")
+                for item in sorted(doc["Predicted_Texts"]): f_ner.write(f"  - {item}\n")
                 f_ner.write("\n")
 
                 f_ner.write(f"TP (Aciertos) [{len(doc['Text_TP'])}]:\n")
                 for item in doc["Text_TP"]: f_ner.write(f"  - {item}\n")
 
-                f_ner.write(f"FP (Alucinaciones / Predicciones incorrectas) [{len(doc['Text_FP'])}]:\n")
+                f_ner.write(f"\nFP (Alucinaciones / Predicciones incorrectas) [{len(doc['Text_FP'])}]:\n")
                 for item in doc["Text_FP"]: f_ner.write(f"  - {item}\n")
 
                 f_ner.write(f"\nFN (Omitidos en la extracción) [{len(doc['Text_FN'])}]:\n")
@@ -149,12 +176,19 @@ class Evaluator:
 
                 f_ner.write("\n" + "-"*80 + "\n\n")
 
-                # Mapping stage
+                # ---------------------------------------------------------
+                # ESCRITURA REPORTE MAP (HPO)
+                # ---------------------------------------------------------
                 f_map.write(f"DOCUMENTO: {doc_name}\n")
                 f_map.write(f"--- ENTRADA ---\n{text_input}\n\n")
+                f_map.write(ground_truth_block)
 
-                f_map.write(f"🎯 ESPERADOS [{len(doc['Expected_HPO'])}]:\n")
+                f_map.write(f"ESPERADOS (Total únicos) [{len(doc['Expected_HPO'])}]:\n")
                 for item in sorted(doc["Expected_HPO"]): f_map.write(f"  - {item}\n")
+                f_map.write("\n")
+
+                f_map.write(f"DETECTADOS (Códigos Mapeados) [{len(doc['Predicted_HPO'])}]:\n")
+                for item in sorted(doc["Predicted_HPO"]): f_map.write(f"  - {item}\n")
                 f_map.write("\n")
 
                 f_map.write(f"TP (Códigos Correctos) [{len(doc['HPO_TP'])}]:\n")

@@ -30,23 +30,28 @@ class PhenotypesDetector:
         self.api_provider = api_provider
         self.api_model_name = api_model_name
 
-        self.base_prompt = """Eres un asistente médico experto en extraer signos y síntomas clínicos. Tu tarea es extraer los fenotipos positivos del paciente actual a partir del texto y devolverlos estrictamente en formato JSON.
+        self.base_prompt = """Eres un anotador clínico experto especializado en la Ontología de Fenotipos Humanos (HPO). Tu tarea es extraer signos, síntomas y anormalidades fenotípicas de la historia clínica.
 
-REGLAS:
-1. Extrae SOLO los síntomas o signos que el paciente SÍ tiene.
-2. IGNORA los síntomas negados (ejemplo: "sin fiebre", "niega dolor").
-3. IGNORA los antecedentes de familiares (ejemplo: "madre con asma").
-4. Para cada fenotipo, extrae también la oración o fragmento exacto del texto original donde se menciona (como 'contexto').
-5. Responde ÚNICAMENTE con un objeto JSON, sin texto adicional ni explicaciones, siguiendo exactamente la estructura del ejemplo.
+REGLAS ESTRICTAS DE EXTRACCIÓN:
+1. EXTRACCIÓN ESPECÍFICA (GRANULARIDAD): Extrae el síntoma manteniendo sus modificadores clínicos clave (tipo, anatomía, lateralidad, severidad). Usa las palabras literales del texto siempre que sea posible.
+   - BIEN: "disfagia motora", "poliartritis simétrica", "dolor abdominal severo", "eritema malar clásico".
+2. ELIMINA TIEMPOS Y EXPLICACIONES: El fenotipo NO debe contener descripciones de duración, frases conectoras ni explicaciones.
+   - MAL: "rigidez matinal de más de una hora" -> BIEN: "rigidez matinal"
+   - MAL: "pérdida de cabello difusa que el especialista diagnostica como alopecia" -> BIEN: "alopecia no cicatricial" o "pérdida de cabello difusa"
+3. ENFERMEDADES GLOBALES vs. FENOTIPOS: Ignora diagnósticos de enfermedades sistémicas (ej. "Lupus", "Espondilitis"). SÍ extrae manifestaciones específicas de órganos (ej. "pericarditis", "nefritis lúpica", "sacroiliítis bilateral").
+4. LABORATORIOS: Ignora anticuerpos (ej. "ANA positivos") y marcadores inflamatorios ("PCR elevada"). SÍ extrae anormalidades fisiológicas base (ej. "proteinuria", "anemia megaloblástica").
+5. IGNORA síntomas negados ("sin fiebre") y antecedentes familiares.
+6. Devuelve ÚNICAMENTE un objeto JSON válido, sin texto adicional.
 
 EJEMPLO DE ENTRADA:
-"Paciente de 45 años. Presenta cefalea severa y fotofobia desde ayer. Sin náuseas. Padre con hipertensión."
+"Paciente con lupus. Presenta poliartritis simétrica severa desde hace 2 meses y nefritis. Laboratorio: ANA positivo y proteinuria de 2g. Sin fiebre."
 
 EJEMPLO DE SALIDA:
 {
   "fenotipos": [
-    {"fenotipo": "cefalea severa", "contexto": "Presenta cefalea severa y fotofobia desde ayer."},
-    {"fenotipo": "fotofobia", "contexto": "Presenta cefalea severa y fotofobia desde ayer."}
+    {"fenotipo": "poliartritis simétrica severa", "contexto": "Presenta poliartritis simétrica severa desde hace 2 meses y nefritis."},
+    {"fenotipo": "nefritis", "contexto": "Presenta poliartritis simétrica severa desde hace 2 meses y nefritis."},
+    {"fenotipo": "proteinuria", "contexto": "Laboratorio: ANA positivo y proteinuria de 2g."}
   ]
 }"""
 
@@ -139,7 +144,7 @@ EJEMPLO DE SALIDA:
                 elif self.api_provider == "anthropic":
                     response = self.client.messages.create(
                         model=self.api_model_name,
-                        max_tokens=1536,
+                        max_tokens=4096,
                         system=[
                             {
                                 "type": "text",
