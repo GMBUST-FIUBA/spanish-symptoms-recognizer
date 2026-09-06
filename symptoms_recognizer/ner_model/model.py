@@ -139,6 +139,7 @@ EJEMPLO DE SALIDA:
                 elif self.api_provider == "anthropic":
                     response = self.client.messages.create(
                         model=self.api_model_name,
+                        max_tokens=1536,
                         system=[
                             {
                                 "type": "text",
@@ -150,7 +151,11 @@ EJEMPLO DE SALIDA:
                             {"role": "user", "content": f"Texto de entrada:\n{text_chunk}"}
                         ]
                     )
-                    response_text = response.content[0].text
+                    response_text = ""
+                    for block in response.content:
+                        if block.type == "text":
+                            response_text = block.text
+                            break
 
                 phenotypes_list = self._parse_llm_json_output(response_text, text_chunk)
 
