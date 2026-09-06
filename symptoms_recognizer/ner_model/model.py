@@ -8,6 +8,7 @@ import os
 import re
 import torch
 from openai import OpenAI
+import anthropic
 
 # Local model path
 CURRENT_DIR = Path(__file__).parent.resolve()
@@ -85,13 +86,14 @@ EJEMPLO DE SALIDA:
                 self.client = genai.Client()
             elif self.api_provider == "openai":
                 self.client = OpenAI()
+            elif self.api_provider == "anthropic":
+                self.client = anthropic.Anthropic()
             else:
                 raise Exception(f"Proveedor de API no soportado: {self.api_provider}")
 
         else:
             raise Exception("Non-existent model type")
 
-    # RENOMBRADO: 'sentence' a 'text_chunk' porque puede ser el texto completo
     def detect_phenotypes(self, text_chunk: str) -> list[tuple[str, str]]:
         phenotypes_list = []
 
@@ -107,7 +109,6 @@ EJEMPLO DE SALIDA:
             for res in sentence_results:
                 entity_group = res.get("entity_group")
                 if not self.allowed_entity_groups or entity_group in self.allowed_entity_groups:
-                    # NER tradicional no separa oraciones fácil, así que usamos el chunk como contexto
                     phenotypes_list.append((res["word"].strip(), text_chunk))
 
         elif self.phenotypes_model_type == "api":
@@ -134,6 +135,22 @@ EJEMPLO DE SALIDA:
                         ]
                     )
                     response_text = response.choices[0].message.content
+                
+                elif self.api_provider == "anthropic":
+                    response = self.client.messages.create(
+                        model=self.api_model_name,
+                        system=[
+                            {
+                                "type": "text",
+                                "text": self.base_prompt,
+                                "cache_control": {"type": "ephemeral"}
+                            }
+                        ],
+                        messages=[
+                            {"role": "user", "content": f"Texto de entrada:\n{text_chunk}"}
+                        ]
+                    )
+                    response_text = response.content[0].text
 
                 phenotypes_list = self._parse_llm_json_output(response_text, text_chunk)
 
@@ -171,9 +188,6 @@ EJEMPLO DE SALIDA:
         return phenotypes_list
 
     def _parse_llm_json_output(self, response_text: str, fallback_context: str) -> list[tuple[str, str]]:
-        """
-        Lógica unificada para extraer la tupla (fenotipo, contexto) del JSON del LLM.
-        """
         extracted_list = []
         try:
             clean_text = response_text.replace("```json", "").replace("```", "").strip()
@@ -191,11 +205,9 @@ EJEMPLO DE SALIDA:
                     if feno:
                         extracted_list.append((feno, ctx))
                 elif isinstance(item, str):
-                    # Fallback por si el LLM alucina y devuelve una lista de strings
                     extracted_list.append((item.strip(), fallback_context))
                     
         except json.JSONDecodeError:
             print(f"Fallo al parsear JSON. Salida cruda del modelo:\n{response_text}")
-            
-        # Deduplicamos usando un set, manteniendo el formato (fenotipo, contexto)
+
         return list(set(extracted_list))
