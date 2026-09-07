@@ -237,9 +237,53 @@ EJEMPLO DE SALIDA:
 | ChatGPT - gpt-5.6-terra | 32 | 55 | 27 | 0.3678 | 0.5424 | 0.4384 |
 | ChatGPT - gpt-5-mini | 36 | 72 | 23 | 0.3333 | 0.6102 | 0.4311 |
 
-This prompt was evaluated in strict text comparisons and as it can be seen the results are still better than in the previous section of tests but, more importantly, they have more specificity than the previous test.
+This prompt was evaluated in strict text comparisons and as it can be seen the results are still better than in the previous section of tests but, more importantly, they have more specificity than the previous test. What is clear, however, is that the model GPT 4o Mini is the one with better performance despite being more modern examples like GPT Luna and Terra available.
 
-What is clear, however, is that the model GPT 4O Mini is the one with better performance despiter being more modern examples like GPT Luna and Terra available.
+#### Mapping stage
+
+Now more models will be used to reason in the RAG stage in order to see which are the best ones for this stage. From now on the tests will be made using strict strings comparisons in order to be able to compare the results and because it makes no sense to change the way it is measured to a less precise one.
+
+For the first prompt tested (the one with more general phenotypes) the results are as follows:
+
+| Model name | NER TP | NER FP | NER FN | NER Prec | NER Rec | NER F1 score | Map TP | Map FP | Map FN | Map Prec | Map Rec | Final F1 score |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.6-luna) | 29 | 30 | 30 | 0.4915 | 0.4915 | 0.4915 | 32 | 23 | 27 | 0.5818 | 0.5424 | 0.5614 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-4o-mini) | 32 | 29 | 27 | 0.5246 | 0.5424 | 0.5333 | 31 | 23 | 28 | 0.5741 | 0.5254 | 0.5487 |
+| NER: gpt-4o-mini - MAP: Gemini (gemini-3.5-flash) | 30 | 34 | 29 | 0.4688 | 0.5085 | 0.4878 | 30 | 24 | 29 | 0.5556 | 0.5085 | 0.5310 |
+| NER: gpt-4o-mini - MAP: Gemini (gemini-3.1-flash-lite) | 30 | 27 | 29 | 0.5263 | 0.5085 | 0.5172 | 29 | 22 | 30 | 0.5686 | 0.4915 | 0.5273 |
+| NER: gpt-4o-mini - MAP: Claude (claude-sonnet-5) | 33 | 31 | 26 | 0.5156 | 0.5593 | 0.5366 | 30 | 26 | 29 | 0.5357 | 0.5085 | 0.5217 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5-mini) | 30 | 29 | 29 | 0.5085 | 0.5085 | 0.5085 | 29 | 26 | 30 | 0.5273 | 0.4915 | 0.5088 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.6-terra) | 32 | 33 | 27 | 0.4923 | 0.5424 | 0.5161 | 29 | 26 | 30 | 0.5273 | 0.4915 | 0.5088 |
+| NER: gpt-4o-mini - MAP: Gemini (gemini-3-flash-preview) | 29 | 35 | 30 | 0.4531 | 0.4915 | 0.4715 | 29 | 26 | 30 | 0.5273 | 0.4915 | 0.5088 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.4-mini) | 31 | 36 | 28 | 0.4627 | 0.5254 | 0.4921 | 29 | 30 | 30 | 0.4915 | 0.4915 | 0.4915 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.4-nano) | 28 | 35 | 31 | 0.4444 | 0.4746 | 0.4590 | 28 | 29 | 31 | 0.4912 | 0.4746 | 0.4828 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5-2025-08-07) | 31 | 35 | 28 | 0.4697 | 0.5254 | 0.4960 | 28 | 30 | 31 | 0.4828 | 0.4746 | 0.4786 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.6-sol) | 31 | 32 | 28 | 0.4921 | 0.5254 | 0.5082 | 27 | 28 | 32 | 0.4909 | 0.4576 | 0.4737 |
+| NER: gpt-4o-mini - MAP: Claude (claude-haiku-4-5-20251001) | 30 | 31 | 29 | 0.4918 | 0.5085 | 0.5000 | 27 | 29 | 32 | 0.4821 | 0.4576 | 0.4696 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-4.1-mini) | 29 | 30 | 30 | 0.4915 | 0.4915 | 0.4915 | 26 | 27 | 33 | 0.4906 | 0.4407 | 0.4643 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.2-2025-12-11) | 30 | 36 | 29 | 0.4545 | 0.5085 | 0.4800 | 26 | 33 | 33 | 0.4407 | 0.4407 | 0.4407 |
+
+For the second prompt tested (the one with stricter phenotypes) the results are as follows:
+
+| Model name | NER TP | NER FP | NER FN | NER Prec | NER Rec | NER F1 score | Map TP | Map FP | Map FN | Map Prec | Map Rec | Final F1 score |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| NER: gpt-4o-mini - MAP: Gemini (gemini-3.5-flash) | 44 | 23 | 15 | 0.6567 | 0.7458 | 0.6984 | 27 | 30 | 32 | 0.4737 | 0.4576 | 0.4655 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.6-sol) | 44 | 28 | 15 | 0.6111 | 0.7458 | 0.6718 | 27 | 33 | 32 | 0.4500 | 0.4576 | 0.4538 |
+| NER: gpt-4o-mini - MAP: Gemini (gemini-3.1-flash-lite) | 43 | 23 | 16 | 0.6515 | 0.7288 | 0.6880 | 26 | 30 | 33 | 0.4643 | 0.4407 | 0.4522 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.4-nano) | 45 | 29 | 14 | 0.6081 | 0.7627 | 0.6767 | 28 | 37 | 31 | 0.4308 | 0.4746 | 0.4516 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.6-terra) | 46 | 29 | 13 | 0.6133 | 0.7797 | 0.6866 | 27 | 35 | 32 | 0.4355 | 0.4576 | 0.4463 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-4o-mini) | 45 | 26 | 14 | 0.6338 | 0.7627 | 0.6923 | 27 | 35 | 32 | 0.4355 | 0.4576 | 0.4463 |
+| NER: gpt-4o-mini - MAP: Claude (claude-sonnet-5) | 41 | 30 | 18 | 0.5775 | 0.6949 | 0.6308 | 26 | 32 | 33 | 0.4483 | 0.4407 | 0.4444 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5-2025-08-07) | 44 | 27 | 15 | 0.6197 | 0.7458 | 0.6769 | 26 | 33 | 33 | 0.4407 | 0.4407 | 0.4407 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.6-luna) | 42 | 31 | 17 | 0.5753 | 0.7119 | 0.6364 | 26 | 35 | 33 | 0.4262 | 0.4407 | 0.4333 |
+| NER: gpt-4o-mini - MAP: Gemini (gemini-3-flash-preview) | 43 | 29 | 16 | 0.5972 | 0.7288 | 0.6565 | 25 | 34 | 34 | 0.4237 | 0.4237 | 0.4237 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.4-mini) | 43 | 26 | 16 | 0.6232 | 0.7288 | 0.6719 | 25 | 34 | 34 | 0.4237 | 0.4237 | 0.4237 |
+| NER: gpt-4o-mini - MAP: Claude (claude-haiku-4-5-20251001) | 45 | 31 | 14 | 0.5921 | 0.7627 | 0.6667 | 25 | 38 | 34 | 0.3968 | 0.4237 | 0.4098 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5.2-2025-12-11) | 46 | 24 | 13 | 0.6571 | 0.7797 | 0.7132 | 24 | 37 | 35 | 0.3934 | 0.4068 | 0.4000 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-5-mini) | 41 | 30 | 18 | 0.5775 | 0.6949 | 0.6308 | 24 | 37 | 35 | 0.3934 | 0.4068 | 0.4000 |
+| NER: gpt-4o-mini - MAP: OpenAI (gpt-4.1-mini) | 41 | 32 | 18 | 0.5616 | 0.6949 | 0.6212 | 22 | 40 | 37 | 0.3548 | 0.3729 | 0.3636 |
+
+Surprisingly the prompt with more general phenotypes performs better End-To-End, therefore it will be the one used from now on.
 
 ---
 

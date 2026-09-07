@@ -153,7 +153,6 @@ def get_gemini_map_api_models_test_config():
         "gemini-3.5-flash",
         "gemini-3-flash-preview",
         "gemini-3.1-flash-lite",
-        "gemini-3.1-pro-preview",
     ]
 
     for map_model_name in MAP_MODEL_NAMES:
