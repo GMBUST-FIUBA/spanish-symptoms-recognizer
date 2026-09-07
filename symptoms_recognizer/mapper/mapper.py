@@ -3,6 +3,7 @@ from scipy.spatial import distance
 from transformers import AutoTokenizer, AutoModel
 from google import genai
 from openai import OpenAI
+import anthropic  # Añadimos Anthropic
 
 import glob
 import torch.nn.functional as F
@@ -33,9 +34,14 @@ class PhenotypeOntologyMapper:
         self.top_k = top_k
         self.min_required_similarity = 1.0 - MIN_DISTANCE_VECTORS
 
-        if self.api_provider == "gemini": self.client = genai.Client()
-        elif self.api_provider == "openai": self.client = OpenAI()
-        elif self.api_provider: raise Exception(f"Proveedor no soportado: {self.api_provider}")
+        if self.api_provider == "gemini": 
+            self.client = genai.Client()
+        elif self.api_provider == "openai": 
+            self.client = OpenAI()
+        elif self.api_provider == "anthropic": 
+            self.client = anthropic.Anthropic()
+        elif self.api_provider: 
+            raise Exception(f"Proveedor no soportado: {self.api_provider}")
 
         if ontology in ACCEPTED_ONTOLOGIES:
             self.mapped_ontology = ontology
@@ -129,23 +135,60 @@ Responde ÚNICAMENTE con un JSON en este formato estricto: {{"hpo_code": "códig
         response_text = ""
         try:
             if self.api_provider == "gemini":
-                interaction = self.client.interactions.create(model=self.api_model_name, input=prompt)
-                response_text = interaction.output_text
-            elif self.api_provider == "openai":
-                response = self.client.chat.completions.create(
-                    model=self.api_model_name,
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.0
+                interaction = self.client.interactions.create(
+                    model=self.api_model_name, 
+                    input=prompt
                 )
+                response_text = interaction.output_text
+
+            elif self.api_provider == "openai":
+                kwargs = {
+                    "model": self.api_model_name,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": 0.0
+                }
+                
+                try:
+                    response = self.client.chat.completions.create(**kwargs)
+                except Exception as e:
+                    if "temperature" in str(e).lower():
+                        del kwargs["temperature"]
+                        response = self.client.chat.completions.create(**kwargs)
+                    else:
+                        raise e
                 response_text = response.choices[0].message.content
+
+            elif self.api_provider == "anthropic":
+                kwargs = {
+                    "model": self.api_model_name,
+                    "max_tokens": 1024,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": 0.0
+                }
+
+                try:
+                    response = self.client.messages.create(**kwargs)
+                except Exception as e:
+                    if "temperature" in str(e).lower():
+                        del kwargs["temperature"]
+                        response = self.client.messages.create(**kwargs)
+                    else:
+                        raise e
+
+                for block in response.content:
+                    if block.type == "text":
+                        response_text = block.text
+                        break
 
             clean_text = response_text.replace("```json", "").replace("```", "").strip()
             match = re.search(r'\{.*\}', clean_text, re.DOTALL)
             if match: clean_text = match.group(0)
+
             parsed_data = json.loads(clean_text)
             return parsed_data.get("hpo_code", "None")
+
         except Exception as e:
-            print(f"Error en RAG LLM. Fallback a 'None'. Error: {e}")
+            print(f"Error en RAG LLM ({self.api_provider}). Fallback a 'None'. Error: {e}")
             return "None"
 
     def _get_codes_batch(self):

@@ -148,11 +148,91 @@ def get_gemini_test_api_models_ner_and_map_config():
                 }
             }
 
+def get_gemini_map_api_models_test_config():
+    MAP_MODEL_NAMES = [
+        "gemini-3.5-flash",
+        "gemini-3-flash-preview",
+        "gemini-3.1-flash-lite",
+        "gemini-3.1-pro-preview",
+    ]
+
+    for map_model_name in MAP_MODEL_NAMES:
+        yield {
+            "nombre_prueba": f"NER: gpt-4o-mini | MAP: Gemini ({map_model_name})",
+            "kwargs": {
+                "ontology": "hpo",
+                "text_parser": "full-text",
+                "phenotypes_model_type": "api",
+
+                "ner_api_provider": "openai",
+                "ner_api_model_name": "gpt-4o-mini",
+
+                "map_api_provider": "gemini",
+                "map_api_model_name": map_model_name,
+            }
+        }
+
+def get_openai_map_api_models_test_config():
+    MAP_MODEL_NAMES = [
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-5.6-luna",
+        "gpt-5.4-nano",
+        "gpt-5.4-mini",
+        "gpt-5.2-2025-12-11",
+        "gpt-5-2025-08-07",
+        "gpt-5-mini",
+        "gpt-4o-mini",
+        "gpt-4.1-mini"
+    ]
+
+    for map_model_name in MAP_MODEL_NAMES:
+        yield {
+            "nombre_prueba": f"NER: gpt-4o-mini | MAP: OpenAI ({map_model_name})",
+            "kwargs": {
+                "ontology": "hpo",
+                "text_parser": "full-text",
+                "phenotypes_model_type": "api",
+
+                "ner_api_provider": "openai",
+                "ner_api_model_name": "gpt-4o-mini",
+
+                "map_api_provider": "openai",
+                "map_api_model_name": map_model_name,
+            }
+        }
+
+def get_claude_map_api_models_test_config():
+    MAP_MODEL_NAMES = ["claude-haiku-4-5-20251001", "claude-sonnet-5"]
+
+    for map_model_name in MAP_MODEL_NAMES:
+        yield {
+            "nombre_prueba": f"NER: gpt-4o-mini | MAP: Claude ({map_model_name})",
+            "kwargs": {
+                "ontology": "hpo",
+                "text_parser": "full-text",
+                "phenotypes_model_type": "api",
+
+                "ner_api_provider": "openai",
+                "ner_api_model_name": "gpt-4o-mini",
+
+                "map_api_provider": "anthropic",
+                "map_api_model_name": map_model_name,
+            }
+        }
+
+def get_map_api_models_config():
+    yield from get_gemini_map_api_models_test_config()
+
+    yield from get_openai_map_api_models_test_config()
+
+    yield from get_claude_map_api_models_test_config()
+
 def compare_models():
     dataset_dir = os.path.join(CURRENT_DIR, "dataset")
     reports_dir = os.path.join(CURRENT_DIR, "reports") 
     
-    TESTED_CONFIGURATIONS = get_ner_api_models_config()
+    TESTED_CONFIGURATIONS = get_map_api_models_config()
 
     comparison_results = []
 
@@ -218,7 +298,7 @@ def compare_models():
 
     df_comparison = pd.DataFrame(comparison_results)
     if not df_comparison.empty:
-        df_comparison = df_comparison.sort_values(by="NER F1", ascending=False).reset_index(drop=True)
+        df_comparison = df_comparison.sort_values(by="Map F1", ascending=False).reset_index(drop=True)
 
     return df_comparison
 
