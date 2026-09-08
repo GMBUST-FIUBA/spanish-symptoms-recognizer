@@ -72,6 +72,10 @@ class Evaluator:
             predicted_hpo_list = self.recognizer.map(predicted_texts_list)
             predicted_hpo = set([code.strip() for code in predicted_hpo_list if code != "None"])
 
+            mapping_debug_logs = []
+            if hasattr(self.recognizer.mapper, 'last_mapping_logs'):
+                mapping_debug_logs = list(self.recognizer.mapper.last_mapping_logs)
+
             doc_text_metrics = self._calculate_metrics(expected_texts, predicted_texts)
             doc_text_scores = self._calculate_f1(doc_text_metrics["TP"], doc_text_metrics["FP"], doc_text_metrics["FN"])
             
@@ -106,7 +110,9 @@ class Evaluator:
 
                 "HPO_TP": hpo_tp_set,
                 "HPO_FP": hpo_fp_set,
-                "HPO_FN": hpo_fn_set
+                "HPO_FN": hpo_fn_set,
+
+                "Mapping_Logs": mapping_debug_logs
             })
 
             self.global_code_tp += doc_code_metrics["TP"]
@@ -200,7 +206,16 @@ class Evaluator:
                 f_map.write(f"\nFN (Códigos Omitidos) [{len(doc['HPO_FN'])}]:\n")
                 for item in doc["HPO_FN"]: f_map.write(f"  - {item}\n")
 
-                f_map.write("\n" + "-"*80 + "\n\n")
+                f_map.write("\n--- AUDITORÍA DE DECISIONES DEL LLM (RAG) ---\n")
+                for log in doc.get("Mapping_Logs", []):
+                    f_map.write(f"\nFenotipo Detectado: {log.get('phenotype')}\n")
+                    f_map.write(f"Contexto: {log.get('context')}\n")
+                    f_map.write(f"Candidatos presentados por Vector Search:\n{log.get('candidates_text')}\n")
+                    f_map.write(f"Razonamiento del LLM:\n{log.get('reasoning')}\n")
+                    f_map.write(f"Código Final Elegido: {log.get('final_code')}\n")
+                    f_map.write("-" * 50 + "\n")
+
+                f_map.write("\n" + "="*80 + "\n\n")
 
     def get_report(self) -> pd.DataFrame:
         clean_results = []
