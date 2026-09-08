@@ -14,6 +14,61 @@ from transformers import logging as hf_logging
 hf_logging.set_verbosity_error()
 warnings.filterwarnings("ignore", message="Tokenizer does not support real words")
 
+PROMPT_NER_GENERAL = """Eres un anotador clínico experto especializado en la Ontología de Fenotipos Humanos (HPO). Tu tarea es extraer signos, síntomas y anormalidades fenotípicas de la historia clínica.
+
+REGLAS ESTRICTAS:
+1. SOLO FENOTIPOS Y ANORMALIDADES: Extrae manifestaciones clínicas, signos físicos y síntomas reportados u observados.
+2. ENFERMEDADES GLOBALES vs. FENOTIPOS ESPECÍFICOS: Ignora los diagnósticos de enfermedades sistémicas o síndromes globales (ej. "Lupus eritematoso sistémico", "Esclerosis sistémica"). Sin embargo, SÍ DEBES extraer anormalidades estructurales o inflamaciones específicas de órganos (ej. "pericarditis", "nefritis", "poliartritis").
+3. MANEJO DE LABORATORIOS: No extraigas nombres de anticuerpos (ej. "ANA positivos", "anti-Scl70") ni valores numéricos crudos. SÍ puedes extraer alteraciones de laboratorio normalizadas que representen un fenotipo (ej. "proteinuria", "leucopenia").
+4. NORMALIZACIÓN EXTREMA: El valor de "fenotipo" debe ser el concepto médico estandarizado más corto posible (idealmente 1 a 3 palabras). 
+   - MAL: "rigidez matinal de más de una hora" -> BIEN: "rigidez matinal"
+   - MAL: "proteinuria patológica (1.8 g/24h)" -> BIEN: "proteinuria"
+   - MAL: "eritema fijo, plano, de bordes netos" -> BIEN: "eritema malar"
+5. IGNORA todo síntoma negado ("sin fiebre") y antecedentes familiares.
+6. Devuelve ÚNICAMENTE un objeto JSON válido, sin texto antes ni después.
+
+EJEMPLO DE ENTRADA:
+"Paciente con lupus. Presenta poliartritis simétrica y nefritis severa. Laboratorio: ANA positivo y proteinuria de 2g. Sin fiebre."
+
+EJEMPLO DE SALIDA:
+{
+  "fenotipos": [
+    {"fenotipo": "poliartritis", "contexto": "Presenta poliartritis simétrica y nefritis severa."},
+    {"fenotipo": "nefritis", "contexto": "Presenta poliartritis simétrica y nefritis severa."},
+    {"fenotipo": "proteinuria", "contexto": "Laboratorio: ANA positivo y proteinuria de 2g."}
+  ]
+}"""
+
+PROMPT_NER_SPECIFIC = """Eres un anotador clínico experto especializado en la Ontología de Fenotipos Humanos (HPO). Tu tarea es extraer signos, síntomas y anormalidades fenotípicas de la historia clínica.
+
+REGLAS ESTRICTAS DE EXTRACCIÓN:
+1. EXTRACCIÓN ESPECÍFICA (GRANULARIDAD): Extrae el síntoma manteniendo sus modificadores clínicos clave (tipo, anatomía, lateralidad, severidad). Usa las palabras literales del texto siempre que sea posible.
+   - BIEN: "disfagia motora", "poliartritis simétrica", "dolor abdominal severo", "eritema malar clásico".
+2. ELIMINA TIEMPOS Y EXPLICACIONES: El fenotipo NO debe contener descripciones de duración, frases conectoras ni explicaciones.
+   - MAL: "rigidez matinal de más de una hora" -> BIEN: "rigidez matinal"
+   - MAL: "pérdida de cabello difusa que el especialista diagnostica como alopecia" -> BIEN: "alopecia no cicatricial" o "pérdida de cabello difusa"
+3. ENFERMEDADES GLOBALES vs. FENOTIPOS: Ignora diagnósticos de enfermedades sistémicas (ej. "Lupus", "Espondilitis"). SÍ extrae manifestaciones específicas de órganos (ej. "pericarditis", "nefritis lúpica", "sacroiliítis bilateral").
+4. LABORATORIOS: Ignora anticuerpos (ej. "ANA positivos") y marcadores inflamatorios ("PCR elevada"). SÍ extrae anormalidades fisiológicas base (ej. "proteinuria", "anemia megaloblástica").
+5. IGNORA síntomas negados ("sin fiebre") y antecedentes familiares.
+6. Devuelve ÚNICAMENTE un objeto JSON válido, sin texto adicional.
+
+EJEMPLO DE ENTRADA:
+"Paciente con lupus. Presenta poliartritis simétrica severa desde hace 2 meses y nefritis. Laboratorio: ANA positivo y proteinuria de 2g. Sin fiebre."
+
+EJEMPLO DE SALIDA:
+{
+  "fenotipos": [
+    {"fenotipo": "poliartritis simétrica severa", "contexto": "Presenta poliartritis simétrica severa desde hace 2 meses y nefritis."},
+    {"fenotipo": "nefritis", "contexto": "Presenta poliartritis simétrica severa desde hace 2 meses y nefritis."},
+    {"fenotipo": "proteinuria", "contexto": "Laboratorio: ANA positivo y proteinuria de 2g."}
+  ]
+}"""
+
+NER_PROMPTS_AVAILABLE = {
+    "gral-ner-prompt" : PROMPT_NER_GENERAL,
+    "specific-ner-prompt" : PROMPT_NER_SPECIFIC,
+}
+
 def get_ner_models_test_config():
     models_dir = os.path.join(PROJECT_ROOT, "symptoms_recognizer", "ner_model", "model")
 
@@ -154,22 +209,24 @@ def get_gemini_map_api_models_test_config():
         "gemini-3-flash-preview",
         "gemini-3.1-flash-lite",
     ]
+    for ner_prompt in NER_PROMPTS_AVAILABLE:
+        for map_model_name in MAP_MODEL_NAMES:
+            yield {
+                "nombre_prueba": f"NER: gpt-4o-mini ({ner_prompt}) | MAP: Gemini ({map_model_name})",
+                "kwargs": {
+                    "ontology": "hpo",
+                    "text_parser": "full-text",
+                    "phenotypes_model_type": "api",
 
-    for map_model_name in MAP_MODEL_NAMES:
-        yield {
-            "nombre_prueba": f"NER: gpt-4o-mini | MAP: Gemini ({map_model_name})",
-            "kwargs": {
-                "ontology": "hpo",
-                "text_parser": "full-text",
-                "phenotypes_model_type": "api",
+                    "ner_api_provider": "openai",
+                    "ner_api_model_name": "gpt-4o-mini",
 
-                "ner_api_provider": "openai",
-                "ner_api_model_name": "gpt-4o-mini",
+                    "map_api_provider": "gemini",
+                    "map_api_model_name": map_model_name,
 
-                "map_api_provider": "gemini",
-                "map_api_model_name": map_model_name,
+                    "ner_prompt": NER_PROMPTS_AVAILABLE[ner_prompt]
+                }
             }
-        }
 
 def get_openai_map_api_models_test_config():
     MAP_MODEL_NAMES = [
@@ -178,47 +235,51 @@ def get_openai_map_api_models_test_config():
         "gpt-5.6-luna",
         "gpt-5.4-nano",
         "gpt-5.4-mini",
-        "gpt-5.2-2025-12-11",
         "gpt-5-2025-08-07",
         "gpt-5-mini",
         "gpt-4o-mini",
-        "gpt-4.1-mini"
     ]
 
-    for map_model_name in MAP_MODEL_NAMES:
-        yield {
-            "nombre_prueba": f"NER: gpt-4o-mini | MAP: OpenAI ({map_model_name})",
-            "kwargs": {
-                "ontology": "hpo",
-                "text_parser": "full-text",
-                "phenotypes_model_type": "api",
+    for ner_prompt in NER_PROMPTS_AVAILABLE:
+        for map_model_name in MAP_MODEL_NAMES:
+            yield {
+                "nombre_prueba": f"NER: gpt-4o-mini ({ner_prompt}) | MAP: OpenAI ({map_model_name})",
+                "kwargs": {
+                    "ontology": "hpo",
+                    "text_parser": "full-text",
+                    "phenotypes_model_type": "api",
 
-                "ner_api_provider": "openai",
-                "ner_api_model_name": "gpt-4o-mini",
+                    "ner_api_provider": "openai",
+                    "ner_api_model_name": "gpt-4o-mini",
 
-                "map_api_provider": "openai",
-                "map_api_model_name": map_model_name,
+                    "map_api_provider": "openai",
+                    "map_api_model_name": map_model_name,
+
+                    "ner_prompt": NER_PROMPTS_AVAILABLE[ner_prompt]
+                }
             }
-        }
 
 def get_claude_map_api_models_test_config():
-    MAP_MODEL_NAMES = ["claude-haiku-4-5-20251001", "claude-sonnet-5"]
+    MAP_MODEL_NAMES = ["claude-sonnet-5", "claude-opus-5"]
 
-    for map_model_name in MAP_MODEL_NAMES:
-        yield {
-            "nombre_prueba": f"NER: gpt-4o-mini | MAP: Claude ({map_model_name})",
-            "kwargs": {
-                "ontology": "hpo",
-                "text_parser": "full-text",
-                "phenotypes_model_type": "api",
+    for ner_prompt in NER_PROMPTS_AVAILABLE:
+        for map_model_name in MAP_MODEL_NAMES:
+            yield {
+                "nombre_prueba": f"NER: gpt-4o-mini {ner_prompt} | MAP: Claude ({map_model_name})",
+                "kwargs": {
+                    "ontology": "hpo",
+                    "text_parser": "full-text",
+                    "phenotypes_model_type": "api",
 
-                "ner_api_provider": "openai",
-                "ner_api_model_name": "gpt-4o-mini",
+                    "ner_api_provider": "openai",
+                    "ner_api_model_name": "gpt-4o-mini",
 
-                "map_api_provider": "anthropic",
-                "map_api_model_name": map_model_name,
+                    "map_api_provider": "anthropic",
+                    "map_api_model_name": map_model_name,
+
+                    "ner_prompt": NER_PROMPTS_AVAILABLE[ner_prompt]
+                }
             }
-        }
 
 def get_map_api_models_config():
     yield from get_gemini_map_api_models_test_config()
