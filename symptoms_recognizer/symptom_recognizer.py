@@ -13,18 +13,21 @@ class PhenotypesRecognizer:
         phenotypes_model_type="ner",
         ner_api_provider=None, ner_api_model_name=None,
         map_api_provider=None, map_api_model_name=None,
+        ner_prompt=None, map_prompt=None,
     ):
         self.ner_model = PhenotypesDetector(
             model_path=ner_model_path, tokenizer_path=ner_tokenizer_path,
             allowed_entity_groups=allowed_entity_groups, agg_strategy=agg_strategy,
             phenotypes_model_type=phenotypes_model_type,
             api_provider=ner_api_provider, api_model_name=ner_api_model_name,
+            prompt=ner_prompt,
         )
 
         self.mapper = PhenotypeOntologyMapper(
             model_path=mapper_model_path, tokenizer_path=mapper_tokenizer_path,
             ontology=ontology, ontology_file_path=ontology_file_path,
-            api_provider=map_api_provider, api_model_name=map_api_model_name
+            api_provider=map_api_provider, api_model_name=map_api_model_name,
+            prompt=map_prompt,
         )
 
         if text_parser == "chunks-sentences": self.text_parser = ChunkSentencesParser(max_chunk_tokens=384, overlap_sentences=1)

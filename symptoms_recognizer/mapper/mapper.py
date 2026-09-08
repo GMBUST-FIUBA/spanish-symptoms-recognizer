@@ -3,7 +3,7 @@ from scipy.spatial import distance
 from transformers import AutoTokenizer, AutoModel
 from google import genai
 from openai import OpenAI
-import anthropic  # Añadimos Anthropic
+import anthropic
 
 import glob
 import torch.nn.functional as F
@@ -22,17 +22,18 @@ ACCEPTED_ONTOLOGIES_FILES = { HPO_ONTOLOGY_CODE : HPO_ABSOLUTE_INPUT_FILE_PATH }
 
 LOCAL_MODEL_RELATIVE_PATH = "semantic_model/clinlinker-kb-gp"
 DEFAULT_LOCAL_MODEL_PATH = os.path.join(CURRENT_DIR, LOCAL_MODEL_RELATIVE_PATH)
-MIN_DISTANCE_VECTORS = 0.3
+MIN_DISTANCE_VECTORS = 0.5
 
 class PhenotypeOntologyMapper:
     def __init__(self, model_path=None, tokenizer_path=None, ontology=None, ontology_file_path=None, 
-                 api_provider=None, api_model_name=None, top_k=5):
+                 api_provider=None, api_model_name=None, top_k=10, prompt=None):
         
         self.pytorch_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.api_provider = api_provider
         self.api_model_name = api_model_name
         self.top_k = top_k
         self.min_required_similarity = 1.0 - MIN_DISTANCE_VECTORS
+        self.last_mapping_logs = []
 
         if self.api_provider == "gemini": 
             self.client = genai.Client()
@@ -49,6 +50,7 @@ class PhenotypeOntologyMapper:
         elif ontology and not ontology_file_path: raise Exception("TODO!")
         else: raise Exception("No ontology defined.")
 
+        self.prompt = prompt
         model_p = model_path or DEFAULT_LOCAL_MODEL_PATH
         tok_p = tokenizer_path or DEFAULT_LOCAL_MODEL_PATH
         self.model = self._get_el_model(model_p).to(self.pytorch_device)
@@ -60,6 +62,8 @@ class PhenotypeOntologyMapper:
     def map_phenotypes(self, phenotypes_with_context: list[tuple[str, str]]):
         if not phenotypes_with_context:
             return []
+
+        self.last_mapping_logs = []
 
         phenotypes_list = [item[0] for item in phenotypes_with_context]
         
@@ -100,7 +104,18 @@ class PhenotypeOntologyMapper:
         mapped_phenotypes = ["None"] * total_phenotypes
         
         for i in range(total_phenotypes):
-            if not heaps[i]: continue
+            phenotype_name = phenotypes_with_context[i][0]
+            context_sentence = phenotypes_with_context[i][1]
+
+            if not heaps[i]: 
+                self.last_mapping_logs.append({
+                    "phenotype": phenotype_name,
+                    "context": context_sentence,
+                    "candidates_text": "Ninguno (No superaron umbral de similitud vectorial)",
+                    "reasoning": "N/A",
+                    "final_code": "None"
+                })
+                continue
                 
             sorted_candidates = sorted(heaps[i], key=lambda x: x[0], reverse=True)
 
@@ -108,88 +123,143 @@ class PhenotypeOntologyMapper:
                 mapped_phenotypes[i] = sorted_candidates[0][1]
                 continue
 
-            phenotype_name = phenotypes_with_context[i][0]
-            context_sentence = phenotypes_with_context[i][1]
-
             candidates_text = ""
             for rank, (sim, code, name) in enumerate(sorted_candidates):
                 candidates_text += f"{rank+1}. Código: {code} | Nombre: {name} | (Score vectorial: {sim:.2f})\n"
 
-            prompt = f"""Eres un experto en codificación clínica HPO. 
+            if self.prompt:
+                base_prompt = self.prompt
+            else:
+                base_prompt = f"""Eres un experto en codificación clínica HPO. 
 Contexto clínico original del paciente (oración específica):
 "{context_sentence}"
 
 Fenotipo extraído a mapear: "{phenotype_name}"
 
-A continuación, tienes los Top {self.top_k} códigos candidatos pre-seleccionados de la ontología HPO:
+Top {self.top_k} códigos candidatos pre-seleccionados de la ontología HPO:
 {candidates_text}
-Tu tarea: Selecciona de la lista anterior el ÚNICO código que mejor represente el fenotipo exacto basándote en el contexto clínico.
-Si ninguno de los candidatos es adecuado en absoluto, responde "None".
-Responde ÚNICAMENTE con un JSON en este formato estricto: {{"hpo_code": "código_elegido"}}"""
 
-            mapped_phenotypes[i] = self._call_llm_rag(prompt)
+INSTRUCCIONES OBLIGATORIAS:
+1. Evalúa internamente todos los candidatos y selecciona los 2 o 3 más prometedores.
+2. Escribe una breve justificación (máximo 4 oraciones) comparando ÚNICAMENTE a esos finalistas frente al contexto clínico para llegar a tu decisión. No menciones los candidatos que son evidentemente incorrectos.
+3. Si es evidente que ninguno de los candidatos ofrecidos tiene relación anatómica o semántica con el fenotipo, explica brevemente por qué y tu decisión debe ser "None".
+4. Al final de tu análisis, DEBES incluir ÚNICAMENTE un bloque de código JSON con tu respuesta final en este formato exacto:
+```json
+{{"hpo_code": "código_elegido_o_None"}}
+```"""
+
+            hpo_code, full_reasoning = self._call_llm_rag(base_prompt)
+            mapped_phenotypes[i] = hpo_code
+
+            self.last_mapping_logs.append({
+                "phenotype": phenotype_name,
+                "context": context_sentence,
+                "candidates_text": candidates_text,
+                "reasoning": full_reasoning,
+                "final_code": hpo_code
+            })
 
         return mapped_phenotypes
 
-    def _call_llm_rag(self, prompt: str) -> str:
+    def _call_llm_rag(self, prompt: str) -> tuple[str, str]:
         response_text = ""
         try:
             if self.api_provider == "gemini":
-                interaction = self.client.interactions.create(
-                    model=self.api_model_name, 
-                    input=prompt
-                )
+                params_to_try = [
+                    {"config": {"max_output_tokens": 2048, "temperature": 0.0}},
+                    {"config": {"temperature": 0.0}},
+                    {} # Fallback definitivo para modelos que no aceptan config
+                ]
+                interaction = None
+                last_err = None
+                
+                for params in params_to_try:
+                    try:
+                        interaction = self.client.interactions.create(
+                            model=self.api_model_name, 
+                            input=prompt,
+                            **params
+                        )
+                        break # Si funciona, sale del loop
+                    except Exception as e:
+                        last_err = e
+                        continue
+                
+                if not interaction:
+                    raise last_err
                 response_text = interaction.output_text
 
             elif self.api_provider == "openai":
-                kwargs = {
+                base_kwargs = {
                     "model": self.api_model_name,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.0
+                    "messages": [{"role": "user", "content": prompt}]
                 }
+                params_to_try = [
+                    {"temperature": 0.0, "max_tokens": 2048},
+                    {"temperature": 0.0, "max_completion_tokens": 2048},
+                    {"max_completion_tokens": 2048},
+                    {"max_tokens": 2048},
+                    {"temperature": 0.0},
+                    {} # Fallback definitivo para modelos de razonamiento estricto
+                ]
+                response = None
+                last_err = None
                 
-                try:
-                    response = self.client.chat.completions.create(**kwargs)
-                except Exception as e:
-                    if "temperature" in str(e).lower():
-                        del kwargs["temperature"]
-                        response = self.client.chat.completions.create(**kwargs)
-                    else:
-                        raise e
+                for params in params_to_try:
+                    try:
+                        current_kwargs = {**base_kwargs, **params}
+                        response = self.client.chat.completions.create(**current_kwargs)
+                        break
+                    except Exception as e:
+                        last_err = e
+                        continue
+                        
+                if not response:
+                    raise last_err
                 response_text = response.choices[0].message.content
 
             elif self.api_provider == "anthropic":
-                kwargs = {
+                base_kwargs = {
                     "model": self.api_model_name,
-                    "max_tokens": 1024,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.0
+                    "messages": [{"role": "user", "content": prompt}]
                 }
-
-                try:
-                    response = self.client.messages.create(**kwargs)
-                except Exception as e:
-                    if "temperature" in str(e).lower():
-                        del kwargs["temperature"]
-                        response = self.client.messages.create(**kwargs)
-                    else:
-                        raise e
-
+                params_to_try = [
+                    {"temperature": 0.0, "max_tokens": 4096},
+                    {"max_tokens": 4096},
+                    {"temperature": 0.0},
+                    {} # Fallback definitivo
+                ]
+                response = None
+                last_err = None
+                
+                for params in params_to_try:
+                    try:
+                        current_kwargs = {**base_kwargs, **params}
+                        response = self.client.messages.create(**current_kwargs)
+                        break
+                    except Exception as e:
+                        last_err = e
+                        continue
+                        
+                if not response:
+                    raise last_err
+                
                 for block in response.content:
                     if block.type == "text":
                         response_text = block.text
                         break
 
-            clean_text = response_text.replace("```json", "").replace("```", "").strip()
-            match = re.search(r'\{.*\}', clean_text, re.DOTALL)
-            if match: clean_text = match.group(0)
-
-            parsed_data = json.loads(clean_text)
-            return parsed_data.get("hpo_code", "None")
+            match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if match: 
+                clean_text = match.group(0)
+                parsed_data = json.loads(clean_text)
+                return parsed_data.get("hpo_code", "None"), response_text
+            else:
+                return "None", response_text
 
         except Exception as e:
-            print(f"Error en RAG LLM ({self.api_provider}). Fallback a 'None'. Error: {e}")
-            return "None"
+            print(f"Error en RAG LLM ({self.api_provider} - {self.api_model_name}). Fallback a 'None'. Error final: {e}")
+            return "None", response_text
 
     def _get_codes_batch(self):
         batch_files = glob.glob(os.path.join(self.ontology_file_path, "*.pt"))

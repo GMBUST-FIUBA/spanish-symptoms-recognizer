@@ -24,13 +24,17 @@ class PhenotypesDetector:
                  agg_strategy="simple",
                  phenotypes_model_type="ner",
                  api_provider=None,
-                 api_model_name=None):
+                 api_model_name=None,
+                 prompt=None):
 
         self.phenotypes_model_type = phenotypes_model_type
         self.api_provider = api_provider
         self.api_model_name = api_model_name
 
-        self.base_prompt = """Eres un anotador clínico experto especializado en la Ontología de Fenotipos Humanos (HPO). Tu tarea es extraer signos, síntomas y anormalidades fenotípicas de la historia clínica.
+        if prompt:
+            self.base_prompt = prompt
+        else:
+            self.base_prompt = """Eres un anotador clínico experto especializado en la Ontología de Fenotipos Humanos (HPO). Tu tarea es extraer signos, síntomas y anormalidades fenotípicas de la historia clínica.
 
 REGLAS ESTRICTAS:
 1. SOLO FENOTIPOS Y ANORMALIDADES: Extrae manifestaciones clínicas, signos físicos y síntomas reportados u observados.
