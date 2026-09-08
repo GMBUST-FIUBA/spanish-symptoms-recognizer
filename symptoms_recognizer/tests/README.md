@@ -312,6 +312,7 @@ Surprisingly the prompt with more general phenotypes performs better End-To-End,
 | NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-5-2025-08-07) | 48 | 23 | 11 | 0.6761 | 0.8136 | 0.7385 | 24 | 42 | 35 | 0.3636 | 0.4068 | 0.3840 |
 | NER: gpt-4o-mini (specific-ner-prompt) - MAP: Gemini (gemini-3.5-flash) | 39 | 32 | 20 | 0.5493 | 0.6610 | 0.6000 | 23 | 38 | 36 | 0.3770 | 0.3898 | 0.3833 |
 
+This results now clearly show that some models perform better than the rest, this helps narrow the models to be tested in the future. The models to be mainly used will be both from Claude (Opus 5 and Sonnet 5), GPT 5.6 Luna, Sol and Terra and some other light models that show some good reasoning.
 
 ---
 
