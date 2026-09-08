@@ -283,7 +283,35 @@ For the second prompt tested (the one with stricter phenotypes) the results are 
 | NER: gpt-4o-mini - MAP: OpenAI (gpt-5-mini) | 41 | 30 | 18 | 0.5775 | 0.6949 | 0.6308 | 24 | 37 | 35 | 0.3934 | 0.4068 | 0.4000 |
 | NER: gpt-4o-mini - MAP: OpenAI (gpt-4.1-mini) | 41 | 32 | 18 | 0.5616 | 0.6949 | 0.6212 | 22 | 40 | 37 | 0.3548 | 0.3729 | 0.3636 |
 
-Surprisingly the prompt with more general phenotypes performs better End-To-End, therefore it will be the one used from now on.
+Surprisingly the prompt with more general phenotypes performs better End-To-End, but worse in the NER stage and viceversa. By looking at the results of the tests, however, it was seen that some reasonings were cut short and some others did not have the possible HPO code in their possibilities, so another test was made using both scripts using a larger context and a larger Top-k list of 10:
+
+| NER: gpt-4o-mini gral-ner-prompt - MAP: Claude (claude-opus-5) | 29 | 33 | 30 | 0.4677 | 0.4915 | 0.4793 | 31 | 26 | 28 | 0.5439 | 0.5254 | 0.5345 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: OpenAI (gpt-5.6-terra) | 29 | 37 | 30 | 0.4394 | 0.4915 | 0.4640 | 31 | 31 | 28 | 0.5000 | 0.5254 | 0.5124 |
+| NER: gpt-4o-mini gral-ner-prompt - MAP: Claude (claude-sonnet-5) | 29 | 30 | 30 | 0.4915 | 0.4915 | 0.4915 | 29 | 26 | 30 | 0.5273 | 0.4915 | 0.5088 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: Gemini (gemini-3.5-flash) | 32 | 33 | 27 | 0.4923 | 0.5424 | 0.5161 | 29 | 27 | 30 | 0.5179 | 0.4915 | 0.5043 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: OpenAI (gpt-5.4-mini) | 30 | 31 | 29 | 0.4918 | 0.5085 | 0.5000 | 30 | 30 | 29 | 0.5000 | 0.5085 | 0.5042 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: OpenAI (gpt-5-2025-08-07) | 30 | 31 | 29 | 0.4918 | 0.5085 | 0.5000 | 29 | 29 | 30 | 0.5000 | 0.4915 | 0.4957 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: Gemini (gemini-3.1-flash-lite) | 30 | 31 | 29 | 0.4918 | 0.5085 | 0.5000 | 28 | 28 | 31 | 0.5000 | 0.4746 | 0.4870 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: OpenAI (gpt-5.6-luna) | 31 | 37 | 28 | 0.4559 | 0.5254 | 0.4882 | 30 | 37 | 29 | 0.4478 | 0.5085 | 0.4762 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: OpenAI (gpt-5-mini) | 28 | 34 | 31 | 0.4516 | 0.4746 | 0.4628 | 28 | 33 | 31 | 0.4590 | 0.4746 | 0.4667 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: OpenAI (gpt-4o-mini) | 29 | 32 | 30 | 0.4754 | 0.4915 | 0.4833 | 27 | 31 | 32 | 0.4655 | 0.4576 | 0.4615 |
+| NER: gpt-4o-mini specific-ner-prompt - MAP: Claude (claude-opus-5) | 45 | 30 | 14 | 0.6000 | 0.7627 | 0.6716 | 29 | 38 | 30 | 0.4328 | 0.4915 | 0.4603 |
+| NER: gpt-4o-mini specific-ner-prompt - MAP: Claude (claude-sonnet-5) | 49 | 24 | 10 | 0.6712 | 0.8305 | 0.7424 | 28 | 35 | 31 | 0.4444 | 0.4746 | 0.4590 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: OpenAI (gpt-5.4-nano) | 32 | 32 | 27 | 0.5000 | 0.5424 | 0.5203 | 28 | 36 | 31 | 0.4375 | 0.4746 | 0.4553 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: OpenAI (gpt-5.6-sol) | 30 | 33 | 29 | 0.4762 | 0.5085 | 0.4918 | 27 | 33 | 32 | 0.4500 | 0.4576 | 0.4538 |
+| NER: gpt-4o-mini (gral-ner-prompt) - MAP: Gemini (gemini-3-flash-preview) | 30 | 34 | 29 | 0.4688 | 0.5085 | 0.4878 | 26 | 31 | 33 | 0.4561 | 0.4407 | 0.4483 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-5.6-sol) | 47 | 25 | 12 | 0.6528 | 0.7966 | 0.7176 | 28 | 40 | 31 | 0.4118 | 0.4746 | 0.4409 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-5.6-terra) | 42 | 30 | 17 | 0.5833 | 0.7119 | 0.6412 | 27 | 38 | 32 | 0.4154 | 0.4576 | 0.4355 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: Gemini (gemini-3.1-flash-lite) | 44 | 30 | 15 | 0.5946 | 0.7458 | 0.6617 | 26 | 36 | 33 | 0.4194 | 0.4407 | 0.4298 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-5.4-mini) | 45 | 24 | 14 | 0.6522 | 0.7627 | 0.7031 | 26 | 39 | 33 | 0.4000 | 0.4407 | 0.4194 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: Gemini (gemini-3-flash-preview) | 45 | 24 | 14 | 0.6522 | 0.7627 | 0.7031 | 24 | 34 | 35 | 0.4138 | 0.4068 | 0.4103 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-4o-mini) | 46 | 29 | 13 | 0.6133 | 0.7797 | 0.6866 | 26 | 46 | 33 | 0.3611 | 0.4407 | 0.3969 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-5.4-nano) | 44 | 25 | 15 | 0.6377 | 0.7458 | 0.6875 | 24 | 41 | 35 | 0.3692 | 0.4068 | 0.3871 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-5.6-luna) | 43 | 27 | 16 | 0.6143 | 0.7288 | 0.6667 | 24 | 41 | 35 | 0.3692 | 0.4068 | 0.3871 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-5-mini) | 44 | 29 | 15 | 0.6027 | 0.7458 | 0.6667 | 24 | 42 | 35 | 0.3636 | 0.4068 | 0.3840 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-5-2025-08-07) | 48 | 23 | 11 | 0.6761 | 0.8136 | 0.7385 | 24 | 42 | 35 | 0.3636 | 0.4068 | 0.3840 |
+| NER: gpt-4o-mini (specific-ner-prompt) - MAP: Gemini (gemini-3.5-flash) | 39 | 32 | 20 | 0.5493 | 0.6610 | 0.6000 | 23 | 38 | 36 | 0.3770 | 0.3898 | 0.3833 |
+
 
 ---
 
