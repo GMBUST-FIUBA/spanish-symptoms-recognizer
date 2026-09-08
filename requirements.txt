@@ -104,6 +104,7 @@ rich==15.0.0
 rpds-py==2026.6.3
 safetensors==0.8.0
 scipy==1.18.0
+sentencepiece==0.2.2
 setuptools==84.0.0
 shellingham==1.5.4
 six==1.17.0
@@ -116,6 +117,7 @@ srsly==2.5.3
 sympy==1.14.0
 tenacity==9.1.4
 thinc==8.3.13
+tiktoken==0.14.0
 tokenizers==0.22.2
 torch==2.13.0
 tqdm==4.70.0

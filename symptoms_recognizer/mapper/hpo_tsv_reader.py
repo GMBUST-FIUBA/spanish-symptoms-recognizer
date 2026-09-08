@@ -8,13 +8,12 @@ from transformers import AutoTokenizer, AutoModel
 
 # Embeddings generator
 ## Local path
-LOCAL_TOKENIZER_PATH = "semantic_model/clinlinker-kb-gp"
-LOCAL_MODEL_PATH = "semantic_model/clinlinker-kb-gp"
+LOCAL_TOKENIZER_PATH = "semantic_model/SapBERT-UMLS-2020AB-all-lang-from-XLMR"
+LOCAL_MODEL_PATH = "semantic_model/SapBERT-UMLS-2020AB-all-lang-from-XLMR"
 
 ## Files for token generation
 ORIGINAL_TSV_FILE = "hpo/hp-es.babelon.tsv"
-# AHORA GUARDAMOS EN UNA CARPETA, NO EN UN SOLO ARCHIVO
-OUTPUT_DIR = "hpo/hpo_batches"
+OUTPUT_DIR = "hpo/hpo_batches/SapBERT-UMLS-2020AB-all-lang-from-XLMR"
 
 ## Columns
 ORIGINAL_TSV_FILE_TRANSALTION_COLUMN = "translation_value"
