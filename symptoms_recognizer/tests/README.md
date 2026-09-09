@@ -337,6 +337,8 @@ After a careful examination of the data used, lots of mistakes were found when l
 | NER: gpt-4o-mini (specific-ner-prompt) - MAP: Claude (claude-sonnet-5) | 40 | 36 | 19 | 0.5263 | 0.6780 | 0.5926 | 37 | 25 | 22 | 0.5968 | 0.6271 | 0.6116 |
 | NER: gpt-4o-mini (specific-ner-prompt) - MAP: OpenAI (gpt-5.6-sol) | 45 | 27 | 14 | 0.6250 | 0.7627 | 0.6870 | 38 | 28 | 21 | 0.5758 | 0.6441 | 0.6080 |
 
+After this tests what is clear is that the best model is Claude's Opus 5 which makes sense since it is a very new model for reasoning.
+
 ---
 
 ## Citations & References
