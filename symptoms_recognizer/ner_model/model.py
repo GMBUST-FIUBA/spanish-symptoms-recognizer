@@ -1,14 +1,12 @@
-from google import genai
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from transformers import pipeline
 
+from symptoms_recognizer.api_clients import build_api_client
 import json
 import os
 import re
 import torch
-from openai import OpenAI
-import anthropic
 
 # Local model path
 CURRENT_DIR = Path(__file__).parent.resolve()
@@ -63,7 +61,7 @@ EJEMPLO DE SALIDA:
             model_path = model_path or DEFAULT_LOCAL_MODEL_PATH
             tokenizer_path = tokenizer_path or model_path
             self.allowed_entity_groups = set(allowed_entity_groups) if allowed_entity_groups else None
-    
+
             self.model = AutoModelForTokenClassification.from_pretrained(model_path)
             self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
 
@@ -73,6 +71,8 @@ EJEMPLO DE SALIDA:
                 tokenizer=self.tokenizer,
                 aggregation_strategy=agg_strategy,
             )
+
+            self._detect_fn = self._detect_ner
 
         elif phenotypes_model_type == "llm":
             model_path = model_path or DEFAULT_LOCAL_LLM_PATH
@@ -87,119 +87,126 @@ EJEMPLO DE SALIDA:
                 dtype=torch.bfloat16,
             )
 
+            self._detect_fn = self._detect_local_llm
+
         elif phenotypes_model_type == "api":
             if not api_model_name:
                 raise ValueError("api_model_name es obligatorio cuando phenotypes_model_type='api'")
 
-            if self.api_provider == "gemini":
-                self.client = genai.Client()
-            elif self.api_provider == "openai":
-                self.client = OpenAI()
-            elif self.api_provider == "anthropic":
-                self.client = anthropic.Anthropic()
-            else:
-                raise Exception(f"Proveedor de API no soportado: {self.api_provider}")
+            self.client = build_api_client(self.api_provider)
+
+            api_call_fns = {
+                "gemini": self._call_gemini_ner,
+                "openai": self._call_openai_ner,
+                "anthropic": self._call_anthropic_ner,
+            }
+            self._api_call_fn = api_call_fns[self.api_provider]
+            self._detect_fn = self._detect_api
 
         else:
             raise Exception("Non-existent model type")
 
     def detect_phenotypes(self, text_chunk: str) -> list[tuple[str, str]]:
+        return self._detect_fn(text_chunk)
+
+    def _detect_ner(self, text_chunk: str) -> list[tuple[str, str]]:
+        tokens = self.tokenizer.encode(
+            text_chunk,
+            truncation=True,
+            max_length=512
+        )
+        truncated_sentence = self.tokenizer.decode(tokens, skip_special_tokens=True)
+        sentence_results = self.ner_pipeline(truncated_sentence)
+
         phenotypes_list = []
-
-        if self.phenotypes_model_type == "ner":
-            tokens = self.tokenizer.encode(
-                text_chunk, 
-                truncation=True, 
-                max_length=512
-            )
-            truncated_sentence = self.tokenizer.decode(tokens, skip_special_tokens=True)
-            sentence_results = self.ner_pipeline(truncated_sentence)
-
-            for res in sentence_results:
-                entity_group = res.get("entity_group")
-                if not self.allowed_entity_groups or entity_group in self.allowed_entity_groups:
-                    phenotypes_list.append((res["word"].strip(), text_chunk))
-
-        elif self.phenotypes_model_type == "api":
-            if not text_chunk or not text_chunk.strip():
-                return []
-
-            response_text = ""
-            full_prompt = f"{self.base_prompt}\n\nTexto de entrada:\n{text_chunk}"
-
-            try:
-                if self.api_provider == "gemini":
-                    interaction = self.client.interactions.create(
-                        model=self.api_model_name,
-                        input=full_prompt
-                    )
-                    response_text = interaction.output_text
-                    
-                elif self.api_provider == "openai":
-                    response = self.client.chat.completions.create(
-                        model=self.api_model_name,
-                        messages=[
-                            {"role": "system", "content": self.base_prompt},
-                            {"role": "user", "content": f"Texto de entrada:\n{text_chunk}"}
-                        ]
-                    )
-                    response_text = response.choices[0].message.content
-                
-                elif self.api_provider == "anthropic":
-                    response = self.client.messages.create(
-                        model=self.api_model_name,
-                        max_tokens=4096,
-                        system=[
-                            {
-                                "type": "text",
-                                "text": self.base_prompt,
-                                "cache_control": {"type": "ephemeral"}
-                            }
-                        ],
-                        messages=[
-                            {"role": "user", "content": f"Texto de entrada:\n{text_chunk}"}
-                        ]
-                    )
-                    response_text = ""
-                    for block in response.content:
-                        if block.type == "text":
-                            response_text = block.text
-                            break
-
-                phenotypes_list = self._parse_llm_json_output(response_text, text_chunk)
-
-            except Exception as e:
-                print(f"Error interno del pipeline API de {self.api_provider}: {e}")
-
-        elif self.phenotypes_model_type == "llm":
-            if not text_chunk or not text_chunk.strip():
-                return []
-
-            input_tokens = self.tokenizer.encode(text_chunk, truncation=True, max_length=2048)
-            safe_sentence = self.tokenizer.decode(input_tokens, skip_special_tokens=True)
-
-            messages = [
-                {"role": "system", "content": self.base_prompt},
-                {"role": "user", "content": f"Texto de entrada:\n{safe_sentence}"}
-            ]
-
-            try:
-                outputs = self.ner_pipeline(
-                    messages,
-                    max_new_tokens=1536,
-                    max_length=None,
-                    do_sample=False,
-                    return_full_text=False
-                )
-                
-                if outputs and isinstance(outputs, list) and len(outputs) > 0:
-                    response_text = outputs[0].get("generated_text", "")
-                    phenotypes_list = self._parse_llm_json_output(response_text, text_chunk)
-
-            except Exception as e:
-                print(f"Error interno del pipeline LLM local en este chunk: {e}")
+        for res in sentence_results:
+            entity_group = res.get("entity_group")
+            if not self.allowed_entity_groups or entity_group in self.allowed_entity_groups:
+                phenotypes_list.append((res["word"].strip(), text_chunk))
 
         return phenotypes_list
+
+    def _detect_local_llm(self, text_chunk: str) -> list[tuple[str, str]]:
+        if not text_chunk or not text_chunk.strip():
+            return []
+
+        input_tokens = self.tokenizer.encode(text_chunk, truncation=True, max_length=2048)
+        safe_sentence = self.tokenizer.decode(input_tokens, skip_special_tokens=True)
+
+        messages = [
+            {"role": "system", "content": self.base_prompt},
+            {"role": "user", "content": f"Texto de entrada:\n{safe_sentence}"}
+        ]
+
+        try:
+            outputs = self.ner_pipeline(
+                messages,
+                max_new_tokens=1536,
+                max_length=None,
+                do_sample=False,
+                return_full_text=False
+            )
+
+            if outputs and isinstance(outputs, list) and len(outputs) > 0:
+                response_text = outputs[0].get("generated_text", "")
+                return self._parse_llm_json_output(response_text, text_chunk)
+
+        except Exception as e:
+            print(f"Error interno del pipeline LLM local en este chunk: {e}")
+
+        return []
+
+    def _detect_api(self, text_chunk: str) -> list[tuple[str, str]]:
+        if not text_chunk or not text_chunk.strip():
+            return []
+
+        response_text = ""
+        try:
+            response_text = self._api_call_fn(text_chunk)
+            return self._parse_llm_json_output(response_text, text_chunk)
+
+        except Exception as e:
+            print(f"Error interno del pipeline API de {self.api_provider}: {e}")
+
+        return []
+
+    def _call_gemini_ner(self, text_chunk: str) -> str:
+        full_prompt = f"{self.base_prompt}\n\nTexto de entrada:\n{text_chunk}"
+        interaction = self.client.interactions.create(
+            model=self.api_model_name,
+            input=full_prompt
+        )
+        return interaction.output_text
+
+    def _call_openai_ner(self, text_chunk: str) -> str:
+        response = self.client.chat.completions.create(
+            model=self.api_model_name,
+            messages=[
+                {"role": "system", "content": self.base_prompt},
+                {"role": "user", "content": f"Texto de entrada:\n{text_chunk}"}
+            ]
+        )
+        return response.choices[0].message.content
+
+    def _call_anthropic_ner(self, text_chunk: str) -> str:
+        response = self.client.messages.create(
+            model=self.api_model_name,
+            max_tokens=4096,
+            system=[
+                {
+                    "type": "text",
+                    "text": self.base_prompt,
+                    "cache_control": {"type": "ephemeral"}
+                }
+            ],
+            messages=[
+                {"role": "user", "content": f"Texto de entrada:\n{text_chunk}"}
+            ]
+        )
+        for block in response.content:
+            if block.type == "text":
+                return block.text
+        return ""
 
     def _parse_llm_json_output(self, response_text: str, fallback_context: str) -> list[tuple[str, str]]:
         extracted_list = []

@@ -5,6 +5,13 @@ from symptoms_recognizer.text_parser.full_text_parser import FullTextParser
 from symptoms_recognizer.text_parser.sections_parser import SectionsSentencesParser
 from symptoms_recognizer.text_parser.sentences_parser import SentencesParser
 
+TEXT_PARSER_BUILDERS = {
+    "chunks-sentences": lambda: ChunkSentencesParser(max_chunk_tokens=384, overlap_sentences=1),
+    "sentences": SentencesParser,
+    "sections-sentences": SectionsSentencesParser,
+    "full-text": FullTextParser,
+}
+
 class PhenotypesRecognizer:
     def __init__(
         self, ner_model_path=None, ner_tokenizer_path=None, mapper_model_path=None,
@@ -30,11 +37,10 @@ class PhenotypesRecognizer:
             prompt=map_prompt,
         )
 
-        if text_parser == "chunks-sentences": self.text_parser = ChunkSentencesParser(max_chunk_tokens=384, overlap_sentences=1)
-        elif text_parser == "sentences": self.text_parser = SentencesParser()
-        elif text_parser == "sections-sentences": self.text_parser = SectionsSentencesParser()
-        elif text_parser == "full-text": self.text_parser = FullTextParser()
-        else: raise Exception("No known parser")
+        try:
+            self.text_parser = TEXT_PARSER_BUILDERS[text_parser]()
+        except KeyError:
+            raise Exception("No known parser")
 
     def recognize(self, text: str) -> list[tuple[str, str]]:
         return self.text_parser.apply(text, self.ner_model)
