@@ -1,10 +1,8 @@
 from pathlib import Path
 from scipy.spatial import distance
 from transformers import AutoTokenizer, AutoModel
-from google import genai
-from openai import OpenAI
-import anthropic
 
+from symptoms_recognizer.api_clients import build_api_client
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import nullcontext
 import glob
@@ -38,14 +36,18 @@ class PhenotypeOntologyMapper:
         self.min_required_similarity = 1.0 - MIN_DISTANCE_VECTORS
         self.last_mapping_logs = []
 
-        if self.api_provider == "gemini": 
-            self.client = genai.Client()
-        elif self.api_provider == "openai": 
-            self.client = OpenAI()
-        elif self.api_provider == "anthropic": 
-            self.client = anthropic.Anthropic()
-        elif self.api_provider: 
-            raise Exception(f"Proveedor no soportado: {self.api_provider}")
+        if self.api_provider:
+            self.client = build_api_client(self.api_provider)
+
+            rag_call_fns = {
+                "gemini": self._call_gemini_rag,
+                "openai": self._call_openai_rag,
+                "anthropic": self._call_anthropic_rag,
+            }
+            self._rag_call_fn = rag_call_fns[self.api_provider]
+        else:
+            self.client = None
+            self._rag_call_fn = None
 
         if ontology in ACCEPTED_ONTOLOGIES:
             self.mapped_ontology = ontology
@@ -177,93 +179,10 @@ INSTRUCCIONES OBLIGATORIAS:
     def _call_llm_rag(self, prompt: str) -> tuple[str, str]:
         response_text = ""
         try:
-            if self.api_provider == "gemini":
-                params_to_try = [
-                    {"config": {"max_output_tokens": 2048, "temperature": 0.0}},
-                    {"config": {"temperature": 0.0}},
-                    {} # Fallback definitivo para modelos que no aceptan config
-                ]
-                interaction = None
-                last_err = None
-                
-                for params in params_to_try:
-                    try:
-                        interaction = self.client.interactions.create(
-                            model=self.api_model_name, 
-                            input=prompt,
-                            **params
-                        )
-                        break # Si funciona, sale del loop
-                    except Exception as e:
-                        last_err = e
-                        continue
-                
-                if not interaction:
-                    raise last_err
-                response_text = interaction.output_text
-
-            elif self.api_provider == "openai":
-                base_kwargs = {
-                    "model": self.api_model_name,
-                    "messages": [{"role": "user", "content": prompt}]
-                }
-                params_to_try = [
-                    {"temperature": 0.0, "max_tokens": 2048},
-                    {"temperature": 0.0, "max_completion_tokens": 2048},
-                    {"max_completion_tokens": 2048},
-                    {"max_tokens": 2048},
-                    {"temperature": 0.0},
-                    {} # Fallback definitivo para modelos de razonamiento estricto
-                ]
-                response = None
-                last_err = None
-                
-                for params in params_to_try:
-                    try:
-                        current_kwargs = {**base_kwargs, **params}
-                        response = self.client.chat.completions.create(**current_kwargs)
-                        break
-                    except Exception as e:
-                        last_err = e
-                        continue
-                        
-                if not response:
-                    raise last_err
-                response_text = response.choices[0].message.content
-
-            elif self.api_provider == "anthropic":
-                base_kwargs = {
-                    "model": self.api_model_name,
-                    "messages": [{"role": "user", "content": prompt}]
-                }
-                params_to_try = [
-                    {"temperature": 0.0, "max_tokens": 4096},
-                    {"max_tokens": 4096},
-                    {"temperature": 0.0},
-                    {} # Fallback definitivo
-                ]
-                response = None
-                last_err = None
-                
-                for params in params_to_try:
-                    try:
-                        current_kwargs = {**base_kwargs, **params}
-                        response = self.client.messages.create(**current_kwargs)
-                        break
-                    except Exception as e:
-                        last_err = e
-                        continue
-                        
-                if not response:
-                    raise last_err
-                
-                for block in response.content:
-                    if block.type == "text":
-                        response_text = block.text
-                        break
+            response_text = self._rag_call_fn(prompt)
 
             match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if match: 
+            if match:
                 clean_text = match.group(0)
                 parsed_data = json.loads(clean_text)
                 return parsed_data.get("hpo_code", "None"), response_text
@@ -273,6 +192,91 @@ INSTRUCCIONES OBLIGATORIAS:
         except Exception as e:
             print(f"Error en RAG LLM ({self.api_provider} - {self.api_model_name}). Fallback a 'None'. Error final: {e}")
             return "None", response_text
+
+    def _call_gemini_rag(self, prompt: str) -> str:
+        params_to_try = [
+            {"config": {"max_output_tokens": 2048, "temperature": 0.0}},
+            {"config": {"temperature": 0.0}},
+            {} # Fallback definitivo para modelos que no aceptan config
+        ]
+        interaction = None
+        last_err = None
+
+        for params in params_to_try:
+            try:
+                interaction = self.client.interactions.create(
+                    model=self.api_model_name,
+                    input=prompt,
+                    **params
+                )
+                break # Si funciona, sale del loop
+            except Exception as e:
+                last_err = e
+                continue
+
+        if not interaction:
+            raise last_err
+        return interaction.output_text
+
+    def _call_openai_rag(self, prompt: str) -> str:
+        base_kwargs = {
+            "model": self.api_model_name,
+            "messages": [{"role": "user", "content": prompt}]
+        }
+        params_to_try = [
+            {"temperature": 0.0, "max_tokens": 2048},
+            {"temperature": 0.0, "max_completion_tokens": 2048},
+            {"max_completion_tokens": 2048},
+            {"max_tokens": 2048},
+            {"temperature": 0.0},
+            {} # Fallback definitivo para modelos de razonamiento estricto
+        ]
+        response = None
+        last_err = None
+
+        for params in params_to_try:
+            try:
+                current_kwargs = {**base_kwargs, **params}
+                response = self.client.chat.completions.create(**current_kwargs)
+                break
+            except Exception as e:
+                last_err = e
+                continue
+
+        if not response:
+            raise last_err
+        return response.choices[0].message.content
+
+    def _call_anthropic_rag(self, prompt: str) -> str:
+        base_kwargs = {
+            "model": self.api_model_name,
+            "messages": [{"role": "user", "content": prompt}]
+        }
+        params_to_try = [
+            {"temperature": 0.0, "max_tokens": 4096},
+            {"max_tokens": 4096},
+            {"temperature": 0.0},
+            {} # Fallback definitivo
+        ]
+        response = None
+        last_err = None
+
+        for params in params_to_try:
+            try:
+                current_kwargs = {**base_kwargs, **params}
+                response = self.client.messages.create(**current_kwargs)
+                break
+            except Exception as e:
+                last_err = e
+                continue
+
+        if not response:
+            raise last_err
+
+        for block in response.content:
+            if block.type == "text":
+                return block.text
+        return ""
 
     def _get_codes_batch(self):
         batch_files = glob.glob(os.path.join(self.ontology_file_path, "*.pt"))
