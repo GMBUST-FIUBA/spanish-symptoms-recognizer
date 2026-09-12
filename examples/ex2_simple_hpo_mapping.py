@@ -1,7 +1,9 @@
 from symptoms_recognizer.symptom_recognizer import PhenotypesRecognizer
 
 if __name__ == "__main__":
-    recognizer = PhenotypesRecognizer(ontology="hpo")
+    recognizer = PhenotypesRecognizer(
+        ontology="hpo", map_api_provider="anthropic", map_api_model_name="claude-opus-5",
+    )
     # Comments about the codes
     # - Fever: HP:0001945
     # - Nausea and vomiting: HP:0002017
@@ -15,7 +17,8 @@ if __name__ == "__main__":
         print(f" - {phenotype} => {joined_codes}")
 
     # Results
-    results = recognizer.map(list(possible_expected_results.keys()))
+    phenotypes_with_context = [(phenotype, phenotype) for phenotype in possible_expected_results.keys()]
+    results = recognizer.map(phenotypes_with_context)
 
     print("-------------------------------")
     print(f"Resultados:")
