@@ -1,58 +1,52 @@
-from symptoms_recognizer.ner_model.model import PhenotypesDetector
 from symptoms_recognizer.mapper.mapper import PhenotypeOntologyMapper
+from symptoms_recognizer.ner_model.model import PhenotypesDetector
+from symptoms_recognizer.text_parser.chunks_sentences_parser import ChunkSentencesParser
+from symptoms_recognizer.text_parser.full_text_parser import FullTextParser
+from symptoms_recognizer.text_parser.sections_parser import SectionsSentencesParser
+from symptoms_recognizer.text_parser.sentences_parser import SentencesParser
 
-import spacy
+class PhenotypesRecognizer:
+    def __init__(
+        self, ner_model_path=None, ner_tokenizer_path=None, mapper_model_path=None,
+        mapper_tokenizer_path=None, ontology=None, ontology_file_path=None,
+        allowed_entity_groups=None, agg_strategy="simple", text_parser="sentences",
+        phenotypes_model_type="ner",
+        ner_api_provider=None, ner_api_model_name=None,
+        map_api_provider=None, map_api_model_name=None,
+        ner_prompt=None, map_prompt=None,
+    ):
+        self.ner_model = PhenotypesDetector(
+            model_path=ner_model_path, tokenizer_path=ner_tokenizer_path,
+            allowed_entity_groups=allowed_entity_groups, agg_strategy=agg_strategy,
+            phenotypes_model_type=phenotypes_model_type,
+            api_provider=ner_api_provider, api_model_name=ner_api_model_name,
+            prompt=ner_prompt,
+        )
 
-class PhenotypesRecognizer():
+        self.mapper = PhenotypeOntologyMapper(
+            model_path=mapper_model_path, tokenizer_path=mapper_tokenizer_path,
+            ontology=ontology, ontology_file_path=ontology_file_path,
+            api_provider=map_api_provider, api_model_name=map_api_model_name,
+            prompt=map_prompt,
+        )
 
-    def __init__(self, ner_model_path=None,
-                 ner_tokenizer_path=None,
-                 mapper_model_path=None,
-                 mapper_tokenizer_path=None,
-                 ontology=None,
-                 ontology_file_path=None):
+        if text_parser == "chunks-sentences": self.text_parser = ChunkSentencesParser(max_chunk_tokens=384, overlap_sentences=1)
+        elif text_parser == "sentences": self.text_parser = SentencesParser()
+        elif text_parser == "sections-sentences": self.text_parser = SectionsSentencesParser()
+        elif text_parser == "full-text": self.text_parser = FullTextParser()
+        else: raise Exception("No known parser")
 
-        # Get NER model and tokenizer
-        self.ner_model = PhenotypesDetector(model_path=ner_model_path, tokenizer_path=ner_tokenizer_path)
+    def recognize(self, text: str) -> list[tuple[str, str]]:
+        return self.text_parser.apply(text, self.ner_model)
 
-        # Get EL model and tokenizer
-        self.mapper = PhenotypeOntologyMapper(model_path=mapper_model_path,
-                                              tokenizer_path=mapper_tokenizer_path,
-                                              ontology=ontology,
-                                              ontology_file_path=ontology_file_path)
+    def map(self, phenotypes_with_context: list[tuple[str, str]]) -> list[str]:
+        return self.mapper.map_phenotypes(phenotypes_with_context)
 
-        # Get NLP model for sentences
-        nlp = spacy.load("es_core_news_sm", disable=["ner", "parser", "attribute_ruler", "lemmatizer"])
-        nlp.add_pipe("sentencizer")
-        self.text_nlp = nlp
+    def scan(self, text: str, only_results=False) -> list:
+        symptoms_with_context = self.recognize(text)
+        hpo_codes = self.map(symptoms_with_context)
 
-    def recognize(self, text: str) -> list[str]:
-        # Define symptoms list
-        symptoms_list = []
+        if only_results:
+            return hpo_codes
 
-        # Get document using SpaCy to get the text sentences
-        doc = self.text_nlp(text)
-
-        # Iterate over document sentences
-        for sent in doc.sents:
-
-            # Check if sentences are empty
-            if not sent.text.strip():
-                continue
-
-            # Detect phenotypes
-            sentence_results = self.ner_model.detect_phenotypes(sent.text)
-
-            # Add elements at the end
-            symptoms_list.extend(sentence_results)
-
-        return symptoms_list
-
-    def map(self, phenotypes_list: list[str]) -> list[str]:
-        return self.mapper.map_phenotypes(phenotypes_list)
-
-    def scan(self, text: str, only_results=False) -> list[str]:
-        symptoms_list = self.recognize(text)
-        hpo_codes = self.map(symptoms_list)
-
-        return hpo_codes if only_results else [(symptom, hpo_code) for symptom, hpo_code in zip(symptoms_list, hpo_codes) if hpo_code != "None"]
+        return [(item[0], hpo_code) for item, hpo_code in zip(symptoms_with_context, hpo_codes) if hpo_code != "None"]

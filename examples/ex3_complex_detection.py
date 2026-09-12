@@ -6,7 +6,11 @@ if __name__ == "__main__":
         clinical_history = document.read()
 
     # Get phenotypes recognizer
-    recognizer = PhenotypesRecognizer(ontology="hpo")
+    recognizer = PhenotypesRecognizer(
+        ontology="hpo", text_parser="full-text", phenotypes_model_type="api",
+        ner_api_provider="openai", ner_api_model_name="gpt-4o-mini",
+        map_api_provider="anthropic", map_api_model_name="claude-opus-5",
+    )
 
     # Expected results:
     expected_results = {
@@ -32,9 +36,9 @@ if __name__ == "__main__":
     print("--------------------------------\n")
     print("Se obtuvo:")
 
-    results = recognizer.recognize(clinical_history)
+    results = recognizer.scan(clinical_history)
 
-    for result in results:
-        print(f" - {result}")
+    for phenotype, code in results:
+        print(f" - {code} : {phenotype}")
 
     print("--------------------------------")

@@ -1,0 +1,27 @@
+HISTORIA CLÍNICA DE INGRESO
+
+Datos de Identificación: Paciente varón, 19 años.
+Motivo de Consulta: Dificultad para articular palabras y movimientos anormales.
+
+Enfermedad Actual:
+Paciente de 19 años es traído a la guardia por sus familiares debido a un cuadro de deterioro neurológico progresivo de 6 meses de evolución. La familia nota que el paciente comenzó con movimientos oscilatorios rítmicos e involuntarios en las manos, presentes incluso cuando está relajado, los cuales el servicio de neurología documenta como un franco temblor de reposo. A esto se sumó, en las últimas semanas, una dificultad motora marcada para la fonación y articulación de las palabras, diagnosticada durante el examen neurológico como disartria.
+
+Antecedentes Personales Patológicos:
+
+    Diagnosticado en la adolescencia temprana con cuadros repetitivos de transaminasas elevadas de etiología no filiada.
+
+Examen Físico:
+
+    Signos vitales: Tensión Arterial 110/70 mmHg, Frecuencia Cardíaca 75 lpm, Temperatura 36.8°C.
+
+    Oftalmología: Se solicita interconsulta con oftalmología de urgencia. A la evaluación con lámpara de hendidura, se confirma la presencia bilateral de un anillo pigmentado de color pardo-verdoso en la periferia de la membrana de Descemet, diagnosticado como un anillo de Kayser-Fleischer.
+
+    Abdomen: Globoso, blando, no doloroso. A la palpación profunda se detecta el borde inferior del hígado a 4 cm por debajo del reborde costal derecho, confirmándose la presencia de hepatomegalia de consistencia firme.
+
+Estudios Complementarios:
+
+    Laboratorio: En el perfil bioquímico destaca una alteración severa del metabolismo del cobre. El dosaje de proteínas séricas evidencia una ceruloplasmina sérica disminuida (5 mg/dL, valor normal > 20).
+
+    Evolución: Ante la alteración concomitante del coagulograma (RIN 2.5) y el aumento desproporcionado de bilirrubina directa, el equipo de hepatología determina que el paciente está desarrollando una insuficiencia hepática aguda.
+
+Plan: Derivación inmediata a unidad de cuidados intensivos para estabilización hemodinámica y evaluación de inicio de terapia quelante.

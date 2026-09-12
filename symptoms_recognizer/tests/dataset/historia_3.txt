@@ -1,0 +1,22 @@
+HISTORIA CLÍNICA DE INGRESO
+
+Datos de Identificación: Paciente masculina, 24 años.
+Motivo de Consulta: Deposiciones líquidas prolongadas y pérdida de peso.
+
+Enfermedad Actual:
+Paciente de 24 años que asiste a consultorios externos de gastroenterología presentando un cuadro de 8 meses de evolución. Relata evacuaciones líquidas sin moco ni sangre, de 4 a 5 episodios diarios, constituyendo un cuadro clínico de diarrea crónica. El paciente asocia este cuadro a episodios de molestias tipo cólico en fosa ilíaca derecha, referidos como dolor abdominal severo recurrente tras la ingesta de alimentos. Refiere además astenia, hiporexia y constata una disminución de 12 kilogramos de peso desde el inicio de los síntomas, lo cual se registra como pérdida de peso patológica.
+
+Examen Físico:
+
+    Piel y faneras: En las caras extensoras de ambas extremidades inferiores se palpan múltiples nódulos subcutáneos, indurados, eritematosos y calientes, muy dolorosos al tacto, compatibles clínica y dermatológicamente con eritema nodoso.
+
+    Región perianal: A la inspección de la región perineal por el servicio de proctología, se identifica un orificio supurativo en la posición de horas 5 (según la esfera del reloj), con trayecto hacia el canal anal, confirmándose el diagnóstico de una fístula perianal.
+
+Estudios Complementarios:
+
+    Laboratorio completo: Destaca un volumen corpuscular medio (VCM) de 115 fL y niveles séricos de Vitamina B12 indetectables, configurando el diagnóstico hematológico de una anemia megaloblástica. PCR y Eritrosedimentación elevadas.
+
+    Endoscopia digestiva baja: La colonoscopia revela la presencia de úlceras aftoides profundas, longitudinales, intercaladas con mucosa sana (patrón en empedrado) que comprometen el íleon terminal y ciego. La biopsia escalonada confirma el diagnóstico etiológico de fondo: enfermedad de Crohn.
+
+Plan:
+Inicio de inducción con corticoterapia sistémica (budesonida) y derivación a cirugía general para resolución del trayecto fistuloso. Suplementación parenteral con Vitamina B12.

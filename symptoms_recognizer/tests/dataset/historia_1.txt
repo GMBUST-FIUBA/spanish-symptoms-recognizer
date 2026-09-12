@@ -1,0 +1,37 @@
+HISTORIA CLÍNICA DE INGRESO
+
+Datos de Identificación: Paciente femenina, 28 años.
+Motivo de Consulta: Sensación febril, artralgias generalizadas y lesiones dermatológicas.
+
+Enfermedad Actual:
+Paciente de 28 años de edad que ingresa al servicio de Clínica Médica por un cuadro de 3 semanas de evolución caracterizado por astenia profunda, mialgias y exacerbación de dolores articulares. La paciente refiere que el dolor afecta de manera bilateral las pequeñas articulaciones de ambas manos (metacarpofalángicas e interfalángicas proximales) y muñecas, asociando rigidez matinal de más de una hora. Tras la evaluación reumatológica inicial en la guardia, este cuadro articular se diagnostica formalmente como una poliartritis simétrica.
+Adicionalmente, relata que luego de una exposición solar prolongada el fin de semana pasado, desarrolló una erupción facial pruriginosa. Al interrogatorio dirigido sobre fenómenos vasomotores, menciona episodios frecuentes de palidez severa seguida de cianosis distal en los dedos de las manos, desencadenados por la exposición al frío ambiental, compatibles con y diagnosticados como un fenómeno de Raynaud severo.
+
+Antecedentes Personales Patológicos:
+
+    Diagnosticada hace 3 años en otra institución con lupus eritematoso sistémico, actualmente con baja adherencia al tratamiento inmunosupresor de base (hidroxicloroquina y corticoides).
+
+    Internación en marzo de 2024 por cuadro de dolor torácico de características pleuríticas. En dicho ingreso se le realizó un ecocardiograma transtorácico que confirmó el diagnóstico de una pericarditis aguda con derrame leve, la cual se encuentra actualmente resuelta.
+
+Examen Físico:
+
+    Signos vitales: Tensión Arterial 135/85 mmHg, Frecuencia Cardíaca 98 lpm, Frecuencia Respiratoria 18 rpm, Temperatura 38.2°C, Saturación O2 98% a aire ambiente.
+
+    Piel y faneras: Se evidencia a nivel facial un eritema fijo, plano, de bordes netos sobre las eminencias malares y el puente nasal que respeta estrictamente los surcos nasogenianos; el servicio de dermatología es interconsultado y documenta en su evolución la presencia de un eritema malar clásico. A la maniobra de tracción del cuero cabelludo (pull test positivo), presenta pérdida de cabello difusa que el especialista diagnostica como alopecia no cicatricial.
+
+    Cavidad oral: A la inspección de la mucosa yugal y el paladar duro, se constata la presencia de múltiples úlceras orales de fondo sucio y bordes eritematosos, indoloras a la palpación.
+
+    Cardiopulmonar: Ruidos cardíacos rítmicos, normofonéticos, sin soplos ni roces detectables en este ingreso. Murmullo vesicular conservado en ambos campos pulmonares.
+
+    Osteoarticular: Edema, calor y franco dolor a la palpación en las articulaciones previamente descritas, sin deformidades crónicas consolidadas.
+
+Estudios Complementarios:
+
+    Laboratorio inmunológico: Anticuerpos ANA positivos (patrón homogéneo, título 1/1280), anti-DNA de doble cadena francamente reactivos, y consumo de factores del complemento (C3 y C4 marcadamente disminuidos).
+
+    Laboratorio renal y orina de 24 horas: El análisis fisicoquímico de orina revela sedimento activo (cilindros hemáticos). El recuento de proteínas en orina de 24 horas arroja un valor de 1.8 g/24h; en base a estos estudios se determina que la paciente cursa con una proteinuria patológica.
+
+    Biopsia renal (realizada al segundo día de internación): El estudio histopatológico percutáneo informa proliferación endocapilar con abundantes depósitos inmunes subendoteliales (patrón "asa de alambre"). El servicio de anatomía patológica concluye de manera definitiva el diagnóstico de una nefritis lúpica proliferativa focal (Clase III).
+
+Impresión Diagnóstica y Plan:
+Paciente con reagudización grave de su enfermedad autoinmune de base, presentando compromiso cutáneo, articular y renal activo. Se indica pulso de metilprednisolona e inicio de terapia de inducción con micofenolato mofetilo.

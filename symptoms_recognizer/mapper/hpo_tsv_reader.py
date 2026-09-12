@@ -8,13 +8,12 @@ from transformers import AutoTokenizer, AutoModel
 
 # Embeddings generator
 ## Local path
-LOCAL_TOKENIZER_PATH = "semantic_model/clinlinker-kb-gp"
-LOCAL_MODEL_PATH = "semantic_model/clinlinker-kb-gp"
+LOCAL_TOKENIZER_PATH = "semantic_model/SapBERT-UMLS-2020AB-all-lang-from-XLMR"
+LOCAL_MODEL_PATH = "semantic_model/SapBERT-UMLS-2020AB-all-lang-from-XLMR"
 
 ## Files for token generation
 ORIGINAL_TSV_FILE = "hpo/hp-es.babelon.tsv"
-# AHORA GUARDAMOS EN UNA CARPETA, NO EN UN SOLO ARCHIVO
-OUTPUT_DIR = "hpo/hpo_batches"
+OUTPUT_DIR = "hpo/hpo_batches/SapBERT-UMLS-2020AB-all-lang-from-XLMR"
 
 ## Columns
 ORIGINAL_TSV_FILE_TRANSALTION_COLUMN = "translation_value"
@@ -23,17 +22,12 @@ ORIGINAL_TSV_FILE_HPO_CODE = "subject_id"
 BATCH_SIZE = 500
 
 def generate_tokens_file():
-    # Get GPU to use
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(LOCAL_TOKENIZER_PATH)
     model = AutoModel.from_pretrained(LOCAL_MODEL_PATH).to(device)
 
-    # Crear la carpeta si no existe
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # Open data file
     hpo_codes_tokens = {}
     batch_count = 0
 
@@ -45,10 +39,8 @@ def generate_tokens_file():
             start_time = time.time()
             
             for row in input_tsv_reader:
-                # Normalize text
                 clean_text = row[ORIGINAL_TSV_FILE_TRANSALTION_COLUMN].strip()
 
-                # Tokenize
                 tokenized_translation = tokenizer(
                     clean_text,
                     return_tensors="pt",
@@ -57,14 +49,15 @@ def generate_tokens_file():
                     max_length=512
                 ).to(device)
 
-                # Embbed
                 model_output = model(**tokenized_translation)
                 cls_embedding = model_output.last_hidden_state[0, 0, :]
-
                 sentence_embedding = F.normalize(cls_embedding.unsqueeze(0), p=2, dim=1).squeeze().cpu()
-
                 hpo_code = row[ORIGINAL_TSV_FILE_HPO_CODE]
-                hpo_codes_tokens[hpo_code] = sentence_embedding
+
+                hpo_codes_tokens[hpo_code] = {
+                    "vector": sentence_embedding,
+                    "name": clean_text
+                }
 
                 if len(hpo_codes_tokens) == BATCH_SIZE:
                     output_file_path = os.path.join(OUTPUT_DIR, f"hpo_batch_{batch_count}.pt")
