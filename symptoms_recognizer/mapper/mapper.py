@@ -6,6 +6,7 @@ from openai import OpenAI
 import anthropic
 
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 import glob
 import torch.nn.functional as F
 import os
@@ -107,7 +108,9 @@ class PhenotypeOntologyMapper:
         mapping_logs = [None] * total_phenotypes
         pending_calls = []
 
-        with ThreadPoolExecutor(max_workers=N_POOL_THREADS) as executor:
+        executor_ctx = ThreadPoolExecutor(max_workers=N_POOL_THREADS) if self.api_provider else nullcontext()
+
+        with executor_ctx as executor:
             for i in range(total_phenotypes):
                 phenotype_name = phenotypes_with_context[i][0]
                 context_sentence = phenotypes_with_context[i][1]
