@@ -5,6 +5,8 @@ from google import genai
 from openai import OpenAI
 import anthropic
 
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 import glob
 import torch.nn.functional as F
 import os
@@ -23,6 +25,7 @@ ACCEPTED_ONTOLOGIES_FILES = { HPO_ONTOLOGY_CODE : HPO_ABSOLUTE_INPUT_FILE_PATH }
 LOCAL_MODEL_RELATIVE_PATH = "semantic_model/clinlinker-kb-gp"
 DEFAULT_LOCAL_MODEL_PATH = os.path.join(CURRENT_DIR, LOCAL_MODEL_RELATIVE_PATH)
 MIN_DISTANCE_VECTORS = 0.5
+N_POOL_THREADS = 5
 
 class PhenotypeOntologyMapper:
     def __init__(self, model_path=None, tokenizer_path=None, ontology=None, ontology_file_path=None, 
@@ -102,35 +105,40 @@ class PhenotypeOntologyMapper:
                         heapq.heappushpop(heaps[i], (sim, code, name))
 
         mapped_phenotypes = ["None"] * total_phenotypes
-        
-        for i in range(total_phenotypes):
-            phenotype_name = phenotypes_with_context[i][0]
-            context_sentence = phenotypes_with_context[i][1]
+        mapping_logs = [None] * total_phenotypes
+        pending_calls = []
 
-            if not heaps[i]: 
-                self.last_mapping_logs.append({
-                    "phenotype": phenotype_name,
-                    "context": context_sentence,
-                    "candidates_text": "Ninguno (No superaron umbral de similitud vectorial)",
-                    "reasoning": "N/A",
-                    "final_code": "None"
-                })
-                continue
-                
-            sorted_candidates = sorted(heaps[i], key=lambda x: x[0], reverse=True)
+        executor_ctx = ThreadPoolExecutor(max_workers=N_POOL_THREADS) if self.api_provider else nullcontext()
 
-            if not self.api_provider:
-                mapped_phenotypes[i] = sorted_candidates[0][1]
-                continue
+        with executor_ctx as executor:
+            for i in range(total_phenotypes):
+                phenotype_name = phenotypes_with_context[i][0]
+                context_sentence = phenotypes_with_context[i][1]
 
-            candidates_text = ""
-            for rank, (sim, code, name) in enumerate(sorted_candidates):
-                candidates_text += f"{rank+1}. Código: {code} | Nombre: {name} | (Score vectorial: {sim:.2f})\n"
+                if not heaps[i]:
+                    mapping_logs[i] = {
+                        "phenotype": phenotype_name,
+                        "context": context_sentence,
+                        "candidates_text": "Ninguno (No superaron umbral de similitud vectorial)",
+                        "reasoning": "N/A",
+                        "final_code": "None"
+                    }
+                    continue
 
-            if self.prompt:
-                base_prompt = self.prompt
-            else:
-                base_prompt = f"""Eres un experto en codificación clínica HPO. 
+                sorted_candidates = sorted(heaps[i], key=lambda x: x[0], reverse=True)
+
+                if not self.api_provider:
+                    mapped_phenotypes[i] = sorted_candidates[0][1]
+                    continue
+
+                candidates_text = ""
+                for rank, (sim, code, name) in enumerate(sorted_candidates):
+                    candidates_text += f"{rank+1}. Código: {code} | Nombre: {name} | (Score vectorial: {sim:.2f})\n"
+
+                if self.prompt:
+                    base_prompt = self.prompt
+                else:
+                    base_prompt = f"""Eres un experto en codificación clínica HPO.
 Contexto clínico original del paciente (oración específica):
 "{context_sentence}"
 
@@ -148,16 +156,21 @@ INSTRUCCIONES OBLIGATORIAS:
 {{"hpo_code": "código_elegido_o_None"}}
 ```"""
 
-            hpo_code, full_reasoning = self._call_llm_rag(base_prompt)
-            mapped_phenotypes[i] = hpo_code
+                future = executor.submit(self._call_llm_rag, base_prompt)
+                pending_calls.append((i, future, phenotype_name, context_sentence, candidates_text))
 
-            self.last_mapping_logs.append({
-                "phenotype": phenotype_name,
-                "context": context_sentence,
-                "candidates_text": candidates_text,
-                "reasoning": full_reasoning,
-                "final_code": hpo_code
-            })
+            for i, future, phenotype_name, context_sentence, candidates_text in pending_calls:
+                hpo_code, full_reasoning = future.result()
+                mapped_phenotypes[i] = hpo_code
+                mapping_logs[i] = {
+                    "phenotype": phenotype_name,
+                    "context": context_sentence,
+                    "candidates_text": candidates_text,
+                    "reasoning": full_reasoning,
+                    "final_code": hpo_code
+                }
+
+        self.last_mapping_logs = [log for log in mapping_logs if log is not None]
 
         return mapped_phenotypes
 
