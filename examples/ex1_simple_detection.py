@@ -1,7 +1,10 @@
 from symptoms_recognizer.symptom_recognizer import PhenotypesRecognizer
 
 if __name__ == "__main__":
-    recognizer = PhenotypesRecognizer(ontology="hpo")
+    recognizer = PhenotypesRecognizer(
+        ontology="hpo", phenotypes_model_type="api",
+        ner_api_provider="openai", ner_api_model_name="gpt-4o-mini",
+    )
     text = "El paciente tiene mareos."
     expected_results = ["mareos"]
 
